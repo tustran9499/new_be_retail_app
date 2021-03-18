@@ -13,4 +13,8 @@ export class AccountsService {
     findAll(): Promise<Account[]> {
         return this.accountsRepository.find();
     }
+
+    async findOne(username: string): Promise<Account | undefined> {
+        return this.accountsRepository.findOne({ UserName: username });
+    }
 }
