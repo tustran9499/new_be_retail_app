@@ -30,39 +30,39 @@ export class Account {
     Password: string;
 
     /*Comment this because it take too long to get data*/
-    // @Column()
-    // Birthday: string;
+    @Column()
+    Birthday: string;
 
-    // @Column()
-    // HireDate: string;
+    @Column()
+    HireDate: string;
 
-    // @Column()
-    // Homephone: string;
+    @Column()
+    Homephone: string;
     
-    // @Column()
-    // Extension: string;
+    @Column()
+    Extension: string;
 
-    // @Column()
-    // PhotoURL: string;
+    @Column()
+    PhotoURL: string;
 
-    // @Column()
-    // Notes: string;
+    @Column()
+    Notes: string;
 
-    // @Column()
-    // Type: string;
+    @Column()
+    Type: string;
 
-    // @Column()
-    // Country: string;
+    @Column()
+    Country: string;
 
-    // @Column()
-    // PostalCode: string;
+    @Column()
+    PostalCode: string;
 
-    // @Column()
-    // Region: string;
+    @Column()
+    Region: string;
 
-    // @Column()
-    // City: string;
+    @Column()
+    City: string;
 
-    // @Column()
-    // Address: string;
+    @Column()
+    Address: string;
 }

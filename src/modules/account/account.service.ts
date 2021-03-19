@@ -16,65 +16,64 @@ export class AccountService {
     }
 
     /* get All */
-    // async getAccounts(
-    //     model: AccountFilterRequestDto,
-    // ): Promise<[Account[], number]> {
-    //     const {
-    //     pageNo,
-    //     pageSize,
-    //     searchBy,
-    //     searchKeyword,
-    //     } = model;
-    //     const order = {};
-    //     const filterCondition = {} as any;
-    //     const where = [];
-    //     let search = '';
+    async getAccounts(
+        model: AccountFilterRequestDto,
+    ): Promise<[Account[], number]> {
+        const {
+        pageNo,
+        pageSize,
+        searchBy,
+        searchKeyword,
+        } = model;
+        const order = {};
+        const filterCondition = {} as any;
+        const where = [];
+        let search = '';
 
-    //     if (model.orderBy) {
-    //     order[model.orderBy] = model.orderDirection;
-    //     } else {
-    //     (order as any).createdDate = 'DESC';
-    //     }
+        if (model.orderBy) {
+        order[model.orderBy] = model.orderDirection;
+        } else {
+        (order as any).createdDate = 'DESC';
+        }
 
-    //     if (searchBy && searchKeyword) {
-    //     filterCondition[searchBy] = Raw(
-    //         alias => `LOWER(${alias}) like '%${searchKeyword.toLowerCase()}%'`,
-    //     );
-    //     }
+        if (searchBy && searchKeyword) {
+        filterCondition[searchBy] = Raw(
+            alias => `LOWER(${alias}) like '%${searchKeyword.toLowerCase()}%'`,
+        );
+        }
 
-    //     where.push({ ...filterCondition });
-    //     const options: FindManyOptions<Account> = {
-    //     select: [
-    //         'Id',
-    //         'FName',
-    //         'LName',
-    //         'Email',
-    //         'Title',
-    //         'TitleOfCourtesy',
-    //         'ReportsTo',
-    //         'UserName',
-    //         'Birthday',
-    //         'HireDate',
-    //         'Homephone',
-    //         'Extension',
-    //         'PhotoURL',
-    //         'Notes',
-    //         'Type',
-    //         'Country',
-    //         'PostalCode',
-    //         'Region',
-    //         'City',
-    //         'Address',
-    //     ],
-    //     where: search,
-    //     skip,
-    //     take,
-    //     };
+        where.push({ ...filterCondition });
+        const options: FindManyOptions<Account> = {
+        select: [
+            'Id',
+            'FName',
+            'LName',
+            'Email',
+            'Title',
+            'TitleOfCourtesy',
+            'ReportsTo',
+            'UserName',
+            'Birthday',
+            'HireDate',
+            'Homephone',
+            'Extension',
+            'PhotoURL',
+            'Notes',
+            'Type',
+            'Country',
+            'PostalCode',
+            'Region',
+            'City',
+            'Address',
+        ],
+        where: where ,
+        skip: pageNo,
+        take: pageSize,
+        };
 
-    //     const [account, number] = await this.accountRepository.findAndCount(
-    //     options,
-    //     );
-    //     const modifiedAccounts = account.map(o => new Account(o));
-    //     return [modifiedAccounts, number];
-    // }
+        const [accounts, number] = await this.accountRepository.findAndCount(
+        options,
+        );
+        return [accounts, number];
+    }
 }

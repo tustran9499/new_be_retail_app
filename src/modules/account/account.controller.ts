@@ -10,9 +10,8 @@ import { GetRequest } from './dto/GetRequest.dto';
 export class AccountController {
     constructor(private accountService: AccountService) { }
     @Get()
-    @ApiOkResponse({ description: RESPONSE_EXPLAINATION.TEST})
+    @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT})
     getCustomers(@Query() model: GetRequest): Promise<any> {
-    //return this.accountService.getCustomers(model);
-        return this.accountService.findAll();
+    return this.accountService.getAccounts(model);
   }
 }

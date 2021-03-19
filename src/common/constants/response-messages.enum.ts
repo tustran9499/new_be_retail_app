@@ -10,7 +10,7 @@ export enum RESPONSE_MESSAGES {
 }
 
 export enum RESPONSE_EXPLAINATION {
-  TEST =  'Test Description',
+  GET_ACCOUNT =  'The first return are accounts, the second is total accounts - Pagination done - Sort have not finished',
 };
 
 export enum RESPONSE_MESSAGES_CODE {
