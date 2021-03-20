@@ -1,4 +1,4 @@
-import { Controller, Request, Post, Get, UseGuards } from '@nestjs/common';
+import { Controller, Request, Post, Get, UseGuards, SetMetadata } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
 import { LocalAuthGuard } from './auth/local-auth.guard';
@@ -11,6 +11,8 @@ import { Reflector } from '@nestjs/core';
 export class AppController {
   constructor(private readonly appService: AppService, private authService: AuthService) { }
 
+  @SetMetadata('roles', ['admin'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get()
   getHello(): string {
     return this.appService.getHello();
@@ -22,7 +24,8 @@ export class AppController {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(JwtAuthGuard, new RolesGuard())
+  @SetMetadata('roles', ['StoreManager'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
