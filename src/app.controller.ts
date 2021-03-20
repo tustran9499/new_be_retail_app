@@ -6,6 +6,7 @@ import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { Reflector } from '@nestjs/core';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
@@ -18,6 +19,7 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @ApiTags('Auth')
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   async login(@Request() req) {
