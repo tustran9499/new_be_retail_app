@@ -25,4 +25,7 @@ export class Account {
 
     @Column()
     Password: string;
+
+    @Column()
+    Type: string;
 }
