@@ -6,9 +6,10 @@ import { AccountsModule } from './modules/account/accounts.module';
 
 import { Connection } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), AccountsModule, AuthModule],
+  imports: [ConfigModule.forRoot(), TypeOrmModule.forRoot(), AccountsModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
