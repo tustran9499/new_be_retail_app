@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query, SetMetadata, UseGuards, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query, SetMetadata, UseGuards, Post, Body, Put } from '@nestjs/common';
 import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -7,6 +7,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Reflector } from '@nestjs/core';
 import { CreateProductDto } from 'src/dto/product/CreateProduct.dto';
+import { UpdateProductDto } from 'src/dto/product/UpdateProduct.dto.';
 
 @ApiTags('Product')
 @Controller('products')
@@ -37,10 +38,17 @@ export class ProductsController {
     }
 
     @Post()
-    async createAccount(
+    async createProduct(
         @Body() model: CreateProductDto,
     ): Promise<Product> {
         return this.ProductsService.createProduct(model);
+    }
+
+    @Put('/:id')
+    async updateProduct(@Param('id', ParseIntPipe) id: number,
+        @Body() model: UpdateProductDto,
+    ): Promise<Product> {
+        return this.ProductsService.updateProduct(id, model);
     }
 
     @SetMetadata('roles', ['StoreManager'])
