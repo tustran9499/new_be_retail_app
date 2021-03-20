@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity('Account')
 export class Account {
@@ -24,12 +24,11 @@ export class Account {
     ReportsTo: number;
 
     @Column()
-    UserName: string;
+    Username: string;
 
     @Column()
     Password: string;
 
-    /*Comment this because it take too long to get data*/
     @Column()
     Birthday: string;
 
@@ -65,4 +64,7 @@ export class Account {
 
     @Column()
     Address: string;
+
+    @DeleteDateColumn()
+    DeletedAt?: Date;
 }

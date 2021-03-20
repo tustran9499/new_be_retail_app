@@ -12,13 +12,13 @@ export class PaginationRequest {
   @Type(() => Number)
   @IsInt()
   @Min(0)
-  pageNo: number;
+  skip: number;
 
   @ApiProperty()
   @Type(() => Number)
   @IsPositive()
   @IsInt()
-  pageSize: number;
+  take: number;
 
   @ApiProperty({
     required: false,
