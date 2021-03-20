@@ -6,22 +6,26 @@ import { CreateAccountDto } from 'src/dto/account/CreateAccount.dto';
 import { UpdateAccountDto } from 'src/dto/account/UpdateAccount.dto.';
 import { Connection, FindManyOptions, Raw, Repository } from 'typeorm';
 import { Account } from '../../entities/account/account.entity';
-import { AccountFilterRequestDto } from './dto/filter-request.dto';
+import { AccountsFilterRequestDto } from './dto/filter-request.dto';
 
 @Injectable()
-export class AccountService {
+export class AccountsService  {
     constructor(
         @InjectRepository(Account)
-        private accountRepository: Repository<Account>,
+        private accountsRepository: Repository<Account>,
         private connection: Connection,
     ) { }
 
     findAll(): Promise<Account[]> {
-        return this.accountRepository.find();
+        return this.accountsRepository.find();
+    }
+
+    async findOne(username: string): Promise<Account | undefined> {
+      return this.accountsRepository.findOne({ Username: username });
     }
 
     async getAccounts(
-        model: AccountFilterRequestDto,
+        model: AccountsFilterRequestDto,
     ): Promise<[Account[], number]> {
         const {
         skip,
@@ -75,14 +79,14 @@ export class AccountService {
         take: take,
         };
 
-        const [accounts, number] = await this.accountRepository.findAndCount(
+        const [Accounts, number] = await this.accountsRepository.findAndCount(
         options,
         );
-        return [accounts, number];
+        return [Accounts, number];
     }
 
     async getAccountDetail(id: number): Promise<Account> {
-        const account = await this.accountRepository.findOne( id );
+        const account = await this.accountsRepository.findOne( id );
     
         if (!account) {
           customThrowError(
@@ -118,7 +122,7 @@ export class AccountService {
           account.Region = model.region;
           account.City = model.city;
           account.Address = model.address;
-          const result = await this.accountRepository.save(account);
+          const result = await this.accountsRepository.save(account);
           return result;
         } catch (error) {
           customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
@@ -128,7 +132,7 @@ export class AccountService {
     async createAccount(
         model: CreateAccountDto,
       ): Promise<any> {
-        const existed_email_account = await this.accountRepository.findOne({
+        const existed_email_account = await this.accountsRepository.findOne({
           Email: model.email.toLowerCase(),
         });
         console.log(existed_email_account);
@@ -141,7 +145,7 @@ export class AccountService {
           return;
         }
 
-        const existed_username_account = await this.accountRepository.findOne({
+        const existed_username_account = await this.accountsRepository.findOne({
           Username: model.username.toLowerCase(),
         });
     
@@ -161,18 +165,18 @@ export class AccountService {
         id: number,
         model: UpdateAccountDto,
     ): Promise<any> {
-        const account = await this.accountRepository.findOne(id);
+        const account = await this.accountsRepository.findOne(id);
         const keys = Object.keys(model);
         keys.forEach(key => {
             account[key] = model[key];
         });
     
-        await this.accountRepository.save(account);
+        await this.accountsRepository.save(account);
         return this.getAccountDetail(id);
     }
 
     async deleteAccount(id: number, currentAccountId: number): Promise<boolean> {
-        const account = await this.accountRepository.findOne(id);
+        const account = await this.accountsRepository.findOne(id);
     
         if (!account){
             customThrowError(
@@ -192,7 +196,7 @@ export class AccountService {
           return;
         }
     
-        await this.accountRepository.softDelete(id);
+        await this.accountsRepository.softDelete(id);
         return true;
       }
 }

@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationRequest } from 'src/common/dto/pagination.dto';
 
-export class AccountFilterRequestDto extends PaginationRequest {
+export class AccountsFilterRequestDto extends PaginationRequest {
   @ApiPropertyOptional()
   searchBy?: string;
 
