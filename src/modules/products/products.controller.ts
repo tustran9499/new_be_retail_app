@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query, SetMetadata, UseGuards, Post, Body, Put } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query, SetMetadata, UseGuards, Post, Body, Put, Delete } from '@nestjs/common';
 import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -37,6 +37,23 @@ export class ProductsController {
         });
     }
 
+    @Get('/searchProducts')
+    async search(
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
+        @Query('key') key: string = "",
+    ): Promise<Pagination<Product>> {
+        limit = limit > 100 ? 100 : limit;
+        return this.ProductsService.searchProduct(key,
+            {
+                page,
+                limit,
+                route: 'http://localhost:4000/api/products/allProducts',
+            });
+    }
+
+    @SetMetadata('roles', ['StoreManager'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post()
     async createProduct(
         @Body() model: CreateProductDto,
@@ -44,6 +61,8 @@ export class ProductsController {
         return this.ProductsService.createProduct(model);
     }
 
+    @SetMetadata('roles', ['StoreManager'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Put('/:id')
     async updateProduct(@Param('id', ParseIntPipe) id: number,
         @Body() model: UpdateProductDto,
@@ -57,5 +76,13 @@ export class ProductsController {
     @ApiOkResponse()
     getProductById(@Param('id', ParseIntPipe) id: number): Promise<any> {
         return this.ProductsService.findOne(id);
+    }
+
+    @SetMetadata('roles', ['StoreManager'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Delete('/:id')
+    @ApiOkResponse()
+    deleteProduct(@Param('id', ParseIntPipe) id: number): Promise<any> {
+        return this.ProductsService.deleteProduct(id);
     }
 }
