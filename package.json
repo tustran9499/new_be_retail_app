@@ -30,6 +30,7 @@
     "@nestjs/typeorm": "^7.1.5",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "guid-typescript": "^1.0.9",
     "mssql": "^6.3.1",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
