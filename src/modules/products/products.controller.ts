@@ -37,6 +37,8 @@ export class ProductsController {
         });
     }
 
+    @SetMetadata('roles', ['StoreManager'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/searchProducts')
     async search(
         @Query('page', ParseIntPipe) page: number = 1,
