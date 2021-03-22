@@ -170,8 +170,10 @@ export class AccountsService  {
         keys.forEach(key => {
             account[key] = model[key];
         });
+
+        const accountWithId = {Id: id, ...account};
     
-        await this.accountsRepository.save(account);
+        await this.accountsRepository.save(accountWithId);
         return this.getAccountDetail(id);
     }
 
