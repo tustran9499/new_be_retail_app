@@ -8,11 +8,16 @@ export enum RESPONSE_MESSAGES {
   EMAIL_SEND_FAIL = 'Mail send fail, please try again later',
   NOT_FOUND = 'Not found',
   SELF_DELETE = 'Cannot delete yourself',
+  DELETED_ACCOUNT = "Account has been deleted",
+  EMAIL_NOT_VERIFY = "Email has not been verified"
 }
 
 export enum RESPONSE_EXPLAINATION {
   GET_ACCOUNT =  'The first return are Account, the second is total Account - Pagination done - Sort have not finished',
 };
+
+
+
 
 export enum RESPONSE_MESSAGES_CODE {
   LOGIN_FAIL = 'LOGIN_FAIL',
@@ -24,4 +29,6 @@ export enum RESPONSE_MESSAGES_CODE {
   EMAIL_SEND_FAIL = 'EMAIL_SEND_FAIL',
   NOT_FOUND = 'NOT_FOUND',
   SELF_DELETE = 'SELF_DELETE',
+  DELETED_ACCOUNT = "DELETED_ACCOUNT",
+  EMAIL_NOT_VERIFY = "EMAIL_NOT_VERIFY"
 }

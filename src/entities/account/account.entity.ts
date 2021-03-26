@@ -65,6 +65,9 @@ export class Account {
     @Column()
     Address: string;
 
+    @Column()
+    EmailVerified: boolean;
+
     @DeleteDateColumn()
     DeletedAt?: Date;
 }

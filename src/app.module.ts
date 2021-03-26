@@ -7,6 +7,7 @@ import { Connection } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { ConfigModule } from '@nestjs/config';
+import { PasswordHelper } from '../src/common/helper/password.helper';
 
 @Module({
   imports: [ConfigModule.forRoot(),
@@ -37,7 +38,7 @@ import { ConfigModule } from '@nestjs/config';
     "cli": {
       "migrationsDir": "src/database/migrations"
     }
-  }), AccountsModule, AuthModule, ProductsModule],
+  }), AccountsModule, AuthModule, ProductsModule,],
   controllers: [AppController],
   providers: [AppService],
 })
