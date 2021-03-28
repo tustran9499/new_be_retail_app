@@ -37,7 +37,7 @@ export class Account {
 
     @Column()
     Homephone: string;
-    
+
     @Column()
     Extension: string;
 
@@ -65,9 +65,9 @@ export class Account {
     @Column()
     Address: string;
 
-    @Column()
-    EmailVerified: boolean;
+    // @Column()
+    // EmailVerified: boolean;
 
-    @DeleteDateColumn()
-    DeletedAt?: Date;
+    // @DeleteDateColumn()
+    // DeletedAt?: Date;
 }

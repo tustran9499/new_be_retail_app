@@ -1,4 +1,4 @@
-import { Body, Delete, Post, Put, Query, Req, SetMetadata } from '@nestjs/common';
+import { Body, Delete, Post, Put, Query, Req, SetMetadata, UseGuards } from '@nestjs/common';
 import { ParseIntPipe } from '@nestjs/common';
 import { Param } from '@nestjs/common';
 import { Controller, Get } from '@nestjs/common';
@@ -15,7 +15,7 @@ import { GetRequest } from './dto/GetRequest.dto';
 @ApiTags('Account')
 @Controller('accounts')
 export class AccountsController {
-  constructor(private accountsService: AccountsService) {}
+  constructor(private accountsService: AccountsService) { }
   @Get()
   @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
   getCustomers(@Query() model: GetRequest): Promise<any> {
@@ -50,7 +50,7 @@ export class AccountsController {
   }
 
   @Post('login')
-  @SetMetadata(METADATA.IS_PUBLIC, true)
+  // @SetMetadata(METADATA.IS_PUBLIC, true)
   login(@Body() model: LoginAccountDto): Promise<LoginResponseDto> {
     return this.accountsService.login(model);
   }

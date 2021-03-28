@@ -17,6 +17,7 @@ import { UpdateAccountDto } from 'src/dto/account/UpdateAccount.dto.';
 import { Connection, FindManyOptions, Raw, Repository } from 'typeorm';
 import { Account } from '../../entities/account/account.entity';
 import { AccountsFilterRequestDto } from './dto/filter-request.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AccountsService {
@@ -24,8 +25,9 @@ export class AccountsService {
     @InjectRepository(Account)
     private accountsRepository: Repository<Account>,
     private passwordHelper: PasswordHelper,
+    private jwtService: JwtService
   ) //private authService: AuthService,
-  {}
+  { }
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
@@ -202,9 +204,9 @@ export class AccountsService {
   }
 
   private async _checkPassword(plain, hash) {
-    const matched = await this.passwordHelper.checkHash(plain, hash);
+    // const matched = await this.passwordHelper.checkHash(plain, hash);
 
-    if (!matched) {
+    if (plain != hash) {
       customThrowError(
         RESPONSE_MESSAGES.LOGIN_FAIL,
         HttpStatus.UNAUTHORIZED,
@@ -215,7 +217,8 @@ export class AccountsService {
   }
 
   async login(model: LoginAccountDto): Promise<LoginResponseDto> {
-    const account = await this.accountsRepository.findOne(model.email);
+    const account = await this.accountsRepository.findOne({ where: { Email: model.email } });
+    console.log(!account);
     if (!account) {
       customThrowError(
         RESPONSE_MESSAGES.LOGIN_FAIL,
@@ -224,7 +227,7 @@ export class AccountsService {
       );
     }
 
-    // if (account.deletedAt) {
+    // if (account.DeletedAt) {
     //   customThrowError(
     //     RESPONSE_MESSAGES.DELETED_ACCOUNT,
     //     HttpStatus.NOT_FOUND,
@@ -239,17 +242,18 @@ export class AccountsService {
     //     RESPONSE_MESSAGES_CODE.EMAIL_NOT_VERIFY,
     //   );
     // }
-    // await this._checkPassword(model.password, account.Password);
 
-    // const token = this.tokenHelper.createToken({
-    //   id: account.Id,
-    //   email: account.Email,
-    //   type: TOKEN_TYPE.USER_LOGIN,
-    //   role: TOKEN_ROLE.USER,
-    // });
+    await this._checkPassword(model.password, account.Password);
+    const payload = {
+      id: account.Id,
+      email: account.Email,
+      type: TOKEN_TYPE.USER_LOGIN,
+      role: TOKEN_ROLE.USER,
+    }
+    const token = this.jwtService.sign(payload);
 
     const result: LoginResponseDto = new LoginResponseDto({
-      token: 'd',
+      token: token,
       ...account,
     });
     return result;
