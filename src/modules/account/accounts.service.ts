@@ -1,6 +1,10 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RESPONSE_MESSAGES, RESPONSE_MESSAGES_CODE } from 'src/common/constants/response-messages.enum';
+import { AuthService } from 'src/auth/auth.service';
+import {
+  RESPONSE_MESSAGES,
+  RESPONSE_MESSAGES_CODE,
+} from 'src/common/constants/response-messages.enum';
 import { TOKEN_ROLE } from 'src/common/constants/token-role.enum';
 import { TOKEN_TYPE } from 'src/common/constants/token-types.enum';
 import { PasswordHelper } from 'src/common/helper/password.helper';
@@ -20,9 +24,8 @@ export class AccountsService {
     @InjectRepository(Account)
     private accountsRepository: Repository<Account>,
     private passwordHelper: PasswordHelper,
-    private tokenHelper: TokenHelper,
-    private connection: Connection,
-  ) { }
+  ) //private authService: AuthService,
+  {}
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
@@ -35,12 +38,7 @@ export class AccountsService {
   async getAccounts(
     model: AccountsFilterRequestDto,
   ): Promise<[Account[], number]> {
-    const {
-      skip,
-      take,
-      searchBy,
-      searchKeyword,
-    } = model;
+    const { skip, take, searchBy, searchKeyword } = model;
     const order = {};
     const filterCondition = {} as any;
     const where = [];
@@ -95,7 +93,7 @@ export class AccountsService {
 
   async getAccountDetail(id: number): Promise<Account> {
     const account = await this.accountsRepository.findOne(id);
-    
+
     if (!account) {
       customThrowError(
         RESPONSE_MESSAGES.NOT_FOUND,
@@ -137,9 +135,7 @@ export class AccountsService {
     }
   }
 
-  async createAccount(
-    model: CreateAccountDto,
-  ): Promise<any> {
+  async createAccount(model: CreateAccountDto): Promise<any> {
     const existed_email_account = await this.accountsRepository.findOne({
       Email: model.email.toLowerCase(),
     });
@@ -156,7 +152,7 @@ export class AccountsService {
     const existed_username_account = await this.accountsRepository.findOne({
       Username: model.username.toLowerCase(),
     });
-    
+
     if (existed_username_account) {
       customThrowError(
         RESPONSE_MESSAGES.USERNAME_EXIST,
@@ -165,33 +161,30 @@ export class AccountsService {
       );
       return;
     }
-  
+
     await this._createAccount(model);
   }
 
-  async updateAccount(
-    id: number,
-    model: UpdateAccountDto,
-  ): Promise<any> {
+  async updateAccount(id: number, model: UpdateAccountDto): Promise<any> {
     const account = await this.accountsRepository.findOne(id);
     const keys = Object.keys(model);
     keys.forEach(key => {
       account[key] = model[key];
     });
-    
+
     await this.accountsRepository.save(account);
     return this.getAccountDetail(id);
   }
 
   async deleteAccount(id: number, currentAccountId: number): Promise<boolean> {
     const account = await this.accountsRepository.findOne(id);
-    
+
     if (!account) {
       customThrowError(
         RESPONSE_MESSAGES.NOT_FOUND,
         HttpStatus.BAD_REQUEST,
         RESPONSE_MESSAGES_CODE.NOT_FOUND,
-      )
+      );
       return;
     }
 
@@ -203,7 +196,7 @@ export class AccountsService {
       );
       return;
     }
-    
+
     await this.accountsRepository.softDelete(id);
     return true;
   }
@@ -239,23 +232,26 @@ export class AccountsService {
     //   );
     // }
 
-    if (!account.EmailVerified) {
-      customThrowError(
-        RESPONSE_MESSAGES.EMAIL_NOT_VERIFY,
-        HttpStatus.UNAUTHORIZED,
-        RESPONSE_MESSAGES_CODE.EMAIL_NOT_VERIFY,
-      );
-    }
-    await this._checkPassword(model.password, account.Password);
+    // if (!account.EmailVerified) {
+    //   customThrowError(
+    //     RESPONSE_MESSAGES.EMAIL_NOT_VERIFY,
+    //     HttpStatus.UNAUTHORIZED,
+    //     RESPONSE_MESSAGES_CODE.EMAIL_NOT_VERIFY,
+    //   );
+    // }
+    // await this._checkPassword(model.password, account.Password);
 
-    const token = this.tokenHelper.createToken({
-      id: account.Id,
-      email: account.Email,
-      type: TOKEN_TYPE.USER_LOGIN,
-      role: TOKEN_ROLE.USER,
+    // const token = this.tokenHelper.createToken({
+    //   id: account.Id,
+    //   email: account.Email,
+    //   type: TOKEN_TYPE.USER_LOGIN,
+    //   role: TOKEN_ROLE.USER,
+    // });
+
+    const result: LoginResponseDto = new LoginResponseDto({
+      token: 'd',
+      ...account,
     });
-
-    const result: LoginResponseDto = new LoginResponseDto({ token, ...account });
     return result;
   }
 }
