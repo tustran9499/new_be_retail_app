@@ -14,16 +14,16 @@ import { UpdateProductDto } from 'src/dto/product/UpdateProduct.dto.';
 export class ProductsController {
     constructor(private ProductsService: ProductsService) { }
 
-    @SetMetadata('roles', ['StoreManager'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    // @SetMetadata('roles', ['StoreManager'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get()
     @ApiOkResponse()
     getProducts(): Promise<any> {
         return this.ProductsService.findAll();
     }
 
-    @SetMetadata('roles', ['StoreManager'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    // @SetMetadata('roles', ['StoreManager'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/paginateProducts')
     async index(
         @Query('page', ParseIntPipe) page: number = 1,
@@ -37,8 +37,8 @@ export class ProductsController {
         });
     }
 
-    @SetMetadata('roles', ['StoreManager'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    // @SetMetadata('roles', ['StoreManager'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/searchProducts')
     async search(
         @Query('page', ParseIntPipe) page: number = 1,
@@ -54,8 +54,8 @@ export class ProductsController {
             });
     }
 
-    @SetMetadata('roles', ['StoreManager'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    // @SetMetadata('roles', ['StoreManager'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post()
     async createProduct(
         @Body() model: CreateProductDto,
@@ -63,8 +63,8 @@ export class ProductsController {
         return this.ProductsService.createProduct(model);
     }
 
-    @SetMetadata('roles', ['StoreManager'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    // @SetMetadata('roles', ['StoreManager'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Put('/:id')
     async updateProduct(@Param('id', ParseIntPipe) id: number,
         @Body() model: UpdateProductDto,
@@ -72,16 +72,16 @@ export class ProductsController {
         return this.ProductsService.updateProduct(id, model);
     }
 
-    @SetMetadata('roles', ['StoreManager'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    // @SetMetadata('roles', ['StoreManager'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/:id')
     @ApiOkResponse()
     getProductById(@Param('id', ParseIntPipe) id: number): Promise<any> {
         return this.ProductsService.findOne(id);
     }
 
-    @SetMetadata('roles', ['StoreManager'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    // @SetMetadata('roles', ['StoreManager'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Delete('/:id')
     @ApiOkResponse()
     deleteProduct(@Param('id', ParseIntPipe) id: number): Promise<any> {

@@ -67,7 +67,9 @@ export class ProductsService {
 
     async deleteProduct(id: number): Promise<Product> {
         try {
-            const result = await this.productsRepository.save({ Discontinues: true, Id: Number(id) });
+            let product = await this.productsRepository.findOne(id)
+            product.Discontinued = true;
+            const result = await this.productsRepository.save({ ...product, Id: Number(id) });
             return result;
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
