@@ -17,4 +17,4 @@ import { jwtConstants } from './constants';
   exports: [AccountsService],
   controllers: [AccountsController],
 })
-export class AccountsModule { }
+export class AccountsModule {}

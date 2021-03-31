@@ -25,9 +25,8 @@ export class AccountsService {
     @InjectRepository(Account)
     private accountsRepository: Repository<Account>,
     private passwordHelper: PasswordHelper,
-    private jwtService: JwtService
-  ) //private authService: AuthService,
-  { }
+    private jwtService: JwtService, //private authService: AuthService,
+  ) {}
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
@@ -217,7 +216,9 @@ export class AccountsService {
   }
 
   async login(model: LoginAccountDto): Promise<LoginResponseDto> {
-    const account = await this.accountsRepository.findOne({ where: { Email: model.email } });
+    const account = await this.accountsRepository.findOne({
+      where: { Email: model.email },
+    });
     console.log(!account);
     if (!account) {
       customThrowError(
@@ -249,7 +250,7 @@ export class AccountsService {
       email: account.Email,
       type: TOKEN_TYPE.USER_LOGIN,
       role: TOKEN_ROLE.USER,
-    }
+    };
     const token = this.jwtService.sign(payload);
 
     const result: LoginResponseDto = new LoginResponseDto({
@@ -257,5 +258,13 @@ export class AccountsService {
       ...account,
     });
     return result;
+  }
+
+  async getAccountRole(id: number): Promise<any> {
+    const account = await this.accountsRepository.findOne(id);
+    if (account) {
+      return account.Type;
+    }
+    return null;
   }
 }
