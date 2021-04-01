@@ -18,6 +18,10 @@ import { Connection, FindManyOptions, Raw, Repository } from 'typeorm';
 import { Account } from '../../entities/account/account.entity';
 import { AccountsFilterRequestDto } from './dto/filter-request.dto';
 import { JwtService } from '@nestjs/jwt';
+import { MailHelper } from 'src/common/helper/mail.helper';
+import { getNickname } from 'src/common/helper/utility.helper';
+import { ConfigService } from '@nestjs/config';
+import { TemplatesService } from 'src/common/modules/email-templates/template.service';
 
 @Injectable()
 export class AccountsService {
@@ -25,7 +29,7 @@ export class AccountsService {
     @InjectRepository(Account)
     private accountsRepository: Repository<Account>,
     private passwordHelper: PasswordHelper,
-    private jwtService: JwtService, //private authService: AuthService,
+    private jwtService: JwtService, //private readonly mailHelper: MailHelper, //private readonly tokenHelper: TokenHelper, //private authService: AuthService,
   ) {}
 
   findAll(): Promise<Account[]> {
@@ -130,17 +134,39 @@ export class AccountsService {
       account.City = model.city;
       account.Address = model.address;
       const result = await this.accountsRepository.save(account);
+      const tokenData = {
+        id: result.Id,
+        role: TOKEN_ROLE.ADMIN,
+        type: TOKEN_TYPE.VERIFY,
+      };
+      const mailHelper = new MailHelper(
+        new ConfigService(),
+        new TemplatesService(),
+      );
+      const tokenHelper = new TokenHelper(new ConfigService());
+      const verifyToken = tokenHelper.createToken(tokenData);
+      await mailHelper.sendWelcomeMail(
+        result.Email,
+        TOKEN_ROLE.ADMIN,
+        getNickname(result),
+      );
+      mailHelper.sendVerifyEmail(
+        result.Email,
+        verifyToken,
+        TOKEN_ROLE.ADMIN,
+        getNickname(result),
+      );
+      // mailHelper.sendTestEmail();
       return result;
     } catch (error) {
       customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
   }
 
-  async createAccount(model: CreateAccountDto): Promise<any> {
+  async createAccount(model: Record<string, any>): Promise<any> {
     const existed_email_account = await this.accountsRepository.findOne({
       Email: model.email.toLowerCase(),
     });
-    console.log(existed_email_account);
     if (existed_email_account) {
       customThrowError(
         RESPONSE_MESSAGES.EMAIL_EXIST,
@@ -149,21 +175,26 @@ export class AccountsService {
       );
       return;
     }
+    await this._createAccount(model);
+  }
 
-    const existed_username_account = await this.accountsRepository.findOne({
-      Username: model.username.toLowerCase(),
-    });
+  private async _changeVerifyStatus(
+    id: number,
+    isEmailVerified: boolean,
+  ): Promise<boolean> {
+    const user = await this.accountsRepository.findOne(id);
 
-    if (existed_username_account) {
+    if (!user) {
       customThrowError(
-        RESPONSE_MESSAGES.USERNAME_EXIST,
-        HttpStatus.CONFLICT,
-        RESPONSE_MESSAGES_CODE.USERNAME_EXIST,
+        RESPONSE_MESSAGES.ACCOUNT_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        RESPONSE_MESSAGES_CODE.ACCOUNT_NOT_FOUND,
       );
-      return;
     }
 
-    await this._createAccount(model);
+    user.EmailVerified = isEmailVerified;
+    await this.accountsRepository.save(user);
+    return true;
   }
 
   async updateAccount(id: number, model: UpdateAccountDto): Promise<any> {

@@ -12,7 +12,7 @@ import {
 export class TokenHelper {
   secret = '';
   constructor(private readonly configService: ConfigService) {
-    this.secret = this.configService.get('TOKEN_SECRET');
+    this.secret = 'ahaha';
   }
 
   createToken(data: Record<string, unknown>): any {

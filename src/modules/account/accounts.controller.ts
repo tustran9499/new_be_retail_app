@@ -38,9 +38,10 @@ export class AccountsController {
   }
 
   @Post()
+  @SetMetadata(METADATA.IS_PUBLIC, true)
   async createAccount(
-    @Body() model: CreateAccountDto,
-    //@Body() model: Record<string, any>,
+    //@Body() model: CreateAccountDto,
+    @Body() model: Record<string, any>,
   ): Promise<Account> {
     return this.accountsService.createAccount(model);
   }
