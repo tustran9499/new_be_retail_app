@@ -30,7 +30,7 @@ export class AccountsService {
     private accountsRepository: Repository<Account>,
     private passwordHelper: PasswordHelper,
     private jwtService: JwtService, //private readonly mailHelper: MailHelper, //private readonly tokenHelper: TokenHelper, //private authService: AuthService,
-  ) {}
+  ) { }
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();

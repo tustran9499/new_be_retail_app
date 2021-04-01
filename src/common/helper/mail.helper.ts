@@ -16,7 +16,7 @@ const EMAIL_SUBJECT = {
   VERIFY_CHANGE_PASSWORD: 'Request to reset password',
   VERIFY_CHANGE_EMAIL: 'Request to change email',
   VERIFIED_EMAIL: 'Your account has been verified',
-  WELCOME_EMAIL: 'Welcome to Retail System'
+  WELCOME_EMAIL: 'Welcome to Retail System',
   PASSWORD_CHANGED: 'Password Changed!',
   TEST: 'Test email',
   FORGOT_PASSWORD: 'Forgot password mail',
