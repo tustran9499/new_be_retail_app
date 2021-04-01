@@ -21,7 +21,7 @@ const EMAIL_SUBJECT = {
   TEST: 'Test email',
   FORGOT_PASSWORD: 'Forgot password mail',
   EMAIL_WELCOME:
-    'Congratulation! Your TADA account have been register successfully',
+    'Congratulation! Your account have been register successfully',
   SET_PASSWORD: 'Set your own password',
 };
 
