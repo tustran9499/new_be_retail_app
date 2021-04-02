@@ -25,4 +25,7 @@ export class Product {
 
     @Column()
     Discontinued: boolean;
+
+    @Column({ nullable: true, default: null })
+    PhotoURL: string;
 }

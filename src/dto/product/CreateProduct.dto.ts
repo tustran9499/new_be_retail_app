@@ -30,4 +30,8 @@ export class CreateProductDto {
   @IsOptional()
   @ApiPropertyOptional()
   Discontinued: boolean;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  PhotoURL: string;
 }
