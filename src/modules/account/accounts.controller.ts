@@ -69,4 +69,10 @@ export class AccountsController {
   getAccountRole(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.accountsService.getAccountRole(id);
   }
+
+  @SetMetadata(METADATA.IS_PUBLIC, true)
+  @Get('verify-email/:token')
+  verifyEmail(@Param('token') token: string): Promise<boolean> {
+    return this.accountsService.verifyAccount(token);
+  }
 }

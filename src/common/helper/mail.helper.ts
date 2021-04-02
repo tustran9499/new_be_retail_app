@@ -16,12 +16,11 @@ const EMAIL_SUBJECT = {
   VERIFY_CHANGE_PASSWORD: 'Request to reset password',
   VERIFY_CHANGE_EMAIL: 'Request to change email',
   VERIFIED_EMAIL: 'Your account has been verified',
-  WELCOME_EMAIL: 'Welcome to Retail System'
+  WELCOME_EMAIL: 'Welcome to Retail System',
   PASSWORD_CHANGED: 'Password Changed!',
   TEST: 'Test email',
   FORGOT_PASSWORD: 'Forgot password mail',
-  EMAIL_WELCOME:
-    'Congratulation! Your account have been register successfully',
+  EMAIL_WELCOME: 'Congratulation! Your account have been register successfully',
   SET_PASSWORD: 'Set your own password',
 };
 
@@ -42,7 +41,7 @@ export class MailHelper {
     this.mailService.setApiKey(
       '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',
     );
-    this.from = 'ngan.le.bku@hcmut.edu.vn';
+    this.from = 'kngan30399@gmail.com';
     this.to = '';
     this.frontendHost = 'http://localhost:3000';
     this.MAIL_FOOTER = `http://localhost:4000/images/footer.jpg`;

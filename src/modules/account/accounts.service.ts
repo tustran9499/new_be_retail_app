@@ -84,6 +84,7 @@ export class AccountsService {
         'Region',
         'City',
         'Address',
+        'EmailVerified',
       ],
       where: where,
       skip: skip,
@@ -297,5 +298,17 @@ export class AccountsService {
       return account.Type;
     }
     return null;
+  }
+
+  async verifyAccount(token: string): Promise<any> {
+    const tokenHelper = new TokenHelper(new ConfigService());
+    const data = tokenHelper.verifyToken(token, TOKEN_TYPE.VERIFY);
+    const { role, id } = data;
+
+    await this.accountsRepository.update({ Id: id }, { EmailVerified: true });
+    const email = await this.accountsRepository.findOne(id, {
+      select: ['Id', 'Email'],
+    });
+    return email;
   }
 }
