@@ -37,3 +37,4 @@ ormconfig.json
 package-lock.json
 workspace.code-workspace
 .env
+files/*

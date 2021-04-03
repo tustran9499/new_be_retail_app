@@ -76,12 +76,12 @@ export class ProductsService {
         }
     }
 
-    async updateProductImg(id: number, ImagePath: String) {
+    async updateProductImg(id: number, ImagePath: string) {
         try {
-            // let product = await this.productsRepository.findOne(id)
-            // product.Discontinued = true;
-            // const result = await this.productsRepository.save({ ...product, Id: Number(id) });
-            // return result;
+            let product = await this.productsRepository.findOne(id)
+            product.PhotoURL = ImagePath;
+            const result = await this.productsRepository.save({ ...product, Id: Number(id) });
+            return result;
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
         }

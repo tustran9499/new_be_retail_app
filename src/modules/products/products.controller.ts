@@ -132,6 +132,7 @@ export class ProductsController {
             console.error(error);
         }
         const productdata = await this.ProductsService.findOne(id);
+        console.log(file.filename)
         this.ProductsService.updateProductImg(id, file.filename);
         const response = {
             originalname: file.originalname,
@@ -145,12 +146,12 @@ export class ProductsController {
         // return this.service.importServer(file)
     }
 
-    @Get(':imgpath')
+    @Get('/img/:imgpath')
     seeUploadedFile(@Param('imgpath') image, @Res() res) {
         return res.sendFile(image, { root: './files' });
     }
 
-    @Get('thumbnails/:imgpath')
+    @Get('/img/thumbnails/:imgpath')
     seeThumbFile(@Param('imgpath') image, @Res() res) {
         return res.sendFile(`thumbnails-${image}`, { root: './files' });
     }
