@@ -75,4 +75,15 @@ export class ProductsService {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
         }
     }
+
+    async updateProductImg(id: number, ImagePath: String) {
+        try {
+            // let product = await this.productsRepository.findOne(id)
+            // product.Discontinued = true;
+            // const result = await this.productsRepository.save({ ...product, Id: Number(id) });
+            // return result;
+        } catch (error) {
+            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+        }
+    }
 }

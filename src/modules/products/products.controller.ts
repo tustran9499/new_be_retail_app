@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query, SetMetadata, UseGuards, Post, Body, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query, SetMetadata, UseGuards, Post, Body, Put, Delete, UseInterceptors, Res, Request, UploadedFile } from '@nestjs/common';
 import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -8,6 +8,13 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { Reflector } from '@nestjs/core';
 import { CreateProductDto } from 'src/dto/product/CreateProduct.dto';
 import { UpdateProductDto } from 'src/dto/product/UpdateProduct.dto.';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { editFileName, csvFileFilter, imageFileFilter } from '../../common/helper/helper';
+const fs = require('fs');
+const { promisify } = require('util');
+const unlinkAsync = promisify(fs.unlink);
+const sharp = require('sharp');
 
 @ApiTags('Product')
 @Controller('products')
@@ -86,5 +93,65 @@ export class ProductsController {
     @ApiOkResponse()
     deleteProduct(@Param('id', ParseIntPipe) id: number): Promise<any> {
         return this.ProductsService.deleteProduct(id);
+    }
+
+    // @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Post('/avatar/:id')
+    @UseInterceptors(
+        // AmazonS3FileInterceptor('file', {
+        //   resizeMultiple: [
+        //     { suffix: 'sm', width: 200, height: 200 },
+        //     { suffix: 'md', width: 300, height: 300 },
+        //     { suffix: 'lg', width: 400, height: 400 },
+        //   ],
+        // }),
+        FileInterceptor('file', {
+            storage: diskStorage({
+                destination: './files',
+                filename: editFileName,
+            }),
+            fileFilter: imageFileFilter,
+        }),
+    )
+    async importUser(@Param('id', ParseIntPipe) id: number, @Request() req1, @UploadedFile() file) {
+        try {
+            sharp(req1.file.path)
+                .resize(50, 50)
+                .toFile(
+                    `./files/` + 'thumbnails-' + req1.file.filename,
+                    (err, resizeImage) => {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log(resizeImage);
+                        }
+                    },
+                );
+        } catch (error) {
+            console.error(error);
+        }
+        const productdata = await this.ProductsService.findOne(id);
+        this.ProductsService.updateProductImg(id, file.filename);
+        const response = {
+            originalname: file.originalname,
+            filename: file.filename,
+        };
+        if (productdata.PhotoURL !== null) {
+            unlinkAsync(`./files` + `/${productdata.PhotoURL}`);
+            unlinkAsync(`./files/` + 'thumbnails-' + `${productdata.PhotoURL}`);
+        }
+        return response;
+        // return this.service.importServer(file)
+    }
+
+    @Get(':imgpath')
+    seeUploadedFile(@Param('imgpath') image, @Res() res) {
+        return res.sendFile(image, { root: './files' });
+    }
+
+    @Get('thumbnails/:imgpath')
+    seeThumbFile(@Param('imgpath') image, @Res() res) {
+        return res.sendFile(`thumbnails-${image}`, { root: './files' });
     }
 }
