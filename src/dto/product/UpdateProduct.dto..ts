@@ -31,7 +31,7 @@ export class UpdateProductDto {
   @ApiPropertyOptional()
   Discontinued: boolean;
 
-  @IsOptional()
-  @ApiPropertyOptional()
-  PhotoURL: string;
+  // @IsOptional()
+  // @ApiPropertyOptional()
+  // PhotoURL: string;
 }
