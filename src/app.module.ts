@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { OrdersModule } from './modules/order/orders.module';
 import { ProductsModule } from './modules/products/products.module';
 import { ConfigModule } from '@nestjs/config';
+import { PasswordHelper } from '../src/common/helper/password.helper';
+//import { AuthService } from '../src/auth/auth.service';
 
 @Module({
   imports: [ConfigModule.forRoot(),

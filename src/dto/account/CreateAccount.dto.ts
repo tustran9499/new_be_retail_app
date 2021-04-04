@@ -3,8 +3,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class CreateAccountDto {
-  @ApiProperty()
-  @Transform(it => it.value.toLowerCase())
+  @IsOptional()
+  @ApiPropertyOptional()
   username: string;
 
   @IsEmail()
@@ -47,7 +47,7 @@ export class CreateAccountDto {
   @IsOptional()
   @ApiPropertyOptional()
   homephone?: string;
-  
+
   @IsOptional()
   @ApiPropertyOptional()
   extension?: string;
