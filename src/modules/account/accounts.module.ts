@@ -7,9 +7,10 @@ import { PasswordHelper } from '../../common/helper/password.helper';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
+import { File } from 'src/entities/file/file.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account]), JwtModule.register({
+  imports: [TypeOrmModule.forFeature([Account, File]), JwtModule.register({
     secret: jwtConstants.secret,
     signOptions: { expiresIn: '60s' },
   }),],
