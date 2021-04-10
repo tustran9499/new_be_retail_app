@@ -37,12 +37,12 @@ export class ProductsService {
     }
 
     async searchProduct(key: string, options: IPaginationOptions): Promise<Pagination<Product>> {
-        if (key) {
-            const queryBuilder = this.productsRepository.createQueryBuilder('products').where('products.ProductName Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
+        if (key && key != undefined && key !== null && key !== '') {
+            const queryBuilder = this.productsRepository.createQueryBuilder('products').where('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
             return paginate<Product>(queryBuilder, options);
         }
         else {
-            const queryBuilder = this.productsRepository.createQueryBuilder('products').orderBy('product.ProductName', 'ASC');
+            const queryBuilder = this.productsRepository.createQueryBuilder('products').orderBy('products.Id', 'ASC');
             return paginate<Product>(queryBuilder, options);
         }
     }
