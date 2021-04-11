@@ -10,6 +10,7 @@ import { ProductsModule } from './modules/products/products.module';
 import { ConfigModule } from '@nestjs/config';
 import { PasswordHelper } from '../src/common/helper/password.helper';
 //import { AuthService } from '../src/auth/auth.service';
+import { SessionsModule } from './modules/sessions/sessions.module';
 
 @Module({
   imports: [ConfigModule.forRoot(),
@@ -40,7 +41,7 @@ import { PasswordHelper } from '../src/common/helper/password.helper';
     "cli": {
       "migrationsDir": "src/database/migrations"
     }
-  }), AccountsModule, AuthModule, ProductsModule, OrdersModule],
+  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -21,16 +21,16 @@ const sharp = require('sharp');
 export class ProductsController {
     constructor(private ProductsService: ProductsService) { }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get()
     @ApiOkResponse()
     getProducts(): Promise<any> {
         return this.ProductsService.findAll();
     }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/paginateProducts')
     async index(
         @Query('page', ParseIntPipe) page: number = 1,
@@ -44,8 +44,8 @@ export class ProductsController {
         });
     }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/searchProducts')
     async search(
         @Query('page', ParseIntPipe) page: number = 1,
@@ -61,8 +61,8 @@ export class ProductsController {
             });
     }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post()
     async createProduct(
         @Body() model: CreateProductDto,
@@ -70,8 +70,8 @@ export class ProductsController {
         return this.ProductsService.createProduct(model);
     }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Put('/:id')
     async updateProduct(@Param('id', ParseIntPipe) id: number,
         @Body() model: UpdateProductDto,
@@ -79,24 +79,24 @@ export class ProductsController {
         return this.ProductsService.updateProduct(id, model);
     }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/:id')
     @ApiOkResponse()
     getProductById(@Param('id', ParseIntPipe) id: number): Promise<any> {
         return this.ProductsService.findOne(id);
     }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Delete('/:id')
     @ApiOkResponse()
     deleteProduct(@Param('id', ParseIntPipe) id: number): Promise<any> {
         return this.ProductsService.deleteProduct(id);
     }
 
-    // @SetMetadata('roles', ['admin', 'contact-point', 'dc-member', 'normal-user'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post('/avatar/:id')
     @UseInterceptors(
         // AmazonS3FileInterceptor('file', {
@@ -146,11 +146,15 @@ export class ProductsController {
         // return this.service.importServer(file)
     }
 
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/img/:imgpath')
     seeUploadedFile(@Param('imgpath') image, @Res() res) {
         return res.sendFile(image, { root: './files' });
     }
 
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/img/thumbnails/:imgpath')
     seeThumbFile(@Param('imgpath') image, @Res() res) {
         return res.sendFile(`thumbnails-${image}`, { root: './files' });

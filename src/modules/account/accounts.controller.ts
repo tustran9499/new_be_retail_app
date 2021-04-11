@@ -20,14 +20,19 @@ import { LoginResponseDto } from 'src/dto/account/LoginResponse.dto';
 import { UpdateAccountDto } from 'src/dto/account/UpdateAccount.dto.';
 import { AccountsService } from './accounts.service';
 import { GetRequest } from './dto/GetRequest.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Reflector } from '@nestjs/core';
 
 @ApiTags('Account')
 @Controller('accounts')
 export class AccountsController {
-  constructor(private accountsService: AccountsService) {}
+  constructor(private accountsService: AccountsService) { }
+
   @Get()
   @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
   getCustomers(@Query() model: GetRequest): Promise<any> {
+    console.log("debug");
     return this.accountsService.getAccounts(model);
   }
 
