@@ -40,6 +40,10 @@ export class AccountsService {
     return this.accountsRepository.findOne({ Username: username });
   }
 
+  async findOneById(id: number): Promise<Account | undefined> {
+    return this.accountsRepository.findOne({ Id: id });
+  }
+
   async getAccounts(
     model: AccountsFilterRequestDto,
   ): Promise<[Account[], number]> {

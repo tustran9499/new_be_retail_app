@@ -31,4 +31,13 @@ export class SessionsController {
         return this.SessionsService.endSession(SessionId, req.user.userId);
     }
 
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get()
+    async getCashierSession(
+        @Request() req
+    ): Promise<Session> {
+        return this.SessionsService.getCashierSession(req.user.userId);
+    }
+
 }

@@ -146,15 +146,12 @@ export class ProductsController {
         // return this.service.importServer(file)
     }
 
-    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+
     @Get('/img/:imgpath')
     seeUploadedFile(@Param('imgpath') image, @Res() res) {
         return res.sendFile(image, { root: './files' });
     }
 
-    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/img/thumbnails/:imgpath')
     seeThumbFile(@Param('imgpath') image, @Res() res) {
         return res.sendFile(`thumbnails-${image}`, { root: './files' });
