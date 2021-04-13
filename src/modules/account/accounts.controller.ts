@@ -14,7 +14,13 @@ import { ParseIntPipe } from '@nestjs/common';
 import { Param } from '@nestjs/common';
 import { Controller, Get } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ACCOUNT_ACTION } from 'src/common/constants/account/account.action';
 import { METADATA } from 'src/common/constants/metadata/metadata.constant';
 import { RESPONSE_EXPLAINATION } from 'src/common/constants/response-messages.enum';
@@ -32,7 +38,7 @@ import { Request } from 'express';
 @ApiTags('Account')
 @Controller('accounts')
 export class AccountsController {
-  constructor(private accountsService: AccountsService) { }
+  constructor(private accountsService: AccountsService) {}
   @Get()
   @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
   getCustomers(@Query() model: GetRequest): Promise<any> {
