@@ -1,6 +1,6 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, Not } from 'typeorm';
 import { Session } from 'src/entities/session/session.entity';
 import { CreateSessionDto } from 'src/dto/session/CreateSession.dto';
 import { customThrowError } from 'src/common/helper/throw.helper';
@@ -50,7 +50,7 @@ export class SessionsService {
             }
             else {
                 sessionResult = await this.sessionsRepository.findOne({
-                    where: { SaleclerkId: result.Id, End: IsNull() },
+                    where: { SaleclerkId: result.Id, Start: Not(IsNull()), End: IsNull() },
                 })
             }
             return { Salesclerk: result, Session: sessionResult }
