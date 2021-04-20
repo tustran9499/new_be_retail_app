@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Category } from "./category.entity";
 
 @Entity('Product')
 export class Product {
@@ -8,8 +9,14 @@ export class Product {
     @Column()
     ProductName: string;
 
-    @Column()
+    @Column({ name: 'CategoryId' })
     CategoryId: number;
+
+    @ManyToOne(() => Category, Category => Category.Products, {
+        onDelete: "CASCADE"
+    })
+    @JoinColumn({ name: "CategoryId", referencedColumnName: "Id" })
+    Category: Category;
 
     @Column()
     QuantityPerUnit: string;

@@ -33,16 +33,22 @@ export class ProductsService {
     }
 
     async paginate(options: IPaginationOptions): Promise<Pagination<Product>> {
+        console.log(paginate<Product>(this.productsRepository, options))
         return paginate<Product>(this.productsRepository, options);
     }
 
     async searchProduct(key: string, options: IPaginationOptions): Promise<Pagination<Product>> {
         if (key && key != undefined && key !== null && key !== '') {
-            const queryBuilder = this.productsRepository.createQueryBuilder('products').where('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
+            const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").where('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
+            const result = paginate<Product>(queryBuilder, options);
+            console.log("------------------------------------------")
+            console.log(result);
             return paginate<Product>(queryBuilder, options);
         }
         else {
-            const queryBuilder = this.productsRepository.createQueryBuilder('products').orderBy('products.Id', 'ASC');
+            const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").orderBy('products.Id', 'ASC');
+            console.log("------------------------------------------")
+            console.log(queryBuilder.getMany());
             return paginate<Product>(queryBuilder, options);
         }
     }
