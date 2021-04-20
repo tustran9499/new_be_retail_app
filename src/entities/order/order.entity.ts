@@ -10,14 +10,14 @@ export class Order {
     OrderDate: Date;
 
     @Column()
-    CustomerId: number;
+    CustomerId?: number;
 
     @Column()
     SaleClerkId: number;
 
     @Column()
     SessionId: string;
-    
+
     @DeleteDateColumn()
     DeletedAt?: Date;
 }

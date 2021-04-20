@@ -11,17 +11,18 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import {ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CreateOrderDto } from 'src/dto/order/CreateOrder.dto';
 import { UpdateOrderDto } from 'src/dto/order/UpdateOrder.dto.';
 import { Order } from 'src/entities/order/order.entity';
 import { GetRequest } from '../account/dto/GetRequest.dto';
 import { OrdersService } from './orders.service';
+import { CartProduct } from 'src/interfaces/cartproduct.interface';
 
 @ApiTags('Order')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Get(':id')
   async getOne(
@@ -38,10 +39,9 @@ export class OrdersController {
 
   @Post()
   async createOrder(
-    @Body() model: CreateOrderDto,
-    //@Body() model: Record<string, any>,
+    @Body() model: { order: CreateOrderDto, cartproducts: CartProduct[] }
   ): Promise<Order> {
-    return this.ordersService.createOrder(model);
+    return this.ordersService.createOrder(model.order, model.cartproducts);
   }
 
   @Put('/:id')
@@ -56,6 +56,6 @@ export class OrdersController {
   deleteOrder(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<boolean> {
-    return this.ordersService .deleteOrder(id, /*currentUserId*/ 1);
+    return this.ordersService.deleteOrder(id, /*currentUserId*/ 1);
   }
 }

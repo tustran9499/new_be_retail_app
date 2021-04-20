@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PasswordHelper } from '../src/common/helper/password.helper';
 //import { AuthService } from '../src/auth/auth.service';
 import { SessionsModule } from './modules/sessions/sessions.module';
+import { ProductorderModule } from './modules/productorder/productorder.module';
 
 @Module({
   imports: [ConfigModule.forRoot(),
