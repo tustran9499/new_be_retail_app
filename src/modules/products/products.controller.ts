@@ -61,7 +61,7 @@ export class ProductsController {
             });
     }
 
-    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @SetMetadata('roles', ['StoreManager'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post()
     async createProduct(
@@ -70,7 +70,7 @@ export class ProductsController {
         return this.ProductsService.createProduct(model);
     }
 
-    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @SetMetadata('roles', ['StoreManager'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Put('/:id')
     async updateProduct(@Param('id', ParseIntPipe) id: number,
@@ -87,7 +87,7 @@ export class ProductsController {
         return this.ProductsService.findOne(id);
     }
 
-    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @SetMetadata('roles', ['StoreManager'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Delete('/:id')
     @ApiOkResponse()
@@ -95,7 +95,7 @@ export class ProductsController {
         return this.ProductsService.deleteProduct(id);
     }
 
-    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @SetMetadata('roles', ['StoreManager'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post('/avatar/:id')
     @UseInterceptors(
