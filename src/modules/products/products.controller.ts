@@ -40,7 +40,7 @@ export class ProductsController {
         return this.ProductsService.paginate({
             page,
             limit,
-            route: 'http://localhost:4000/api/products/allProducts',
+            route: '/api/products/paginateProducts',
         });
     }
 
@@ -57,7 +57,7 @@ export class ProductsController {
             {
                 page,
                 limit,
-                route: 'http://localhost:4000/api/products/allProducts',
+                route: '/api/products/searchProducts',
             });
     }
 
