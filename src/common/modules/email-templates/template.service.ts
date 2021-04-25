@@ -18,8 +18,6 @@ export class TemplatesService {
     role?: TOKEN_ROLE,
   ): any {
     const pathDir = path.join(__dirname, '../../../templates');
-    console.log(pathDir);
-    console.log(`${pathDir}\\${template}`);
     if (!fs.existsSync(`${pathDir}\\${template}`)) {
       customThrowError('Resource not found!', HttpStatus.NOT_FOUND);
     }
