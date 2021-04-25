@@ -43,8 +43,8 @@ export class MailHelper {
     );
     this.from = 'kngan30399@gmail.com';
     this.to = '';
-    this.frontendHost = 'http://localhost:3000';
-    this.MAIL_FOOTER = `http://localhost:4000/images/footer.jpg`;
+    this.frontendHost = 'https://retailsystem.herokuapp.com/';
+    this.MAIL_FOOTER = `https://warehouse-retail.herokuapp.com/images/footer.jpg`;
   }
 
   sendVerifyEmail(
