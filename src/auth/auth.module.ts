@@ -8,7 +8,8 @@ import { JwtStrategy } from './jwt.strategy';
 import { AccountsModule } from 'src/modules/account/accounts.module';
 
 @Module({
-  imports: [AccountsModule,
+  imports: [
+    AccountsModule,
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
@@ -18,4 +19,4 @@ import { AccountsModule } from 'src/modules/account/accounts.module';
   providers: [AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

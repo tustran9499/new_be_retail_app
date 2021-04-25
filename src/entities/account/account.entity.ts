@@ -1,70 +1,78 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 
 @Entity('Account')
 export class Account {
-    @PrimaryGeneratedColumn()
-    Id: number;
+  @PrimaryGeneratedColumn()
+  Id: number;
 
-    @Column()
-    FName: string;
+  @Column()
+  FName: string;
 
-    @Column()
-    LName: string;
+  @Column()
+  LName: string;
 
-    @Column()
-    Email: string;
+  @Column()
+  Email: string;
 
-    @Column()
-    Title: string;
+  @Column()
+  Title: string;
 
-    @Column()
-    TitleOfCourtesy: string;
+  @Column()
+  TitleOfCourtesy: string;
 
-    @Column()
-    ReportsTo: number;
+  @Column()
+  ReportsTo: number;
 
-    @Column()
-    Username: string;
+  @Column()
+  Username: string;
 
-    @Column()
-    Password: string;
+  @Column()
+  Password: string;
 
-    @Column()
-    Birthday: string;
+  @Column()
+  Birthday: string;
 
-    @Column()
-    HireDate: string;
+  @Column()
+  HireDate: string;
 
-    @Column()
-    Homephone: string;
-    
-    @Column()
-    Extension: string;
+  @Column()
+  Homephone: string;
 
-    @Column()
-    PhotoURL: string;
+  @Column()
+  Extension: string;
 
-    @Column()
-    Notes: string;
+  @Column()
+  PhotoURL: string;
 
-    @Column()
-    Type: string;
+  @Column()
+  Notes: string;
 
-    @Column()
-    Country: string;
+  @Column()
+  Type: string;
 
-    @Column()
-    PostalCode: string;
+  @Column()
+  Country: string;
 
-    @Column()
-    Region: string;
+  @Column()
+  PostalCode: string;
 
-    @Column()
-    City: string;
+  @Column()
+  Region: string;
 
-    @Column()
-    Address: string;
+  @Column()
+  City: string;
 
-    @DeleteDateColumn()
-    DeletedAt?: Date;
+  @Column()
+  Address: string;
+
+  @Column()
+  EmailVerified: boolean;
+
+  @DeleteDateColumn()
+  DeletedAt?: Date;
 }

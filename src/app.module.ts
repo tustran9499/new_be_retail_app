@@ -8,40 +8,42 @@ import { AuthModule } from './auth/auth.module';
 import { OrdersModule } from './modules/order/orders.module';
 import { ProductsModule } from './modules/products/products.module';
 import { ConfigModule } from '@nestjs/config';
+import { PasswordHelper } from '../src/common/helper/password.helper';
+//import { AuthService } from '../src/auth/auth.service';
 
 @Module({
-  imports: [ConfigModule.forRoot(),
-  TypeOrmModule.forRoot({
-    "type": "mssql",
-    "host": "tunganthesis.mssql.somee.com",
-    "port": 1433,
-    "database": "tunganthesis",
-    "username": process.env.DB_USERNAME,
-    "password": process.env.DB_PASS,
-    "synchronize": false,
-    "logging": true,
-    "extra": {
-      "driver": "msnodesqlv8",
-      "options": {
-        "trustedConnection": true
-      }
-    },
-    "entities": [
-      "dist/**/*.entity.js"
-    ],
-    "migrations": [
-      "dist/database/migrations/*.js"
-    ],
-    "subscribers": [
-      "dist/database/subscriber/*.js"
-    ],
-    "cli": {
-      "migrationsDir": "src/database/migrations"
-    }
-  }), AccountsModule, AuthModule, ProductsModule, OrdersModule],
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: 'mssql',
+      host: 'tunganthesis.mssql.somee.com',
+      port: 1433,
+      database: 'tunganthesis',
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASS,
+      synchronize: false,
+      logging: true,
+      extra: {
+        driver: 'msnodesqlv8',
+        options: {
+          trustedConnection: true,
+        },
+      },
+      entities: ['dist/**/*.entity.js'],
+      migrations: ['dist/database/migrations/*.js'],
+      subscribers: ['dist/database/subscriber/*.js'],
+      cli: {
+        migrationsDir: 'src/database/migrations',
+      },
+    }),
+    AccountsModule,
+    AuthModule,
+    ProductsModule,
+    OrdersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private connection: Connection) { }
+  constructor(private connection: Connection) {}
 }
