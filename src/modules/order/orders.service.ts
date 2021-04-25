@@ -106,7 +106,7 @@ export class OrdersService {
 
   async createOrder(order: CreateOrderDto, cartproducts: CartProduct[]
   ): Promise<any> {
-    await this._createOrder(order, cartproducts);
+    return await this._createOrder(order, cartproducts);
   }
 
   async updateOrder(

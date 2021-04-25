@@ -71,6 +71,20 @@ export class ProductsService {
         }
     }
 
+    async decreaseProductQuantity(id: number, decrease: number): Promise<Product> {
+        try {
+            const item = await this.productsRepository.findOne(id);
+            var updateValue = 0;
+            if (item.UnitsInStock > decrease) {
+                updateValue = item.UnitsInStock - decrease;
+            }
+            const result = await this.productsRepository.save({ ...item, UnitsInStock: updateValue });
+            return result;
+        } catch (error) {
+            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+        }
+    }
+
     async deleteProduct(id: number): Promise<Product> {
         try {
             let product = await this.productsRepository.findOne(id)

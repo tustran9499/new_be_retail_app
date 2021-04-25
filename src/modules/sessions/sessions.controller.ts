@@ -40,4 +40,12 @@ export class SessionsController {
         return this.SessionsService.getCashierSession(req.user.userId);
     }
 
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get()
+    async getPastSessions(
+        @Request() req
+    ): Promise<Session> {
+        return this.SessionsService.getCashierSession(req.user.userId);
+    }
 }
