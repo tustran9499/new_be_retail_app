@@ -20,6 +20,11 @@ export class ProductsService {
         private productsRepository: Repository<Product>,
     ) { }
 
+    async getFullTimeSeriesSale(): Promise<any> {
+        const data = await this.productsRepository.query("GetTimeSeriesFullSale");
+        return data;
+    }
+
     findAll(): Promise<Product[]> {
         return this.productsRepository.find();
     }

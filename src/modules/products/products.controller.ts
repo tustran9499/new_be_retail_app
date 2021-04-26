@@ -21,6 +21,12 @@ const sharp = require('sharp');
 export class ProductsController {
     constructor(private ProductsService: ProductsService) { }
 
+    @Get('/fulltimeseries')
+    @ApiOkResponse()
+    getTimeSeriesSale(): Promise<any> {
+        return this.ProductsService.getFullTimeSeriesSale();
+    }
+
     @SetMetadata('roles', ['StoreManager', 'Salescleck'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get()
