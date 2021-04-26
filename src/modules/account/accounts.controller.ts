@@ -126,4 +126,17 @@ export class AccountsController {
       1,
     );
   }
+
+  @Post(':id/restore')
+  @SetMetadata(METADATA.ACTION, ACCOUNT_ACTION.RESTORE_ACCOUNT)
+  restoreAdmin(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
+    return this.accountsService.restoreAccount(id);
+  }
+
+  @Get('/deleted')
+  @ApiOkResponse()
+  getDeletedAdmins(@Query() model: GetRequest): Promise<any> {
+    return this.accountsService.getDeletedAccounts(model);
+  }
+
 }

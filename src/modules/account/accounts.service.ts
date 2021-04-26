@@ -355,4 +355,26 @@ export class AccountsService {
     });
     return true;
   }
+
+  async restoreAccount(id: number): Promise<boolean> {
+    await this.accountsRepository.restore(id);
+    return true;
+  }
+
+  async getDeletedAccounts(model: any): Promise<any> {
+    const { skip, take, searchBy, searchKeyword } = model;
+
+    let search = '';
+
+    if (searchBy && searchKeyword) {
+      search = `AND "${searchBy}" like '%${searchKeyword.toLowerCase()}%'`;
+    }
+    // return await this.accountsRepository.getDeletedAccounts({
+    //   take,
+    //   skip,
+    //   search,
+    // });
+    return true;
+  }
+
 }
