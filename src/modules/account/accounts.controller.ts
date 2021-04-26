@@ -45,6 +45,12 @@ export class AccountsController {
     return this.accountsService.getAccounts(model);
   }
 
+  @Get('/deleted')
+  @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
+  getDeleted(@Query() model: GetRequest): Promise<any> {
+    return this.accountsService.getDeletedAccounts(model);
+  }
+
   @Get('/:id')
   @ApiOkResponse()
   getAccountById(@Param('id', ParseIntPipe) id: number): Promise<any> {
@@ -132,11 +138,4 @@ export class AccountsController {
   restoreAdmin(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.accountsService.restoreAccount(id);
   }
-
-  @Get('/deleted')
-  @ApiOkResponse()
-  getDeletedAdmins(@Query() model: GetRequest): Promise<any> {
-    return this.accountsService.getDeletedAccounts(model);
-  }
-
 }
