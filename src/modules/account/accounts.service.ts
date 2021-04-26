@@ -245,7 +245,7 @@ export class AccountsService {
       id: account.Id,
       email: account.Email,
       type: TOKEN_TYPE.USER_LOGIN,
-      role: TOKEN_ROLE.USER,
+      role: account.Type,
     };
     const token = this.jwtService.sign(payload);
 

@@ -42,7 +42,7 @@ export class SessionsController {
 
     @SetMetadata('roles', ['StoreManager', 'Salescleck'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
-    @Get()
+    @Get('/past')
     async getPastSessions(
         @Request() req
     ): Promise<Session> {
