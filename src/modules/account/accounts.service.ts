@@ -153,25 +153,11 @@ export class AccountsService {
     const existed_email_account = await this.accountsRepository.findOne({
       Email: model.email.toLowerCase(),
     });
-    console.log(existed_email_account);
     if (existed_email_account) {
       customThrowError(
         RESPONSE_MESSAGES.EMAIL_EXIST,
         HttpStatus.CONFLICT,
         RESPONSE_MESSAGES_CODE.EMAIL_EXIST,
-      );
-      return;
-    }
-
-    const existed_username_account = await this.accountsRepository.findOne({
-      Username: model.username.toLowerCase(),
-    });
-
-    if (existed_username_account) {
-      customThrowError(
-        RESPONSE_MESSAGES.USERNAME_EXIST,
-        HttpStatus.CONFLICT,
-        RESPONSE_MESSAGES_CODE.USERNAME_EXIST,
       );
       return;
     }
