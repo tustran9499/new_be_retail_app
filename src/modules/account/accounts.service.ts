@@ -16,13 +16,13 @@ import { LoginResponseDto } from 'src/dto/account/LoginResponse.dto';
 import { UpdateAccountDto } from 'src/dto/account/UpdateAccount.dto.';
 import { Connection, FindManyOptions, Raw, Repository } from 'typeorm';
 import { Account } from '../../entities/account/account.entity';
-import { File } from '../../entities/file/file.entity';
 import { AccountsFilterRequestDto } from './dto/filter-request.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MailHelper } from 'src/common/helper/mail.helper';
 import { getNickname } from 'src/common/helper/utility.helper';
 import { ConfigService } from '@nestjs/config';
 import { TemplatesService } from 'src/common/modules/email-templates/template.service';
+import { File } from '../../entities/file/file.entity';
 import * as mimeTypes from 'mime-types';
 
 @Injectable()
@@ -30,10 +30,10 @@ export class AccountsService {
   constructor(
     @InjectRepository(Account)
     private accountsRepository: Repository<Account>,
+    private jwtService: JwtService, //private readonly mailHelper: MailHelper, //private readonly tokenHelper: TokenHelper, //private authService: AuthService,
     @InjectRepository(File)
     private readonly fileRepository: Repository<File>,
     private passwordHelper: PasswordHelper,
-    private jwtService: JwtService, //private authService: AuthService,
   ) { }
 
   findAll(): Promise<Account[]> {
@@ -44,11 +44,6 @@ export class AccountsService {
     return this.accountsRepository.findOne({ Username: username });
   }
 
-  async findOneById(id: number): Promise<Account | undefined> {
-    return this.accountsRepository.findOne({ Id: id });
-  }
-
-
   async getAccounts(
     model: AccountsFilterRequestDto,
   ): Promise<[Account[], number]> {
@@ -56,7 +51,7 @@ export class AccountsService {
     const order = {};
     const filterCondition = {} as any;
     const where = [];
-    //let search = '';
+    let search = '';
 
     if (model.orderBy) {
       order[model.orderBy] = model.orderDirection;
@@ -93,6 +88,7 @@ export class AccountsService {
         'Region',
         'City',
         'Address',
+        'EmailVerified',
       ],
       where: where,
       skip: skip,
@@ -143,10 +139,37 @@ export class AccountsService {
       account.City = model.city;
       account.Address = model.address;
       const result = await this.accountsRepository.save(account);
+      const tokenData = {
+        id: result.Id,
+        role: TOKEN_ROLE.ADMIN,
+        type: TOKEN_TYPE.VERIFY,
+      };
+      const mailHelper = new MailHelper(
+        new ConfigService(),
+        new TemplatesService(),
+      );
+      const tokenHelper = new TokenHelper(new ConfigService());
+      const verifyToken = tokenHelper.createToken(tokenData);
+      await mailHelper.sendWelcomeMail(
+        result.Email,
+        TOKEN_ROLE.ADMIN,
+        getNickname(result),
+      );
+      mailHelper.sendVerifyEmail(
+        result.Email,
+        verifyToken,
+        TOKEN_ROLE.ADMIN,
+        getNickname(result),
+      );
+      // mailHelper.sendTestEmail();
       return result;
     } catch (error) {
       customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
+  }
+
+  async findOneById(id: number): Promise<Account | undefined> {
+    return this.accountsRepository.findOne({ Id: id });
   }
 
   async createAccount(model: CreateAccountDto): Promise<any> {
@@ -161,8 +184,26 @@ export class AccountsService {
       );
       return;
     }
-
     await this._createAccount(model);
+  }
+
+  private async _changeVerifyStatus(
+    id: number,
+    isEmailVerified: boolean,
+  ): Promise<boolean> {
+    const user = await this.accountsRepository.findOne(id);
+
+    if (!user) {
+      customThrowError(
+        RESPONSE_MESSAGES.ACCOUNT_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        RESPONSE_MESSAGES_CODE.ACCOUNT_NOT_FOUND,
+      );
+    }
+
+    user.EmailVerified = isEmailVerified;
+    await this.accountsRepository.save(user);
+    return true;
   }
 
   async updateAccount(id: number, model: UpdateAccountDto): Promise<any> {
@@ -226,6 +267,23 @@ export class AccountsService {
         RESPONSE_MESSAGES_CODE.LOGIN_FAIL,
       );
     }
+
+    // if (account.DeletedAt) {
+    //   customThrowError(
+    //     RESPONSE_MESSAGES.DELETED_ACCOUNT,
+    //     HttpStatus.NOT_FOUND,
+    //     RESPONSE_MESSAGES_CODE.DELETED_ACCOUNT,
+    //   );
+    // }
+
+    // if (!account.EmailVerified) {
+    //   customThrowError(
+    //     RESPONSE_MESSAGES.EMAIL_NOT_VERIFY,
+    //     HttpStatus.UNAUTHORIZED,
+    //     RESPONSE_MESSAGES_CODE.EMAIL_NOT_VERIFY,
+    //   );
+    // }
+
     await this._checkPassword(model.password, account.Password);
     const payload = {
       id: account.Id,
