@@ -38,11 +38,17 @@ import { Request } from 'express';
 @ApiTags('Account')
 @Controller('accounts')
 export class AccountsController {
-  constructor(private accountsService: AccountsService) { }
+  constructor(private accountsService: AccountsService) {}
   @Get()
   @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
   getCustomers(@Query() model: GetRequest): Promise<any> {
     return this.accountsService.getAccounts(model);
+  }
+
+  @Get('/deleted')
+  @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
+  getDeleted(@Query() model: GetRequest): Promise<any> {
+    return this.accountsService.getDeletedAccounts(model);
   }
 
   @Get('/:id')
@@ -125,5 +131,11 @@ export class AccountsController {
       //(request as any).user.id,
       1,
     );
+  }
+
+  @Post(':id/restore')
+  @SetMetadata(METADATA.ACTION, ACCOUNT_ACTION.RESTORE_ACCOUNT)
+  restoreAdmin(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
+    return this.accountsService.restoreAccount(id);
   }
 }

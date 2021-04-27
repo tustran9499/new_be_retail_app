@@ -8,14 +8,18 @@ import { AuthService } from 'src/auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { File } from 'src/entities/file/file.entity';
+import { AccountRepository } from './accounts.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account, File]), JwtModule.register({
-    secret: jwtConstants.secret,
-    signOptions: { expiresIn: '3600s' },
-  }),],
+  imports: [
+    TypeOrmModule.forFeature([Account, File]),
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '3600s' },
+    }),
+  ],
   providers: [AccountsService, PasswordHelper],
   exports: [AccountsService],
   controllers: [AccountsController],
 })
-export class AccountsModule { }
+export class AccountsModule {}

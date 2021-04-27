@@ -14,7 +14,14 @@ import { CreateAccountDto } from 'src/dto/account/CreateAccount.dto';
 import { LoginAccountDto } from 'src/dto/account/LoginAccount.dto';
 import { LoginResponseDto } from 'src/dto/account/LoginResponse.dto';
 import { UpdateAccountDto } from 'src/dto/account/UpdateAccount.dto.';
-import { Connection, FindManyOptions, Raw, Repository } from 'typeorm';
+import {
+  Connection,
+  FindManyOptions,
+  getConnection,
+  getCustomRepository,
+  Raw,
+  Repository,
+} from 'typeorm';
 import { Account } from '../../entities/account/account.entity';
 import { AccountsFilterRequestDto } from './dto/filter-request.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -24,6 +31,7 @@ import { ConfigService } from '@nestjs/config';
 import { TemplatesService } from 'src/common/modules/email-templates/template.service';
 import { File } from '../../entities/file/file.entity';
 import * as mimeTypes from 'mime-types';
+import { AccountRepository } from './accounts.repository';
 
 @Injectable()
 export class AccountsService {
@@ -403,5 +411,28 @@ export class AccountsService {
       ReferenceType: referenceType,
     });
     return true;
+  }
+
+  async restoreAccount(id: number): Promise<boolean> {
+    await this.accountsRepository.restore(id);
+    return true;
+  }
+
+  async getDeletedAccounts(
+    model: AccountsFilterRequestDto,
+  ): Promise<[Account[], number]> {
+    const { skip, take, searchBy, searchKeyword } = model;
+
+    let search = '';
+
+    if (searchBy && searchKeyword) {
+      search = `AND "${searchBy}" like '%${searchKeyword.toLowerCase()}%'`;
+    }
+    const customAccountsRepository = getCustomRepository(AccountRepository);
+    return await customAccountsRepository.getDeletedAccounts({
+      take,
+      skip,
+      search,
+    });
   }
 }
