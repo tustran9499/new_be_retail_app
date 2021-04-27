@@ -12,10 +12,10 @@ import { File } from 'src/entities/file/file.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Account, File]), JwtModule.register({
     secret: jwtConstants.secret,
-    signOptions: { expiresIn: '60s' },
+    signOptions: { expiresIn: '3600s' },
   }),],
   providers: [AccountsService, PasswordHelper],
   exports: [AccountsService],
   controllers: [AccountsController],
 })
-export class AccountsModule {}
+export class AccountsModule { }
