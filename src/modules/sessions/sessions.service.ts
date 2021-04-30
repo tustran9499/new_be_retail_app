@@ -79,4 +79,13 @@ export class SessionsService {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
         }
     }
+
+    async getPastSessionSum(id: string): Promise<any> {
+        try {
+            const data = await this.sessionsRepository.query("GetPastSessionSum @SessionId=\'" + id + "\'");
+            return data;
+        } catch (error) {
+            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+        }
+    }
 }
