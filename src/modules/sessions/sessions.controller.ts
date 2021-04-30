@@ -1,11 +1,11 @@
 import { Controller, Get, Param, ParseIntPipe, Query, SetMetadata, UseGuards, Post, Body, Put, Delete, UseInterceptors, Res, Request, UploadedFile, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 import { SessionsService } from './sessions.service';
-import { Pagination } from 'nestjs-typeorm-paginate';
 import { Session } from 'src/entities/session/session.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Reflector } from '@nestjs/core';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @ApiTags('Session')
 @Controller('sessions')
@@ -44,8 +44,15 @@ export class SessionsController {
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/past')
     async getPastSessions(
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
         @Request() req
-    ): Promise<Session> {
-        return this.SessionsService.getCashierSession(req.user.userId);
+    ): Promise<Pagination<Session>> {
+        return this.SessionsService.getCashierPastSessions(req.user.userId, {
+            page,
+            limit,
+            route: '/api/sessions/past',
+        });
     }
+
 }

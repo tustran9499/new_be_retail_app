@@ -7,6 +7,11 @@ import { customThrowError } from 'src/common/helper/throw.helper';
 import { RESPONSE_MESSAGES } from 'src/common/constants/response-messages.enum';
 import { Account } from '../../entities/account/account.entity';
 import { AccountsService } from '../account/accounts.service';
+import {
+    paginate,
+    Pagination,
+    IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class SessionsService {
@@ -54,6 +59,22 @@ export class SessionsService {
                 })
             }
             return { Salesclerk: result, Session: sessionResult }
+        } catch (error) {
+            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+        }
+    }
+
+    async getCashierPastSessions(id: number, options: IPaginationOptions): Promise<Pagination<Session>> {
+        try {
+            const result = await this.accountService.findOneById(id);
+            let queryBuilder = undefined;
+            if (result.Type != 'Salescleck') {
+                customThrowError("Invalid saleclerk id!", HttpStatus.BAD_REQUEST);
+            }
+            else {
+                queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').where({ SaleclerkId: result.Id, End: Not(IsNull()) }).orderBy('sessions.End', 'ASC');
+            }
+            return paginate<Session>(queryBuilder, options);
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
         }
