@@ -24,7 +24,12 @@ export class OrdersService {
   ) { }
 
   async paginate(options: IPaginationOptions): Promise<Pagination<Order>> {
-    const queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.Customer", "Customer")
+    const queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer");
+    return paginate<Order>(queryBuilder, options);
+  }
+
+  async paginateBySession(key: string, options: IPaginationOptions): Promise<Pagination<Order>> {
+    const queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer").where('orders.SessionId Like \'%' + String(key) + '%\'');
     return paginate<Order>(queryBuilder, options);
   }
 

@@ -20,6 +20,10 @@ export class SessionsService {
         private accountService: AccountsService,
     ) { }
 
+    findOne(id: string): Promise<Session> {
+        return this.sessionsRepository.findOne(id);
+    }
+
     async createSession(model: CreateSessionDto): Promise<Session> {
         try {
             const result = await this.sessionsRepository.save(model);

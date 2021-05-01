@@ -37,6 +37,6 @@ export class Order {
     @DeleteDateColumn()
     DeletedAt?: Date;
 
-    @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Product)
+    @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Order)
     ProductOrders: ProductOrder[];
 }

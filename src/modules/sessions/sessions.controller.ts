@@ -23,6 +23,33 @@ export class SessionsController {
 
     @SetMetadata('roles', ['StoreManager', 'Salescleck'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get('/past')
+    async getPastSessions(
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
+        @Request() req
+    ): Promise<Pagination<Session>> {
+        return this.SessionsService.getCashierPastSessions(req.user.userId, {
+            page,
+            limit,
+            route: '/api/sessions/past',
+        });
+    }
+
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get(('/:SessionId'))
+    async getSessionDetail(
+        @Param('SessionId', ParseUUIDPipe) SessionId: string,
+        @Request() req
+    ): Promise<any> {
+        const data = this.SessionsService.findOne(SessionId);
+        const total = this.SessionsService.getPastSessionSum(SessionId);
+        return { data: data, total: total };
+    }
+
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post(('/:SessionId'))
     async endSession(
         @Param('SessionId', ParseUUIDPipe) SessionId: string,
@@ -38,21 +65,6 @@ export class SessionsController {
         @Request() req
     ): Promise<Session> {
         return this.SessionsService.getCashierSession(req.user.userId);
-    }
-
-    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
-    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
-    @Get('/past')
-    async getPastSessions(
-        @Query('page', ParseIntPipe) page: number = 1,
-        @Query('limit', ParseIntPipe) limit: number = 10,
-        @Request() req
-    ): Promise<Pagination<Session>> {
-        return this.SessionsService.getCashierPastSessions(req.user.userId, {
-            page,
-            limit,
-            route: '/api/sessions/past',
-        });
     }
 
 }

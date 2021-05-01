@@ -45,6 +45,20 @@ export class OrdersController {
     });
   }
 
+  @Get('/paginateOrdersBySession')
+  async paginateBySession(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('key') key: string = "",
+  ): Promise<Pagination<Order>> {
+    limit = limit > 100 ? 100 : limit;
+    return this.ordersService.paginateBySession(key, {
+      page,
+      limit,
+      route: '/api/orders/paginateOrders',
+    });
+  }
+
   @Get()
   @ApiOkResponse({})
   getCustomers(@Query() model: GetRequest): Promise<any> {
