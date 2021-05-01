@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Category } from "./category.entity";
+import { ProductOrder } from "../productorder/productorder.entity";
 
 @Entity('Product')
 export class Product {
@@ -35,4 +36,7 @@ export class Product {
 
     @Column({ nullable: true, default: null })
     PhotoURL: string;
+
+    @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Product)
+    ProductOrders: ProductOrder[];
 }

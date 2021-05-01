@@ -9,6 +9,11 @@ import { FindManyOptions, Raw, Repository } from 'typeorm';
 import { OrdersFilterRequestDto } from './dto/filter-request.dto';
 import { ProductorderService } from '../productorder/productorder.service';
 import { CartProduct } from 'src/interfaces/cartproduct.interface';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class OrdersService {
@@ -17,6 +22,11 @@ export class OrdersService {
     private readonly ordersRepository: Repository<Order>,
     private productorderService: ProductorderService,
   ) { }
+
+  async paginate(options: IPaginationOptions): Promise<Pagination<Order>> {
+    const queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.Customer", "Customer")
+    return paginate<Order>(queryBuilder, options);
+  }
 
   async getById(id: number): Promise<Order> {
     const existedOrder = await this.ordersRepository.findOne(id);

@@ -3,7 +3,10 @@ import {
   Column,
   PrimaryGeneratedColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Order } from "../order/order.entity";
+
 
 @Entity('Account')
 export class Account {
@@ -75,4 +78,7 @@ export class Account {
 
   @DeleteDateColumn()
   DeletedAt?: Date;
+
+  @OneToMany(() => Order, Order => Order.Account)
+  Orders: Order[];
 }

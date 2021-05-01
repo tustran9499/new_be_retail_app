@@ -18,17 +18,31 @@ import { Order } from 'src/entities/order/order.entity';
 import { GetRequest } from '../account/dto/GetRequest.dto';
 import { OrdersService } from './orders.service';
 import { CartProduct } from 'src/interfaces/cartproduct.interface';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @ApiTags('Order')
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) { }
 
-  @Get(':id')
+  @Get('/id/:id')
   async getOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Order> {
     return await this.ordersService.getById(id);
+  }
+
+  @Get('/paginateOrders')
+  async index(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ): Promise<Pagination<Order>> {
+    limit = limit > 100 ? 100 : limit;
+    return this.ordersService.paginate({
+      page,
+      limit,
+      route: '/api/orders/paginateOrders',
+    });
   }
 
   @Get()
