@@ -43,9 +43,9 @@ export class SessionsController {
         @Param('SessionId', ParseUUIDPipe) SessionId: string,
         @Request() req
     ): Promise<any> {
-        const data = this.SessionsService.findOne(SessionId);
-        const total = this.SessionsService.getPastSessionSum(SessionId);
-        return { data: data, total: total };
+        const data = await this.SessionsService.findOne(SessionId);
+        const total = await this.SessionsService.getPastSessionSum(SessionId);
+        return { data, total };
     }
 
     @SetMetadata('roles', ['StoreManager', 'Salescleck'])
