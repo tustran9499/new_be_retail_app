@@ -24,4 +24,8 @@ export class ProductorderService {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
         }
     }
+
+    async getProductOrderByOrder(orderId: number): Promise<any[]> {
+        return await this.productorderRepository.createQueryBuilder('productorder').leftJoinAndSelect("productorder.Product", "Product").where('productorder.OrderId =' + orderId).getManyAndCount();
+    }
 }

@@ -14,6 +14,8 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
+import { Account } from '../../entities/account/account.entity';
+import { AccountsService } from '../account/accounts.service';
 
 @Injectable()
 export class OrdersService {
@@ -21,11 +23,23 @@ export class OrdersService {
     @InjectRepository(Order)
     private readonly ordersRepository: Repository<Order>,
     private productorderService: ProductorderService,
+    private accountService: AccountsService,
   ) { }
 
-  async paginate(options: IPaginationOptions): Promise<Pagination<Order>> {
-    const queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer");
-    return paginate<Order>(queryBuilder, options);
+  async paginate(options: IPaginationOptions, id: number): Promise<Pagination<Order>> {
+    try {
+      const result = await this.accountService.findOneById(id);
+      let queryBuilder = undefined;
+      if (result.Type == 'Salescleck') {
+        queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer").where({ SaleClerkId: id });
+      }
+      else {
+        queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer");
+      }
+      return paginate<Order>(queryBuilder, options);
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
   }
 
   async paginateBySession(key: string, options: IPaginationOptions): Promise<Pagination<Order>> {
@@ -33,10 +47,10 @@ export class OrdersService {
     return paginate<Order>(queryBuilder, options);
   }
 
-  async getById(id: number): Promise<Order> {
-    const existedOrder = await this.ordersRepository.findOne(id);
-
-    if (!existedOrder) {
+  async getById(id: number): Promise<any> {
+    const existedOrder = await this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.Customer", "Customer").where('orders.Id =' + id).getOne();
+    const existedProductOrder = await this.productorderService.getProductOrderByOrder(id);
+    if (!existedOrder && !existedProductOrder) {
       customThrowError(
         RESPONSE_MESSAGES.NOT_FOUND,
         HttpStatus.NOT_FOUND,
@@ -44,7 +58,7 @@ export class OrdersService {
       );
     }
 
-    const resultOrder = { ...existedOrder };
+    const resultOrder = { existedOrder, existedProductOrder };
 
     return resultOrder;
   }

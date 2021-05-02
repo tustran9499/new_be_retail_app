@@ -10,6 +10,9 @@ import {
   Put,
   Query,
   Req,
+  SetMetadata,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CreateOrderDto } from 'src/dto/order/CreateOrder.dto';
@@ -19,12 +22,17 @@ import { GetRequest } from '../account/dto/GetRequest.dto';
 import { OrdersService } from './orders.service';
 import { CartProduct } from 'src/interfaces/cartproduct.interface';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Reflector } from '@nestjs/core';
 
 @ApiTags('Order')
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) { }
 
+  @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/id/:id')
   async getOne(
     @Param('id', ParseIntPipe) id: number,
@@ -32,17 +40,20 @@ export class OrdersController {
     return await this.ordersService.getById(id);
   }
 
+  @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/paginateOrders')
   async index(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
+    @Request() req
   ): Promise<Pagination<Order>> {
     limit = limit > 100 ? 100 : limit;
     return this.ordersService.paginate({
       page,
       limit,
       route: '/api/orders/paginateOrders',
-    });
+    }, req.user.userId);
   }
 
   @Get('/paginateOrdersBySession')

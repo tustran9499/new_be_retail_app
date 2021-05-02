@@ -72,11 +72,11 @@ export class SessionsService {
         try {
             const result = await this.accountService.findOneById(id);
             let queryBuilder = undefined;
-            if (result.Type != 'Salescleck') {
-                customThrowError("Invalid saleclerk id!", HttpStatus.BAD_REQUEST);
+            if (result.Type == 'Salescleck') {
+                queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').where({ SaleclerkId: result.Id }).orderBy('sessions.End', 'ASC');
             }
             else {
-                queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').where({ SaleclerkId: result.Id, End: Not(IsNull()) }).orderBy('sessions.End', 'ASC');
+                queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').orderBy('sessions.End', 'ASC');
             }
             return paginate<Session>(queryBuilder, options);
         } catch (error) {
