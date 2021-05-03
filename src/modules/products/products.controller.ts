@@ -11,6 +11,8 @@ import { UpdateProductDto } from 'src/dto/product/UpdateProduct.dto.';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFileName, csvFileFilter, imageFileFilter } from '../../common/helper/helper';
+import { CategoriesService } from '../categories/categories.service';
+import { Category } from 'src/entities/product/category.entity';
 const fs = require('fs');
 const { promisify } = require('util');
 const unlinkAsync = promisify(fs.unlink);
@@ -25,6 +27,14 @@ export class ProductsController {
     @ApiOkResponse()
     getTimeSeriesSale(): Promise<any> {
         return this.ProductsService.getFullTimeSeriesSale();
+    }
+
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get('/categories')
+    @ApiOkResponse()
+    getAllCategories(): Promise<Category[]> {
+        return this.ProductsService.findAllCategories();
     }
 
     @SetMetadata('roles', ['StoreManager', 'Salescleck'])

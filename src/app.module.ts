@@ -12,6 +12,8 @@ import { PasswordHelper } from '../src/common/helper/password.helper';
 //import { AuthService } from '../src/auth/auth.service';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { ProductorderModule } from './modules/productorder/productorder.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { CustomersModule } from './modules/customers/customers.module';
 
 @Module({
   imports: [ConfigModule.forRoot(),
@@ -42,7 +44,7 @@ import { ProductorderModule } from './modules/productorder/productorder.module';
     "cli": {
       "migrationsDir": "src/database/migrations"
     }
-  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule],
+  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule],
   controllers: [AppController],
   providers: [AppService],
 })

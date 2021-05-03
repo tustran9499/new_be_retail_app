@@ -12,17 +12,24 @@ import { customThrowError } from 'src/common/helper/throw.helper';
 import { RESPONSE_MESSAGES } from 'src/common/constants/response-messages.enum';
 import { UpdateProductDto } from 'src/dto/product/UpdateProduct.dto.';
 import { Like } from "typeorm";
+import { CategoriesService } from '../categories/categories.service';
+import { Category } from 'src/entities/product/category.entity';
 
 @Injectable()
 export class ProductsService {
     constructor(
         @InjectRepository(Product)
         private productsRepository: Repository<Product>,
+        private categoriesService: CategoriesService,
     ) { }
 
     async getFullTimeSeriesSale(): Promise<any> {
         const data = await this.productsRepository.query("GetTimeSeriesFullSale");
         return data;
+    }
+
+    async findAllCategories(): Promise<Category[]> {
+        return this.categoriesService.findAll();
     }
 
     findAll(): Promise<Product[]> {
