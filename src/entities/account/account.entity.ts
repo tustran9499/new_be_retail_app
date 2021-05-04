@@ -73,6 +73,9 @@ export class Account {
   @Column()
   EmailVerified: boolean;
 
+  @Column()
+  StoreId: number;
+
   @DeleteDateColumn()
   DeletedAt?: Date;
 }

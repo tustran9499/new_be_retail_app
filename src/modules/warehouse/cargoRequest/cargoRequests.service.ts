@@ -19,6 +19,12 @@ export class CargoRequestsService {
     private readonly productCargoRequestRepository: Repository<ProductCargoRequest>,
   ) {}
 
+  firstFunction = (_callback: any) => {
+    // do some asynchronous work
+    // and when the asynchronous stuff is complete
+    _callback();
+  };
+
   async createCargoRequest(
     model: CreateCargoRequestDto,
     requestId?: number,
@@ -29,18 +35,14 @@ export class CargoRequestsService {
       newCargoRequest.StoreId = model.StoreId;
       const result = await this.cargoRequestsRepository.save(newCargoRequest);
       let index;
-      // eslint-disable-next-line prefer-const
-      let newProd_Cargoreq = new ProductCargoRequest();
-      let result2 = new ProductCargoRequest();
       for (index = 0; index < model.ProductId.length; index++) {
-        newProd_Cargoreq.CargoRequestId = result.Id;
-        newProd_Cargoreq.ProductId = model.ProductId[index];
-        newProd_Cargoreq.Quantity = model.Quantity[index];
-        result2 = await this.productCargoRequestRepository.save(
-          newProd_Cargoreq,
-        );
+        await this.productCargoRequestRepository.save({
+          CargoRequestId: result.Id,
+          ProductId: model.ProductId[index],
+          Quantity: model.Quantity[index],
+        });
       }
-      return result && result2 ? true : false;
+      return true;
     } catch (error) {
       customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
