@@ -3,8 +3,13 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  PrimaryColumn,
+  ManyToMany,
+  OneToMany,
 } from 'typeorm';
+import { Product } from '../product/product.entity';
+import { ProductCargoRequest } from './product-cargorequest.entity';
 
 @Entity('CargoRequest')
 export class CargoRequest {
@@ -40,4 +45,10 @@ export class CargoRequest {
 
   @Column()
   UpdatedBy: number;
+
+  @OneToMany(
+    () => ProductCargoRequest,
+    ProductCargoRequest => ProductCargoRequest.CargoRequestId,
+  )
+  Product_CargoRequest!: ProductCargoRequest[];
 }

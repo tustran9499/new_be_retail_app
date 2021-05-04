@@ -1,38 +1,56 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Category } from "./category.entity";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+  OneToMany,
+} from 'typeorm';
+import { CargoRequest } from '../warehouse/cargorequest.entity';
+import { ProductCargoRequest } from '../warehouse/product-cargorequest.entity';
+import { Category } from './category.entity';
 
 @Entity('Product')
 export class Product {
-    @PrimaryGeneratedColumn()
-    Id: number;
+  @PrimaryGeneratedColumn()
+  Id: number;
 
-    @Column()
-    ProductName: string;
+  @Column()
+  ProductName: string;
 
-    @Column({ name: 'CategoryId' })
-    CategoryId: number;
+  @Column({ name: 'CategoryId' })
+  CategoryId: number;
 
-    @ManyToOne(() => Category, Category => Category.Products, {
-        onDelete: "CASCADE"
-    })
-    @JoinColumn({ name: "CategoryId", referencedColumnName: "Id" })
-    Category: Category;
+  @ManyToOne(() => Category, Category => Category.Products, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'CategoryId', referencedColumnName: 'Id' })
+  Category: Category;
 
-    @Column()
-    QuantityPerUnit: string;
+  @Column()
+  QuantityPerUnit: string;
 
-    @Column()
-    UnitPrice: number;
+  @Column()
+  UnitPrice: number;
 
-    @Column()
-    UnitsInStock: number;
+  @Column()
+  UnitsInStock: number;
 
-    @Column()
-    ReorderLevel: number;
+  @Column()
+  ReorderLevel: number;
 
-    @Column()
-    Discontinued: boolean;
+  @Column()
+  Discontinued: boolean;
 
-    @Column({ nullable: true, default: null })
-    PhotoURL: string;
+  @Column({ nullable: true, default: null })
+  PhotoURL: string;
+
+  @OneToMany(
+    () => ProductCargoRequest,
+    ProductCargoRequest => ProductCargoRequest.ProductId,
+  )
+  Product_CargoRequest!: ProductCargoRequest[];
 }

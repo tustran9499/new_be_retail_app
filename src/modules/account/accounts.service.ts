@@ -42,7 +42,7 @@ export class AccountsService {
     @InjectRepository(File)
     private readonly fileRepository: Repository<File>,
     private passwordHelper: PasswordHelper,
-  ) { }
+  ) {}
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
