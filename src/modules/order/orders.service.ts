@@ -113,7 +113,9 @@ export class OrdersService {
     try {
       const order = new Order();
       order.OrderDate = new Date(Date.now());
-      // order.CustomerId = model.customerId;
+      if (model.customerId && model.customerId !== 0) {
+        order.CustomerId = model.customerId;
+      }
       order.SaleClerkId = model.saleClerkId;
       order.SessionId = model.sessionId;
       const result = await this.ordersRepository.save(order);
