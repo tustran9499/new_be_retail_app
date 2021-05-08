@@ -25,8 +25,14 @@ export class ProductsController {
 
     @Get('/fulltimeseries')
     @ApiOkResponse()
-    getTimeSeriesSale(): Promise<any> {
+    getFullTimeSeriesSale(): Promise<any> {
         return this.ProductsService.getFullTimeSeriesSale();
+    }
+
+    @Get('/timeseries/:id')
+    @ApiOkResponse()
+    getTimeSeriesSale(@Param('id', ParseIntPipe) id: number): Promise<any> {
+        return this.ProductsService.getTimeSeriesSale(id);
     }
 
     @SetMetadata('roles', ['StoreManager', 'Salescleck'])

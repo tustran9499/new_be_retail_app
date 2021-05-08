@@ -14,6 +14,7 @@ import { UpdateProductDto } from 'src/dto/product/UpdateProduct.dto.';
 import { Like } from "typeorm";
 import { CategoriesService } from '../categories/categories.service';
 import { Category } from 'src/entities/product/category.entity';
+var timeseries = require("timeseries-analysis");
 
 @Injectable()
 export class ProductsService {
@@ -63,6 +64,52 @@ export class ProductsService {
             console.log(queryBuilder.getMany());
             return paginate<Product>(queryBuilder, options);
         }
+    }
+
+    async getTimeSeriesSale(id: number): Promise<any> {
+        var data = await this.productsRepository.query("GetTimeSeriesSale @ProductId='" + id + "'");
+        var newData = [];
+        for (let step = 0; step < 15; step++) {
+            var tempdate = new Date();
+            tempdate.setDate(new Date().getDate() - step);
+            if (data.length != 0 && new Date(data[data.length - 1].Date).getDate() == tempdate.getDate()) {
+                newData.push(data[data.length - 1]);
+                data.pop();
+            }
+            else {
+                newData.push({ Date: tempdate, Value: 0 });
+            }
+        }
+        newData.reverse();
+        console.log(newData);
+        for (let step = 0; step < 15; step++) {
+            var tomorrow = new Date();
+            tomorrow.setDate(new Date().getDate() + step + 1);
+            newData.push({ Date: tomorrow, Value: 0 });
+        }
+        console.log(newData);
+        var t = new timeseries.main(timeseries.adapter.fromDB(newData, {
+            date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
+            value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
+        }));
+        t.smoother({ period: 3 }).save('smoothed');
+        var bestSettings = t.regression_forecast_optimize();
+        var options = {
+            n: 15, // How many data points to be forecasted
+            sample: 14, // How many datapoints to be training dataset
+            start: 15, // Initial forecasting position 
+            method: bestSettings.method, // What method for forecasting
+            degree: bestSettings.degree, // How many degree for forecasting
+            // growthSampleMode: false, // Is the sample use only last x data points or up to entire data points?
+        }
+        // t.smoother({ period: 4 }).save('smoothed');
+        // t.sliding_regression_forecast({ sample: 10, degree: 4 });
+        var MSE = t.regression_forecast(options)
+        // // Now we chart the data, including the original financial data (purple), the noiseless data (pink), and the forecast (blue)
+        // var chart_url = t.chart({ main: true, points: [{ color: 'ff0000', point: 20, serie: 0 }] });
+        // var processed = t.output();
+        // var chart_url = t.chart({ main: true, points: [{ color: 'ff0000', point: 11, serie: 0 }] });
+        return t;
     }
 
     async createProduct(model: CreateProductDto): Promise<Product> {
