@@ -40,6 +40,14 @@ export class OrdersController {
     return await this.ordersService.getById(id);
   }
 
+  @Get('/promotion/:id')
+  async getPromotion(
+    @Param('id', ParseIntPipe) coupon: number,
+    @Query('total') total: number = 0,
+  ): Promise<Order> {
+    return await this.ordersService.getPromotion(total, coupon);
+  }
+
   @SetMetadata('roles', ['StoreManager', 'Salescleck'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/paginateOrders')

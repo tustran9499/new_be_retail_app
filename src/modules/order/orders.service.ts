@@ -140,6 +140,35 @@ export class OrdersService {
     return await this._createOrder(order, cartproducts);
   }
 
+  async getPromotion(total: number, coupon: number): Promise<any> {
+    var data = await this.ordersRepository.query("GetOrderPromotion @Coupon='" + coupon + "'");
+    if (data) {
+      const result = data[0];
+      var today = new Date();
+      if (result.StartTime > today || result.EndTime < today) {
+        customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Out of the valid time!");
+      }
+      else if (total < result.MinBill) {
+        customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "The order total does not meet the Min value requirement!");
+      }
+      else if (result.Quantity <= 0) {
+        customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "The promotion has ended!");
+      }
+      else {
+        var temp = total * result.PercentOff;
+        if (temp > result.MaxDiscount) {
+          return result.MaxDiscount;
+        }
+        else {
+          return temp;
+        }
+      }
+    }
+    else {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Invalid coupon! Please try again!");
+    }
+  }
+
   async updateOrder(
     id: number,
     model: UpdateOrderDto,
