@@ -81,13 +81,11 @@ export class ProductsService {
             }
         }
         newData.reverse();
-        console.log(newData);
         for (let step = 0; step < 15; step++) {
             var tomorrow = new Date();
-            tomorrow.setDate(new Date().getDate() + step + 1);
+            tomorrow.setDate(new Date().getDate() + step);
             newData.push({ Date: tomorrow, Value: 0 });
         }
-        console.log(newData);
         var t = new timeseries.main(timeseries.adapter.fromDB(newData, {
             date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
             value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
@@ -102,13 +100,7 @@ export class ProductsService {
             degree: bestSettings.degree, // How many degree for forecasting
             // growthSampleMode: false, // Is the sample use only last x data points or up to entire data points?
         }
-        // t.smoother({ period: 4 }).save('smoothed');
-        // t.sliding_regression_forecast({ sample: 10, degree: 4 });
         var MSE = t.regression_forecast(options)
-        // // Now we chart the data, including the original financial data (purple), the noiseless data (pink), and the forecast (blue)
-        // var chart_url = t.chart({ main: true, points: [{ color: 'ff0000', point: 20, serie: 0 }] });
-        // var processed = t.output();
-        // var chart_url = t.chart({ main: true, points: [{ color: 'ff0000', point: 11, serie: 0 }] });
         return t;
     }
 
