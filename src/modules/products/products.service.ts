@@ -90,7 +90,7 @@ export class ProductsService {
             date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
             value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
         }));
-        t.smoother({ period: 3 }).save('smoothed');
+        // t.smoother({ period: 3 }).save('smoothed');
         var bestSettings = t.regression_forecast_optimize();
         var options = {
             n: 15, // How many data points to be forecasted
