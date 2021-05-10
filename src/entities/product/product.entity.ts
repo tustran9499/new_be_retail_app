@@ -26,6 +26,9 @@ export class Product {
     UnitPrice: number;
 
     @Column()
+    Discount: number;
+
+    @Column()
     UnitsInStock: number;
 
     @Column()

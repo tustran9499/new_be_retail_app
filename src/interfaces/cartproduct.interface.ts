@@ -8,5 +8,6 @@ export interface CartProduct {
     ReorderLevel: number;
     Discontinued: boolean;
     Quantity: number;
+    Discount: number;
     Total: number;
 }

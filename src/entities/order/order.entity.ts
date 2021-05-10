@@ -16,6 +16,9 @@ export class Order {
     @Column()
     CustomerId: number;
 
+    @Column()
+    Discount: number;
+
     @ManyToOne(() => Customer, Customer => Customer.Orders, {
         onDelete: "RESTRICT"
     })

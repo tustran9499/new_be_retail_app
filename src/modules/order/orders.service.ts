@@ -118,11 +118,12 @@ export class OrdersService {
       }
       order.SaleClerkId = model.saleClerkId;
       order.SessionId = model.sessionId;
+      order.Discount = model.discount;
       const result = await this.ordersRepository.save(order);
       const resultitems = [];
       cartproducts.forEach(async (item) => {
         try {
-          const item_result = await this.productorderService.createProductOrder({ ProductId: item.Id, OrderId: result.Id, Price: item.UnitPrice, Quantity: item.Quantity, ReturnedQuantity: 0, Tax: 0 });
+          const item_result = await this.productorderService.createProductOrder({ ProductId: item.Id, OrderId: result.Id, Price: item.UnitPrice, Quantity: item.Quantity, ReturnedQuantity: 0, Tax: 0.1, Discount: item.Discount });
           resultitems.push(item_result);
         }
         catch (error) {
@@ -142,17 +143,17 @@ export class OrdersService {
 
   async getPromotion(total: number, coupon: number): Promise<any> {
     var data = await this.ordersRepository.query("GetOrderPromotion @Coupon='" + coupon + "'");
-    if (data && data.StartTime) {
+    if (data && data[0]) {
       const result = data[0];
       var today = new Date();
       if (result.StartTime > today || result.EndTime < today) {
-        customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Out of the valid time!");
+        customThrowError("Out of the valid time!", HttpStatus.NOT_ACCEPTABLE, "Out of the valid time!");
       }
       else if (total < result.MinBill) {
-        customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "The order total does not meet the Min value requirement!");
+        customThrowError("The order total does not meet the Min value requirement!", HttpStatus.NOT_ACCEPTABLE, "The order total does not meet the Min value requirement!");
       }
       else if (result.Quantity <= 0) {
-        customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "The promotion has ended!");
+        customThrowError("The promotion has ended!", HttpStatus.NOT_ACCEPTABLE, "The promotion has ended!");
       }
       else {
         var temp = total * result.PercentOff;
@@ -165,7 +166,7 @@ export class OrdersService {
       }
     }
     else {
-      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Invalid coupon! Please try again!");
+      customThrowError("Invalid coupon! Please try again!", HttpStatus.NOT_ACCEPTABLE, "Invalid coupon! Please try again!");
     }
   }
 
