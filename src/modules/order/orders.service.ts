@@ -142,7 +142,7 @@ export class OrdersService {
 
   async getPromotion(total: number, coupon: number): Promise<any> {
     var data = await this.ordersRepository.query("GetOrderPromotion @Coupon='" + coupon + "'");
-    if (data) {
+    if (data && data.StartTime) {
       const result = data[0];
       var today = new Date();
       if (result.StartTime > today || result.EndTime < today) {
