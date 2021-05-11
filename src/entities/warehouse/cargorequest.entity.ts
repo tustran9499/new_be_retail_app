@@ -7,9 +7,13 @@ import {
   PrimaryColumn,
   ManyToMany,
   OneToMany,
+  ManyToOne,
+  JoinTable,
 } from 'typeorm';
+import { Account } from '../account/account.entity';
 import { Product } from '../product/product.entity';
 import { ProductCargoRequest } from './product-cargorequest.entity';
+import { Warehouse } from './warehouse.entity';
 
 @Entity('CargoRequest')
 export class CargoRequest {
@@ -20,7 +24,7 @@ export class CargoRequest {
   RequestId: string;
 
   @Column()
-  WarehouseId: number;
+  warehouseId: number;
 
   @Column()
   StoreId: number;
@@ -38,7 +42,22 @@ export class CargoRequest {
   Notes: string;
 
   @Column()
-  CreatedBy: number;
+  Status: string;
+
+  @Column()
+  createdByAccountId: number;
+
+  @ManyToOne(
+    () => Account,
+    user => user.orders,
+  )
+  CreatedByAccount: Account;
+
+  @ManyToOne(
+    () => Warehouse,
+    warehouse => warehouse.orders,
+  )
+  Warehouse: Warehouse;
 
   @Column()
   CancelledBy: number;
@@ -46,9 +65,10 @@ export class CargoRequest {
   @Column()
   UpdatedBy: number;
 
-  @OneToMany(
-    () => ProductCargoRequest,
-    ProductCargoRequest => ProductCargoRequest.CargoRequestId,
+  @ManyToMany(
+    () => Product,
+    product => product.orders,
   )
-  Product_CargoRequest!: ProductCargoRequest[];
+  @JoinTable()
+  products: Product[];
 }

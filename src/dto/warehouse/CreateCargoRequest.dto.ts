@@ -13,7 +13,7 @@ export class CreateCargoRequestDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  WarehouseId: number;
+  warehouseId: number;
 
   @IsNotEmpty()
   @ApiProperty()

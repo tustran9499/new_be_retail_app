@@ -1,3 +1,4 @@
+import { CargoRequestRepository } from 'src/modules/warehouse/cargoRequest/cargoRequests.repository';
 import {
   Entity,
   Column,
@@ -48,9 +49,9 @@ export class Product {
   @Column({ nullable: true, default: null })
   PhotoURL: string;
 
-  @OneToMany(
-    () => ProductCargoRequest,
-    ProductCargoRequest => ProductCargoRequest.ProductId,
+  @ManyToMany(
+    () => CargoRequest,
+    order => order.products,
   )
-  Product_CargoRequest!: ProductCargoRequest[];
+  orders: CargoRequest[];
 }

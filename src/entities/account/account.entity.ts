@@ -3,7 +3,9 @@ import {
   Column,
   PrimaryGeneratedColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { CargoRequest } from '../warehouse/cargorequest.entity';
 
 @Entity('Account')
 export class Account {
@@ -78,4 +80,10 @@ export class Account {
 
   @DeleteDateColumn()
   DeletedAt?: Date;
+
+  @OneToMany(
+    () => CargoRequest,
+    order => order.CreatedByAccount,
+  )
+  orders: CargoRequest[];
 }
