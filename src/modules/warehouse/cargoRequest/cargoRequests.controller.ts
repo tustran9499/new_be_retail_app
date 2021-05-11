@@ -52,17 +52,11 @@ export class CargoRequestsController {
     @Req() request: Request,
     @Query() filterRequestDto: FilterRequestDto,
   ): Promise<[CargoRequest[], number]> {
-    return await this.cargoRequestsService.getOrders(
-      filterRequestDto
-    );
+    return await this.cargoRequestsService.getOrders(filterRequestDto);
   }
 
   @Get(':id')
-  async getOne(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<any> {
+  async getOne(@Param('id', ParseIntPipe) id: number): Promise<any> {
     return await this.cargoRequestsService.getById(id);
   }
 }
-
-

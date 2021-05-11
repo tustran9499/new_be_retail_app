@@ -5,6 +5,7 @@ import { ProductCargoRequest } from 'src/entities/warehouse/product-cargorequest
 import { AccountsModule } from 'src/modules/account/accounts.module';
 import { CargoRequestsController } from './cargoRequests.controller';
 import { CargoRequestsService } from './cargoRequests.service';
+import { CargoRequestRepository } from './cargoRequests.repository';
 @Module({
   imports: [
     TypeOrmModule.forFeature([CargoRequest, ProductCargoRequest]),
