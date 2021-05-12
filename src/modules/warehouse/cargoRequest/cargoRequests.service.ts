@@ -8,7 +8,10 @@ import {
 } from 'src/common/constants/response-messages.enum';
 import { AccountsService } from 'src/modules/account/accounts.service';
 import { CargoRequest } from 'src/entities/warehouse/cargorequest.entity';
-import { CreateCargoRequestDto, UpdateCargoRequestDto } from 'src/dto/warehouse/CreateCargoRequest.dto';
+import {
+  CreateCargoRequestDto,
+  UpdateCargoRequestDto,
+} from 'src/dto/warehouse/CreateCargoRequest.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
 
 @Injectable()
@@ -27,16 +30,18 @@ export class CargoRequestsService {
       const newCargoRequest = new CargoRequest();
       newCargoRequest.warehouseId = model.warehouseId;
       newCargoRequest.StoreId = model.StoreId;
-      newCargoRequest.Status = "Created";
+      newCargoRequest.Status = 'Created';
       const result = await this.cargoRequestsRepository.save(newCargoRequest);
       let index;
       for (index = 0; index < model.ProductId.length; index++) {
-        const tmp = await Promise.all([getConnection().query(
-          `INSERT INTO "cargo_request_products__product"
+        const tmp = await Promise.all([
+          getConnection().query(
+            `INSERT INTO "cargo_request_products__product"
           (cargoRequestid, productId, quantity)
           VALUES (${result.Id}, ${model.ProductId[index]}, ${model.Quantity[index]})`,
-          [result.Id, model.ProductId, model.Quantity],
-        )])
+            [result.Id, model.ProductId, model.Quantity],
+          ),
+        ]);
       }
       return true;
     } catch (error) {
@@ -51,29 +56,33 @@ export class CargoRequestsService {
   ): Promise<boolean> {
     try {
       model.warehouseId = model.warehouseId ?? null;
-      model.Notes = model.Notes ? `'${model.Notes}'` : null; 
-      model.Status = model.Status ? `'${model.Status}'` : null; 
+      model.Notes = model.Notes ? `'${model.Notes}'` : null;
+      model.Status = model.Status ? `'${model.Status}'` : null;
       const [tmp, del] = await Promise.all([
         getConnection().query(
-        `UPDATE CargoRequest
+          `UPDATE CargoRequest
           SET warehouseId=ISNULL(${model.warehouseId},warehouseId), 
               Notes=ISNULL(${model.Notes},Notes), 
               Status=ISNULL(${model.Status},Status)
           WHERE Id=${id}`,
-          [model]),
-          getConnection().query(
-            `DELETE FROM cargo_request_products__product
+          [model],
+        ),
+        getConnection().query(
+          `DELETE FROM cargo_request_products__product
               WHERE cargoRequestId=${id}`,
-            [model]),
-      ])
+          [model],
+        ),
+      ]);
       let index;
       for (index = 0; index < model.ProductId.length; index++) {
-        const tmp = await Promise.all([getConnection().query(
-          `INSERT INTO "cargo_request_products__product"
+        const tmp = await Promise.all([
+          getConnection().query(
+            `INSERT INTO "cargo_request_products__product"
           (cargoRequestId, productId, quantity)
           VALUES (${id}, ${model.ProductId[index]}, ${model.Quantity[index]})`,
-          [id, model.ProductId, model.Quantity],
-        )])
+            [id, model.ProductId, model.Quantity],
+          ),
+        ]);
       }
       return true;
     } catch (error) {
@@ -203,7 +212,9 @@ export class CargoRequestsService {
   }
 
   async setOrderStatus(id: number, status: string): Promise<any> {
-    const result = await this.cargoRequestsRepository.update(id, { Status: status });
+    const result = await this.cargoRequestsRepository.update(id, {
+      Status: status,
+    });
     return result;
   }
 
