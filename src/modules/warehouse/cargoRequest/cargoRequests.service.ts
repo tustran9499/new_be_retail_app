@@ -8,8 +8,7 @@ import {
 } from 'src/common/constants/response-messages.enum';
 import { AccountsService } from 'src/modules/account/accounts.service';
 import { CargoRequest } from 'src/entities/warehouse/cargorequest.entity';
-import { CreateCargoRequestDto } from 'src/dto/warehouse/CreateCargoRequest.dto';
-import { ProductCargoRequest } from 'src/entities/warehouse/product-cargorequest.entity';
+import { CreateCargoRequestDto, UpdateCargoRequestDto } from 'src/dto/warehouse/CreateCargoRequest.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
 
 @Injectable()
@@ -17,31 +16,69 @@ export class CargoRequestsService {
   constructor(
     @InjectRepository(CargoRequest)
     private cargoRequestsRepository: Repository<CargoRequest>,
-    private accountService: AccountsService, // @InjectRepository(ProductCargoRequest) // private readonly productCargoRequestRepository: Repository<ProductCargoRequest>,
+    private accountService: AccountsService,
   ) {}
 
   async createCargoRequest(
     model: CreateCargoRequestDto,
     requestId?: number,
   ): Promise<boolean> {
-    // try {
-    //   const newCargoRequest = new CargoRequest();
-    //   newCargoRequest.warehouseId = model.warehouseId;
-    //   newCargoRequest.StoreId = model.StoreId;
-    //   const result = await this.cargoRequestsRepository.save(newCargoRequest);
-    //   let index;
-    //   for (index = 0; index < model.ProductId.length; index++) {
-    //     await this.productCargoRequestRepository.save({
-    //       CargoRequestId: result.Id,
-    //       ProductId: model.ProductId[index],
-    //       Quantity: model.Quantity[index],
-    //     });
-    //   }
-    //   return true;
-    // } catch (error) {
-    //   customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
-    // }
-    return true;
+    try {
+      const newCargoRequest = new CargoRequest();
+      newCargoRequest.warehouseId = model.warehouseId;
+      newCargoRequest.StoreId = model.StoreId;
+      newCargoRequest.Status = "Created";
+      const result = await this.cargoRequestsRepository.save(newCargoRequest);
+      let index;
+      for (index = 0; index < model.ProductId.length; index++) {
+        const tmp = await Promise.all([getConnection().query(
+          `INSERT INTO "cargo_request_products__product"
+          (cargoRequestid, productId, quantity)
+          VALUES (${result.Id}, ${model.ProductId[index]}, ${model.Quantity[index]})`,
+          [result.Id, model.ProductId, model.Quantity],
+        )])
+      }
+      return true;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async updateCargoRequest(
+    id: number,
+    model: UpdateCargoRequestDto,
+    requestId?: number,
+  ): Promise<boolean> {
+    try {
+      model.warehouseId = model.warehouseId ?? null;
+      model.Notes = model.Notes ? `'${model.Notes}'` : null; 
+      model.Status = model.Status ? `'${model.Status}'` : null; 
+      const [tmp, del] = await Promise.all([
+        getConnection().query(
+        `UPDATE CargoRequest
+          SET warehouseId=ISNULL(${model.warehouseId},warehouseId), 
+              Notes=ISNULL(${model.Notes},Notes), 
+              Status=ISNULL(${model.Status},Status)
+          WHERE Id=${id}`,
+          [model]),
+          getConnection().query(
+            `DELETE FROM cargo_request_products__product
+              WHERE cargoRequestId=${id}`,
+            [model]),
+      ])
+      let index;
+      for (index = 0; index < model.ProductId.length; index++) {
+        const tmp = await Promise.all([getConnection().query(
+          `INSERT INTO "cargo_request_products__product"
+          (cargoRequestId, productId, quantity)
+          VALUES (${id}, ${model.ProductId[index]}, ${model.Quantity[index]})`,
+          [id, model.ProductId, model.Quantity],
+        )])
+      }
+      return true;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
   }
 
   async getOrders(
@@ -163,5 +200,15 @@ export class CargoRequestsService {
       quantities.push(product.quantity);
     });
     return quantities;
+  }
+
+  async setOrderStatus(id: number, status: string): Promise<any> {
+    const result = await this.cargoRequestsRepository.update(id, { Status: status });
+    return result;
+  }
+
+  async deleteCargoRequest(id: number): Promise<any> {
+    const result = await this.cargoRequestsRepository.softDelete(id);
+    return result;
   }
 }

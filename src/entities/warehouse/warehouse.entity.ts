@@ -12,7 +12,6 @@ import {
   import { Account } from '../account/account.entity';
   import { Product } from '../product/product.entity';
 import { CargoRequest } from './cargorequest.entity';
-  import { ProductCargoRequest } from './product-cargorequest.entity';
   
   @Entity('Warehouse')
   export class Warehouse {

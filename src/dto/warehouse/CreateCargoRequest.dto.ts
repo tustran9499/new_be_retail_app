@@ -19,3 +19,24 @@ export class CreateCargoRequestDto {
   @ApiProperty()
   StoreId: number;
 }
+
+export class UpdateCargoRequestDto {
+  @ApiProperty({ type: [Number] })
+  ProductId: number[];
+
+  @ApiProperty({ type: [Number] })
+  Quantity: number[];
+
+  @ApiProperty()
+  warehouseId: number;
+
+  @ApiProperty()
+  StoreId: number;
+
+  @ApiProperty()
+  Notes: string;
+
+  @ApiProperty()
+  Status: string;
+
+}

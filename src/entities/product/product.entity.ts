@@ -11,7 +11,6 @@ import {
   OneToMany,
 } from 'typeorm';
 import { CargoRequest } from '../warehouse/cargorequest.entity';
-import { ProductCargoRequest } from '../warehouse/product-cargorequest.entity';
 import { Category } from './category.entity';
 
 @Entity('Product')

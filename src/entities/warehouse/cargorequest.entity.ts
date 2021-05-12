@@ -12,7 +12,6 @@ import {
 } from 'typeorm';
 import { Account } from '../account/account.entity';
 import { Product } from '../product/product.entity';
-import { ProductCargoRequest } from './product-cargorequest.entity';
 import { Warehouse } from './warehouse.entity';
 
 @Entity('CargoRequest')
