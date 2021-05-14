@@ -19,8 +19,10 @@ import {
   FindManyOptions,
   getConnection,
   getCustomRepository,
+  Like,
   Raw,
   Repository,
+  UpdateResult,
 } from 'typeorm';
 import { Account } from '../../entities/account/account.entity';
 import { AccountsFilterRequestDto } from './dto/filter-request.dto';
@@ -32,6 +34,13 @@ import { TemplatesService } from 'src/common/modules/email-templates/template.se
 import { File } from '../../entities/file/file.entity';
 import * as mimeTypes from 'mime-types';
 import { AccountRepository } from './accounts.repository';
+import { Warehouse } from 'src/entities/warehouse/warehouse.entity';
+import { Store } from 'src/entities/store/store.entity';
+import { FilterRequestDto } from '../warehouse/cargoRequest/dto/filter-request.dto';
+import { CreateWarehouseDto } from 'src/dto/warehouse/CreateWarehouse.dto';
+import { UpdateWarehouseDto } from 'src/dto/warehouse/UpdateWarehouse.dto';
+import { CreateStoreDto } from 'src/dto/store/CreateStore.dto';
+import { UpdateStoreDto } from 'src/dto/store/UpdateStore.dto';
 
 @Injectable()
 export class AccountsService {
@@ -41,6 +50,10 @@ export class AccountsService {
     private jwtService: JwtService, //private readonly mailHelper: MailHelper, //private readonly tokenHelper: TokenHelper, //private authService: AuthService,
     @InjectRepository(File)
     private readonly fileRepository: Repository<File>,
+    @InjectRepository(Warehouse)
+    private readonly warehouseRepository: Repository<Warehouse>,
+    @InjectRepository(Store)
+    private readonly storeRepository: Repository<Store>,
     private passwordHelper: PasswordHelper,
   ) {}
 
@@ -435,4 +448,269 @@ export class AccountsService {
       search,
     });
   }
+
+
+  //WAREHOUSE
+  async getWarehouses(
+    filterOptionsModel: FilterRequestDto,
+  ): Promise<[Warehouse[], number]> {
+    return await this._getListWarehouse(filterOptionsModel);
+  }
+
+  async _getListWarehouse(
+    filterOptionsModel: FilterRequestDto,
+  ): Promise<[Warehouse[], number]> {
+    const {
+      skip,
+      take,
+      searchBy,
+      searchKeyword,
+      order: filterOrder,
+    } = filterOptionsModel;
+    const order = {};
+    const filterCondition = {} as any;
+    const where = [];
+
+    if (filterOptionsModel.orderBy) {
+      order[filterOptionsModel.orderBy] = filterOptionsModel.orderDirection;
+    } else {
+      (order as any).ShortName = 'DESC';
+    }
+
+    if (searchBy && searchKeyword) {
+      filterCondition[searchBy] = Like(`%${searchKeyword}%`);
+    }
+
+    
+    where.push({ ...filterOrder, ...filterCondition });
+    let search = '';
+    if (searchBy === 'userEmail') {
+      search = `LOWER("Order__createdByCustomer"."email") like '%${searchKeyword.toLowerCase()}%'`;
+      const options: FindManyOptions<Warehouse> = {
+        where: search,
+        skip,
+        take,
+        order
+      };
+      const [orders, count] = await this.warehouseRepository.findAndCount(
+        options,
+      );
+      return [orders, count];
+    }
+
+    const options: FindManyOptions<Warehouse> = {
+      where,
+      skip,
+      take,
+      order
+    };
+
+    const [orders, count] = await this.warehouseRepository.findAndCount(
+      options,
+    );
+    // const modifiedOrders = orders.map(o => new OrderResponseDto(o));
+
+    // return [modifiedOrders, count];
+    return [orders, count];
+  }
+
+  async getWarehousesDetail(id: number): Promise<Warehouse> {
+    const warehouse = await this.warehouseRepository.findOne(id);
+
+    if (!warehouse) {
+      customThrowError(
+        RESPONSE_MESSAGES.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        RESPONSE_MESSAGES_CODE.NOT_FOUND,
+      );
+    }
+
+    return warehouse;
+  }
+
+  async createWarehouse(
+    model: CreateWarehouseDto,
+    requestId?: number,
+  ): Promise<Warehouse> {
+    try {
+      const warehouse = new Warehouse();
+
+      const keys = Object.keys(model);
+      keys.forEach(key => {
+        warehouse[key] = model[key];
+      })
+
+      const result = await this.warehouseRepository.save(warehouse);
+      return result;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async updateWarehouse(
+    id: number,
+    model: UpdateWarehouseDto,
+    requestId?: number,
+  ): Promise<UpdateResult> {
+    try {
+      const warehouse = new Warehouse();
+      Object.keys(model).forEach(key => {
+        warehouse[key] = model[key];
+      })
+      const result = await this.warehouseRepository.update(id, warehouse);
+      return result;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async deleteWarehouse(id: number, currentAccountId: number): Promise<boolean> {
+    const warehouse = await this.warehouseRepository.findOne(id);
+
+    if (!warehouse) {
+      customThrowError(
+        RESPONSE_MESSAGES.NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+        RESPONSE_MESSAGES_CODE.NOT_FOUND,
+      );
+      return;
+    }
+
+    await this.warehouseRepository.softDelete(id);
+    return true;
+  }
+
+
+  //STORE
+  async getStores(
+    filterOptionsModel: FilterRequestDto,
+  ): Promise<[Store[], number]> {
+    return await this._getListStore(filterOptionsModel);
+  }
+
+  async _getListStore(
+    filterOptionsModel: FilterRequestDto,
+  ): Promise<[Store[], number]> {
+    const {
+      skip,
+      take,
+      searchBy,
+      searchKeyword,
+      order: filterOrder,
+    } = filterOptionsModel;
+    const order = {};
+    const filterCondition = {} as any;
+    const where = [];
+
+    if (filterOptionsModel.orderBy) {
+      order[filterOptionsModel.orderBy] = filterOptionsModel.orderDirection;
+    } else {
+      (order as any).ShortName = 'DESC';
+    }
+
+    if (searchBy && searchKeyword) {
+      filterCondition[searchBy] = Like(`%${searchKeyword}%`);
+    }
+
+    
+    where.push({ ...filterOrder, ...filterCondition });
+    let search = '';
+    if (searchBy === 'userEmail') {
+      search = `LOWER("Order__createdByCustomer"."email") like '%${searchKeyword.toLowerCase()}%'`;
+      const options: FindManyOptions<Store> = {
+        where: search,
+        skip,
+        take,
+        order
+      };
+      const [orders, count] = await this.storeRepository.findAndCount(
+        options,
+      );
+      return [orders, count];
+    }
+
+    const options: FindManyOptions<Store> = {
+      where,
+      skip,
+      take,
+      order
+    };
+
+    const [orders, count] = await this.storeRepository.findAndCount(
+      options,
+    );
+    // const modifiedOrders = orders.map(o => new OrderResponseDto(o));
+
+    // return [modifiedOrders, count];
+    return [orders, count];
+  }
+
+  async getStoreDetail(id: number): Promise<Store> {
+    const store = await this.storeRepository.findOne(id);
+
+    if (!store) {
+      customThrowError(
+        RESPONSE_MESSAGES.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        RESPONSE_MESSAGES_CODE.NOT_FOUND,
+      );
+    }
+
+    return store;
+  }
+
+  async createStore(
+    model: CreateStoreDto,
+    requestId?: number,
+  ): Promise<Store> {
+    try {
+      const store = new Store();
+
+      const keys = Object.keys(model);
+      keys.forEach(key => {
+        store[key] = model[key];
+      })
+
+      const result = await this.storeRepository.save(store);
+      return result;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async updateStore(
+    id: number,
+    model: UpdateStoreDto,
+    requestId?: number,
+  ): Promise<UpdateResult> {
+    try {
+      const store = new Store();
+
+      const keys = Object.keys(model);
+      keys.forEach(key => {
+        store[key] = model[key];
+      })
+      const result = await this.storeRepository.update(id, store);
+      return result;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async deleteStore(id: number, currentAccountId: number): Promise<boolean> {
+    const store = await this.storeRepository.findOne(id);
+
+    if (!store) {
+      customThrowError(
+        RESPONSE_MESSAGES.NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+        RESPONSE_MESSAGES_CODE.NOT_FOUND,
+      );
+      return;
+    }
+
+    await this.storeRepository.softDelete(id);
+    return true;
+  }
+
 }

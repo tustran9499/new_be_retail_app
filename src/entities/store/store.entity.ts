@@ -10,12 +10,9 @@ import {
     OneToMany,
     ManyToOne,
   } from 'typeorm';
-  import { Account } from '../account/account.entity';
-  import { Product } from '../product/product.entity';
-import { CargoRequest } from './cargorequest.entity';
   
-  @Entity('Warehouse')
-  export class Warehouse {
+  @Entity('Store')
+  export class Store {
     @PrimaryGeneratedColumn()
     Id: number;
   
@@ -44,13 +41,16 @@ import { CargoRequest } from './cargorequest.entity';
     PostalCode: string;
       
     @Column()
-    WarehouseSize: string;
+    Size: string;
 
     @Column()
-    SpaceAvailable: number;
+    Price: number;
 
     @Column()
     ShortName: string;
+
+    @Column()
+    WarehouseId: string;
 
     @Column({ type: 'float' })
     AddressCoorLat: number;
@@ -60,11 +60,5 @@ import { CargoRequest } from './cargorequest.entity';
 
     @DeleteDateColumn()
     DeletedAt?: Date;
-  
-    @OneToMany(
-        () => CargoRequest,
-        order => order.Warehouse,
-      )
-      orders: CargoRequest[];
   }
   

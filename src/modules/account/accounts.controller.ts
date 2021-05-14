@@ -34,6 +34,14 @@ import { REFERENCE_TYPE } from 'src/entities/file/enums/referenceType.enum';
 import { AccountsService } from './accounts.service';
 import { GetRequest } from './dto/GetRequest.dto';
 import { Request } from 'express';
+import { Warehouse } from 'src/entities/warehouse/warehouse.entity';
+import { Store } from 'src/entities/store/store.entity';
+import { CreateWarehouseDto } from 'src/dto/warehouse/CreateWarehouse.dto';
+import { CreateStoreDto } from 'src/dto/store/CreateStore.dto';
+import { UpdateWarehouseDto } from 'src/dto/warehouse/UpdateWarehouse.dto';
+import { UpdateStoreDto } from 'src/dto/store/UpdateStore.dto';
+import { FilterRequestDto } from '../warehouse/cargoRequest/dto/filter-request.dto';
+import { UpdateResult } from 'typeorm';
 
 @ApiTags('Account')
 @Controller('accounts')
@@ -137,5 +145,89 @@ export class AccountsController {
   @SetMetadata(METADATA.ACTION, ACCOUNT_ACTION.RESTORE_ACCOUNT)
   restoreAdmin(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.accountsService.restoreAccount(id);
+  }
+
+
+
+  
+
+  //CRUD WAREHOUSE
+  @Get('warehouses')
+  @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
+  getWarehouses(@Query() model: GetRequest): Promise<any> {
+    return this.accountsService.getWarehouses(model);
+  }
+
+  // @Get('warehouse/deleted')
+  // @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
+  // getDeletedWarehouses(@Query() model: FilterRequestDto): Promise<any> {
+  //   return this.accountsService.getDeletedWarehouses(model);
+  // }
+
+  @Get('warehouse/:id')
+  @ApiOkResponse()
+  getWarehouseById(@Param('id', ParseIntPipe) id: number): Promise<any> {
+    return this.accountsService.getWarehousesDetail(id);
+  }
+
+  @Post('warehouse')
+  async createWarehouse(
+    @Body() model: CreateWarehouseDto,
+    //@Body() model: Record<string, any>,
+  ): Promise<Warehouse> {
+    return this.accountsService.createWarehouse(model);
+  }
+
+  @Put('warehouse/:id')
+  async updateWarehouse(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() model: UpdateWarehouseDto,
+  ): Promise<UpdateResult> {
+    return this.accountsService.updateWarehouse(id, model);
+  }
+
+  @Delete('warehouse/:id')
+  deleteWarehouse(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
+    return this.accountsService.deleteWarehouse(id, /*currentUserId*/ 1);
+  }
+
+  //CRUD STORE
+  @Get('stores')
+  @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
+  getStores(@Query() model: FilterRequestDto): Promise<any> {
+    return this.accountsService.getStores(model);
+  }
+
+  // @Get('store/deleted')
+  // @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
+  // getDeletedStores(@Query() model: FilterRequestDto): Promise<any> {
+  //   return this.accountsService.getDeletedStores(model);
+  // }
+
+  @Get('store/:id')
+  @ApiOkResponse()
+  getStoreById(@Param('id', ParseIntPipe) id: number): Promise<any> {
+    return this.accountsService.getStoreDetail(id);
+  }
+
+  @Post('store')
+  async createStore(
+    @Body() model: CreateStoreDto,
+    //@Body() model: Record<string, any>,
+  ): Promise<Store> {
+    return this.accountsService.createStore(model);
+  }
+
+  @Put('store/:id')
+  async updateStore(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() model: UpdateStoreDto,
+  ): Promise<UpdateResult> {
+    return this.accountsService.updateStore(id, model);
+  }
+
+  @Delete('store/:id')
+  deleteStore(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
+    return this.accountsService.deleteStore(id, /*currentUserId*/ 1);
   }
 }
