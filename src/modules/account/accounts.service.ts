@@ -474,7 +474,7 @@ export class AccountsService {
     if (filterOptionsModel.orderBy) {
       order[filterOptionsModel.orderBy] = filterOptionsModel.orderDirection;
     } else {
-      (order as any).ShortName = 'DESC';
+      (order as any).Id = 'ASC';
     }
 
     if (searchBy && searchKeyword) {
@@ -605,7 +605,7 @@ export class AccountsService {
     if (filterOptionsModel.orderBy) {
       order[filterOptionsModel.orderBy] = filterOptionsModel.orderDirection;
     } else {
-      (order as any).ShortName = 'DESC';
+      (order as any).Id = 'ASC';
     }
 
     if (searchBy && searchKeyword) {
