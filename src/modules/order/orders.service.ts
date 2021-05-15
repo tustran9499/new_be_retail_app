@@ -16,6 +16,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { Account } from '../../entities/account/account.entity';
 import { AccountsService } from '../account/accounts.service';
+import { INQUIRER } from '@nestjs/core';
 
 @Injectable()
 export class OrdersService {
@@ -34,7 +35,8 @@ export class OrdersService {
         queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer").where({ SaleClerkId: id });
       }
       else {
-        queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer");
+        const cashiers = await this.accountService.findAllCashier(result.StoreId);
+        queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer").where("SaleClerkId in (:...cashiers)", { cashiers: cashiers });
       }
       return paginate<Order>(queryBuilder, options);
     } catch (error) {
@@ -48,7 +50,7 @@ export class OrdersService {
   }
 
   async getById(id: number): Promise<any> {
-    const existedOrder = await this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.Customer", "Customer").where('orders.Id =' + id).getOne();
+    const existedOrder = await this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.Customer", "Customer").leftJoinAndSelect("Account.Store", "Store").where('orders.Id =' + id).getOne();
     const existedProductOrder = await this.productorderService.getProductOrderByOrder(id);
     if (!existedOrder && !existedProductOrder) {
       customThrowError(

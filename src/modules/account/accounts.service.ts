@@ -48,6 +48,10 @@ export class AccountsService {
     return this.accountsRepository.find();
   }
 
+  async findAllCashier(storeId: number): Promise<Account[]> {
+    return await this.accountsRepository.find({ StoreId: storeId });
+  }
+
   async findOne(username: string): Promise<Account | undefined> {
     return this.accountsRepository.findOne({ Username: username });
   }
