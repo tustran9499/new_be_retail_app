@@ -76,7 +76,9 @@ export class SessionsService {
                 queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').where({ SaleclerkId: result.Id }).orderBy('sessions.End', 'ASC');
             }
             else {
-                queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').orderBy('sessions.End', 'ASC');
+                const cashiers = await this.accountService.findAllCashier(result.StoreId);
+                let newresult = cashiers.map(a => a.Id);
+                queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').where("SaleClerkId in (:...cashiers)", { cashiers: newresult }).orderBy('sessions.End', 'ASC');
             }
             return paginate<Session>(queryBuilder, options);
         } catch (error) {

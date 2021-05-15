@@ -36,7 +36,8 @@ export class OrdersService {
       }
       else {
         const cashiers = await this.accountService.findAllCashier(result.StoreId);
-        queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer").where("SaleClerkId in (:...cashiers)", { cashiers: cashiers });
+        let newresult = cashiers.map(a => a.Id);
+        queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer").where("SaleClerkId in (:...cashiers)", { cashiers: newresult });
       }
       return paginate<Order>(queryBuilder, options);
     } catch (error) {

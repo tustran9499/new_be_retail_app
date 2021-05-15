@@ -49,7 +49,9 @@ export class AccountsService {
   }
 
   async findAllCashier(storeId: number): Promise<Account[]> {
-    return await this.accountsRepository.find({ StoreId: storeId });
+    return await this.accountsRepository.createQueryBuilder('accounts')
+      .where("accounts.StoreId = :StoreId", { StoreId: storeId })
+      .andWhere("accounts.Type = :Type", { Type: 'Salescleck' }).getMany();
   }
 
   async findOne(username: string): Promise<Account | undefined> {
