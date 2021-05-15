@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Category } from "./category.entity";
 import { ProductOrder } from "../productorder/productorder.entity";
+import { StoreProduct } from '../storeproduct/storeproduct.entity';
 
 @Entity('Product')
 export class Product {
@@ -42,4 +43,7 @@ export class Product {
 
     @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Product)
     ProductOrders: ProductOrder[];
+
+    @OneToMany(() => StoreProduct, StoreProduct => StoreProduct.Store)
+    StoreProducts: StoreProduct[];
 }

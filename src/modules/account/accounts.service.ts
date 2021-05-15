@@ -177,7 +177,7 @@ export class AccountsService {
   }
 
   async findOneById(id: number): Promise<Account | undefined> {
-    return this.accountsRepository.findOne({ Id: id });
+    return this.accountsRepository.createQueryBuilder('accounts').where({ Id: id }).leftJoinAndSelect("accounts.Store", "Store").getOne();
   }
 
   async createAccount(model: CreateAccountDto): Promise<any> {

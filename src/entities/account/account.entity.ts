@@ -4,8 +4,11 @@ import {
   PrimaryGeneratedColumn,
   DeleteDateColumn,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Order } from "../order/order.entity";
+import { Store } from '../store/store.entity';
 
 
 @Entity('Account')
@@ -81,4 +84,14 @@ export class Account {
 
   @OneToMany(() => Order, Order => Order.Account)
   Orders: Order[];
+
+  @Column({ name: 'StoreId' })
+  StoreId: number;
+
+  @ManyToOne(() => Store, Store => Store.Accounts, {
+    onDelete: "RESTRICT"
+  })
+  @JoinColumn({ name: "StoreId", referencedColumnName: "Id" })
+  Store: Store;
+
 }
