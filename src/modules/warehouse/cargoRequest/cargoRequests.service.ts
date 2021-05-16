@@ -29,7 +29,7 @@ export class CargoRequestsService {
     try {
       const newCargoRequest = new CargoRequest();
       newCargoRequest.warehouseId = model.warehouseId;
-      newCargoRequest.StoreId = model.StoreId;
+      newCargoRequest.storeId = model.storeId;
       newCargoRequest.Status = 'Created';
       const result = await this.cargoRequestsRepository.save(newCargoRequest);
       let index;

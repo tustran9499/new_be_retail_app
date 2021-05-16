@@ -17,7 +17,7 @@ export class CreateCargoRequestDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  StoreId: number;
+  storeId: number;
 }
 
 export class UpdateCargoRequestDto {
@@ -31,12 +31,11 @@ export class UpdateCargoRequestDto {
   warehouseId: number;
 
   @ApiProperty()
-  StoreId: number;
+  storeId: number;
 
   @ApiProperty()
   Notes: string;
 
   @ApiProperty()
   Status: string;
-
 }

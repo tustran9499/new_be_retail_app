@@ -76,14 +76,11 @@ export class Account {
   EmailVerified: boolean;
 
   @Column()
-  StoreId: number;
+  storeId: number;
 
   @DeleteDateColumn()
   DeletedAt?: Date;
 
-  @OneToMany(
-    () => CargoRequest,
-    order => order.CreatedByAccount,
-  )
+  @OneToMany(() => CargoRequest, order => order.CreatedByAccount)
   orders: CargoRequest[];
 }
