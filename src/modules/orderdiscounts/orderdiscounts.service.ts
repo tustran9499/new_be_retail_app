@@ -4,7 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OrderDiscount } from 'src/entities/promotion/orderdiscount.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderDiscountDto } from 'src/dto/promotion/CreateOrderDiscount.dto';
-import { IPaginationOptions, Pagination, paginate } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, Pagination, paginate, paginateRaw } from 'nestjs-typeorm-paginate';
+import { Promotion } from 'src/entities/promotion/promotion.entity';
 
 @Injectable()
 export class OrderdiscountsService {
@@ -20,11 +21,12 @@ export class OrderdiscountsService {
     }
 
     async paginate(options: IPaginationOptions): Promise<Pagination<any>> {
-        const queryBuilder = this.orderdiscountsRepository.createQueryBuilder('orderdiscounts').leftJoinAndSelect("Promotion", "promotions", "promotions.Coupon=orderdiscounts.Coupon").orderBy('promotions.StartTime', 'ASC');
-        const result = paginate<any>(queryBuilder, options);
+        const queryBuilder = this.orderdiscountsRepository.createQueryBuilder('orderdiscounts').innerJoinAndSelect(Promotion, "promotions", "promotions.Coupon=orderdiscounts.Coupon").orderBy('promotions.StartTime', 'ASC');
+        console.log(await queryBuilder.getRawMany());
+        const result = await paginateRaw<any>(queryBuilder, options);
         console.log("------------------------------------------")
         console.log(result);
-        return paginate<any>(queryBuilder, options);
+        return paginateRaw<any>(queryBuilder, options);
     }
 
 }

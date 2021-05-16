@@ -7,8 +7,8 @@ import { PromotionsModule } from '../promotions/promotions.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OrderDiscount]), PromotionsModule],
-  controllers: [OrderdiscountsController],
+  providers: [OrderdiscountsService],
   exports: [OrderdiscountsService],
-  providers: [OrderdiscountsService]
+  controllers: [OrderdiscountsController],
 })
 export class OrderdiscountsModule { }

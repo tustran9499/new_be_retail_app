@@ -5,7 +5,9 @@ import { Reflector } from '@nestjs/core';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { OrderdiscountsService } from './orderdiscounts.service';
 import { OrderDiscount } from 'src/entities/promotion/orderdiscount.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('OrderDiscounts')
 @Controller('orderdiscounts')
 export class OrderdiscountsController {
     constructor(private OrderdiscountsService: OrderdiscountsService) { }
