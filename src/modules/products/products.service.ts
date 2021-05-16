@@ -76,6 +76,16 @@ export class ProductsService {
         }
     }
 
+    async getFullPromotion(id: number): Promise<any> {
+        var data = await this.productsRepository.query("GetFullProductPromotion @Id='" + id + "'");
+        if (data && data[0]) {
+            return data[0];
+        }
+        else {
+            return {};
+        }
+    }
+
     async getTimeSeriesSale(id: number): Promise<any> {
         var data = await this.productsRepository.query("GetTimeSeriesSale @ProductId='" + id + "'");
         var newData = [];
