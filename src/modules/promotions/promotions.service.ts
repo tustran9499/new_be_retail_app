@@ -22,7 +22,7 @@ export class PromotionsService {
 
     async updatePromotion(id: number, model: UpdatePromotionDto): Promise<any> {
         try {
-            const result = await this.promotionRepository.save({ ...model, Id: Number(id) });
+            const result = await this.promotionRepository.save({ ...model, Coupon: Number(id) });
             return result;
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);

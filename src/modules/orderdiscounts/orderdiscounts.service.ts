@@ -35,7 +35,8 @@ export class OrderdiscountsService {
     async updatePromotion(id: number, model: UpdateOrderDiscountDto): Promise<any> {
         try {
             await this.promotionsService.updatePromotion(id, model);
-            const result = await this.orderdiscountsRepository.save({ ...model, Id: Number(id) });
+            await this.orderdiscountsRepository.query("SET IDENTITY_INSERT OrderDiscount ON; GO;");
+            const result = await this.orderdiscountsRepository.save({ ...model, Coupon: Number(id) });
             return result;
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
