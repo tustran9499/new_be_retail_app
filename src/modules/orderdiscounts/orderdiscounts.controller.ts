@@ -1,4 +1,4 @@
-import { Controller, SetMetadata, UseGuards, Get, Query, ParseIntPipe, Post, Body } from '@nestjs/common';
+import { Controller, SetMetadata, UseGuards, Get, Query, ParseIntPipe, Post, Body, Put, Param } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Reflector } from '@nestjs/core';
@@ -8,6 +8,8 @@ import { OrderDiscount } from 'src/entities/promotion/orderdiscount.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { CreatePromotionDto } from 'src/dto/promotion/CreatePromotion.dto';
 import { CreateOrderDiscountDto } from 'src/dto/promotion/CreateOrderDiscount.dto';
+import { UpdatePromotionDto } from 'src/dto/promotion/UpdatePromotion.dto';
+import { UpdateOrderDiscountDto } from 'src/dto/promotion/UpdateOrderDiscount.dto';
 
 @ApiTags('OrderDiscounts')
 @Controller('orderdiscounts')
@@ -36,5 +38,14 @@ export class OrderdiscountsController {
         @Body() model: CreateOrderDiscountDto,
     ): Promise<any> {
         return this.OrderdiscountsService.createOrderDiscount(model);
+    }
+
+    // @SetMetadata('roles', ['StoreManager'])
+    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Put('/:id')
+    async updatePromotion(@Param('id', ParseIntPipe) id: number,
+        @Body() model: UpdateOrderDiscountDto,
+    ): Promise<any> {
+        return this.OrderdiscountsService.updatePromotion(id, model);
     }
 }
