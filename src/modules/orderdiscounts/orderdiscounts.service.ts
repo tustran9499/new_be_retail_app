@@ -20,22 +20,17 @@ export class OrderdiscountsService {
 
     async createOrderDiscount(model: CreateOrderDiscountDto): Promise<OrderDiscount> {
         const promotion = await this.promotionsService.createPromotion(model);
-        return await this.orderdiscountsRepository.save({ ...model, Coupon: promotion.Coupon });
+        return await this.orderdiscountsRepository.query("CreateOrderDiscount @Coupon=" + promotion.Coupon + ",@MinBill=" + model.MinBill + ",@MaxDiscount=" + model.MaxDiscount);;
     }
 
     async paginate(options: IPaginationOptions): Promise<Pagination<any>> {
         const queryBuilder = this.orderdiscountsRepository.createQueryBuilder('orderdiscounts').innerJoinAndSelect(Promotion, "promotions", "promotions.Coupon=orderdiscounts.Coupon").orderBy('promotions.StartTime', 'ASC');
-        console.log(await queryBuilder.getRawMany());
-        const result = await paginateRaw<any>(queryBuilder, options);
-        console.log("------------------------------------------")
-        console.log(result);
         return paginateRaw<any>(queryBuilder, options);
     }
 
     async updatePromotion(id: number, model: UpdateOrderDiscountDto): Promise<any> {
         try {
             await this.promotionsService.updatePromotion(id, model);
-            await this.orderdiscountsRepository.query("SET IDENTITY_INSERT OrderDiscount ON; GO;");
             const result = await this.orderdiscountsRepository.save({ ...model, Coupon: Number(id) });
             return result;
         } catch (error) {
