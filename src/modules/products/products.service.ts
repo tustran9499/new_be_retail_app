@@ -14,6 +14,7 @@ import { UpdateProductDto } from 'src/dto/product/UpdateProduct.dto.';
 import { Like } from "typeorm";
 import { CategoriesService } from '../categories/categories.service';
 import { Category } from 'src/entities/product/category.entity';
+import { AccountsService } from '../account/accounts.service';
 var timeseries = require("timeseries-analysis");
 
 @Injectable()
@@ -22,6 +23,7 @@ export class ProductsService {
         @InjectRepository(Product)
         private productsRepository: Repository<Product>,
         private categoriesService: CategoriesService,
+        private accountService: AccountsService,
     ) { }
 
     async getFullTimeSeriesSale(): Promise<any> {
@@ -50,18 +52,27 @@ export class ProductsService {
         return paginate<Product>(this.productsRepository, options);
     }
 
-    async searchProduct(key: string, options: IPaginationOptions): Promise<Pagination<Product>> {
+    async searchProduct(userId: number, key: string, options: IPaginationOptions): Promise<Pagination<Product>> {
+        const result = await this.accountService.findOneById(userId);
+        if (result && result.StoreId) {
+            const storeId = result.StoreId;
+            if (key && key != undefined && key !== null && key !== '') {
+                const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").innerJoinAndSelect("products.StoreProducts", "StoreProducts").where('StoreProducts.StoreId = ' + storeId).andWhere('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
+                const result = paginate<Product>(queryBuilder, options);
+                return paginate<Product>(queryBuilder, options);
+            }
+            else {
+                const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").innerJoinAndSelect("products.StoreProducts", "StoreProducts").where('StoreProducts.StoreId = ' + storeId).orderBy('products.Id', 'ASC');
+                return paginate<Product>(queryBuilder, options);
+            }
+        }
         if (key && key != undefined && key !== null && key !== '') {
             const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").where('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
             const result = paginate<Product>(queryBuilder, options);
-            console.log("------------------------------------------")
-            console.log(result);
             return paginate<Product>(queryBuilder, options);
         }
         else {
             const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").orderBy('products.Id', 'ASC');
-            console.log("------------------------------------------")
-            console.log(queryBuilder.getMany());
             return paginate<Product>(queryBuilder, options);
         }
     }

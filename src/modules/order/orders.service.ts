@@ -112,7 +112,7 @@ export class OrdersService {
     return [Orders, number];
   }
 
-  private async _createOrder(model: CreateOrderDto, cartproducts: CartProduct[]): Promise<any> {
+  private async _createOrder(userId: number, model: CreateOrderDto, cartproducts: CartProduct[]): Promise<any> {
     try {
       const order = new Order();
       order.OrderDate = new Date(Date.now());
@@ -126,7 +126,7 @@ export class OrdersService {
       const resultitems = [];
       cartproducts.forEach(async (item) => {
         try {
-          const item_result = await this.productorderService.createProductOrder({ ProductId: item.Id, OrderId: result.Id, Price: item.UnitPrice, Quantity: item.Quantity, ReturnedQuantity: 0, Tax: 0.1, Discount: item.Discount });
+          const item_result = await this.productorderService.createProductOrder(userId, { ProductId: item.Id, OrderId: result.Id, Price: item.UnitPrice, Quantity: item.Quantity, ReturnedQuantity: 0, Tax: 0.1, Discount: item.Discount });
           resultitems.push(item_result);
         }
         catch (error) {
@@ -139,9 +139,9 @@ export class OrdersService {
     }
   }
 
-  async createOrder(order: CreateOrderDto, cartproducts: CartProduct[]
+  async createOrder(userId: number, order: CreateOrderDto, cartproducts: CartProduct[]
   ): Promise<any> {
-    return await this._createOrder(order, cartproducts);
+    return await this._createOrder(userId, order, cartproducts);
   }
 
   async getPromotion(total: number, coupon: number): Promise<any> {

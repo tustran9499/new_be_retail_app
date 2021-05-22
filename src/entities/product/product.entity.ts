@@ -44,6 +44,6 @@ export class Product {
     @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Product)
     ProductOrders: ProductOrder[];
 
-    @OneToMany(() => StoreProduct, StoreProduct => StoreProduct.Store)
+    @OneToMany(() => StoreProduct, StoreProduct => StoreProduct.Product)
     StoreProducts: StoreProduct[];
 }

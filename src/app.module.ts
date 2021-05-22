@@ -16,6 +16,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { OrderdiscountsModule } from './modules/orderdiscounts/orderdiscounts.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
+import { StoreproductsModule } from './modules/storeproducts/storeproducts.module';
 
 @Module({
   imports: [ConfigModule.forRoot(),
@@ -46,7 +47,7 @@ import { PromotionsModule } from './modules/promotions/promotions.module';
     "cli": {
       "migrationsDir": "src/database/migrations"
     }
-  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule],
+  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule, StoreproductsModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -73,9 +73,11 @@ export class ProductsController {
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
         @Query('key') key: string = "",
+        @Request() req
     ): Promise<Pagination<Product>> {
         limit = limit > 100 ? 100 : limit;
-        return this.ProductsService.searchProduct(key,
+        return this.ProductsService.searchProduct(req.user.userId,
+            key,
             {
                 page,
                 limit,

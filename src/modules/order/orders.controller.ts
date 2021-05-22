@@ -84,11 +84,14 @@ export class OrdersController {
     return this.ordersService.getOrders(model);
   }
 
+  @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post()
   async createOrder(
-    @Body() model: { order: CreateOrderDto, cartproducts: CartProduct[] }
+    @Body() model: { order: CreateOrderDto, cartproducts: CartProduct[] },
+    @Request() req,
   ): Promise<Order> {
-    return this.ordersService.createOrder(model.order, model.cartproducts);
+    return this.ordersService.createOrder(req.user.userId, model.order, model.cartproducts);
   }
 
   @Put('/:id')
