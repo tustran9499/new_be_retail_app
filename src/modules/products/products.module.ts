@@ -5,9 +5,15 @@ import { ProductsController } from './products.controller';
 import { Product } from '../../entities/product/product.entity';
 import { CategoriesModule } from '../categories/categories.module';
 import { AccountsModule } from '../account/accounts.module';
+import { StoreproductsModule } from '../storeproducts/storeproducts.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product]), CategoriesModule, AccountsModule],
+  imports: [
+    TypeOrmModule.forFeature([Product]),
+    CategoriesModule,
+    AccountsModule,
+    // StoreproductsModule
+  ],
   providers: [ProductsService],
   exports: [ProductsService],
   controllers: [ProductsController],

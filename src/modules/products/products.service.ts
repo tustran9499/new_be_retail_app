@@ -15,6 +15,7 @@ import { Like } from "typeorm";
 import { CategoriesService } from '../categories/categories.service';
 import { Category } from 'src/entities/product/category.entity';
 import { AccountsService } from '../account/accounts.service';
+// import { StoreproductsService } from '../storeproducts/storeproducts.service';
 var timeseries = require("timeseries-analysis");
 
 @Injectable()
@@ -24,6 +25,7 @@ export class ProductsService {
         private productsRepository: Repository<Product>,
         private categoriesService: CategoriesService,
         private accountService: AccountsService,
+        // private storeproductsService: StoreproductsService,
     ) { }
 
     async getFullTimeSeriesSale(): Promise<any> {
@@ -66,6 +68,18 @@ export class ProductsService {
                 return paginate<Product>(queryBuilder, options);
             }
         }
+        if (key && key != undefined && key !== null && key !== '') {
+            const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").where('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
+            const result = paginate<Product>(queryBuilder, options);
+            return paginate<Product>(queryBuilder, options);
+        }
+        else {
+            const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").orderBy('products.Id', 'ASC');
+            return paginate<Product>(queryBuilder, options);
+        }
+    }
+
+    async searchAllProduct(userId: number, key: string, options: IPaginationOptions): Promise<Pagination<Product>> {
         if (key && key != undefined && key !== null && key !== '') {
             const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").where('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
             const result = paginate<Product>(queryBuilder, options);
@@ -144,9 +158,10 @@ export class ProductsService {
         }
     }
 
-    async updateProduct(id: number, model: UpdateProductDto): Promise<Product> {
+    async updateProduct(userId: number, id: number, model: UpdateProductDto): Promise<Product> {
         try {
             const result = await this.productsRepository.save({ ...model, Id: Number(id) });
+            // await this.storeproductsService.updateStoreProduct(userId, id, model.Quantity);
             return result;
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);

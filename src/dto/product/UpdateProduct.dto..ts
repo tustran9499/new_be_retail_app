@@ -25,6 +25,10 @@ export class UpdateProductDto {
 
   @IsOptional()
   @ApiPropertyOptional()
+  Quantity: number;
+
+  @IsOptional()
+  @ApiPropertyOptional()
   ReorderLevel: number;
 
   @IsOptional()
