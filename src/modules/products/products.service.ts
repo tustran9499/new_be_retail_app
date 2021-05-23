@@ -15,7 +15,7 @@ import { Like } from "typeorm";
 import { CategoriesService } from '../categories/categories.service';
 import { Category } from 'src/entities/product/category.entity';
 import { AccountsService } from '../account/accounts.service';
-// import { StoreproductsService } from '../storeproducts/storeproducts.service';
+import { StoreproductsService } from '../storeproducts/storeproducts.service';
 var timeseries = require("timeseries-analysis");
 
 @Injectable()
@@ -25,7 +25,7 @@ export class ProductsService {
         private productsRepository: Repository<Product>,
         private categoriesService: CategoriesService,
         private accountService: AccountsService,
-        // private storeproductsService: StoreproductsService,
+        private storeproductsService: StoreproductsService,
     ) { }
 
     async getFullTimeSeriesSale(): Promise<any> {
@@ -161,7 +161,7 @@ export class ProductsService {
     async updateProduct(userId: number, id: number, model: UpdateProductDto): Promise<Product> {
         try {
             const result = await this.productsRepository.save({ ...model, Id: Number(id) });
-            // await this.storeproductsService.updateStoreProduct(userId, id, model.Quantity);
+            await this.storeproductsService.updateStoreProduct(userId, id, model.Quantity);
             return result;
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);

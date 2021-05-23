@@ -12,7 +12,7 @@ import { StoreproductsModule } from '../storeproducts/storeproducts.module';
     TypeOrmModule.forFeature([Product]),
     CategoriesModule,
     AccountsModule,
-    // StoreproductsModule
+    StoreproductsModule
   ],
   providers: [ProductsService],
   exports: [ProductsService],
