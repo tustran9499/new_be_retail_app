@@ -105,7 +105,7 @@ export class ProductsController {
 
   @SetMetadata('roles', ['StoreManager', 'Salescleck'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
-  @Get('/searchAllProducts')
+  @Get('/searchNotAddedProducts')
   async searchAll(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
@@ -113,10 +113,10 @@ export class ProductsController {
     @Request() req,
   ): Promise<Pagination<Product>> {
     limit = limit > 100 ? 100 : limit;
-    return this.ProductsService.searchAllProduct(req.user.userId, key, {
+    return this.ProductsService.searchNotAddedProduct(req.user.userId, key, {
       page,
       limit,
-      route: '/api/products/searchAllProducts',
+      route: '/api/products/searchNotAddedProducts',
     });
   }
 

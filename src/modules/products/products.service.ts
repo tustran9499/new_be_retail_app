@@ -79,14 +79,17 @@ export class ProductsService {
         }
     }
 
-    async searchAllProduct(userId: number, key: string, options: IPaginationOptions): Promise<Pagination<Product>> {
+    async searchNotAddedProduct(userId: number, key: string, options: IPaginationOptions): Promise<Pagination<Product>> {
+        const currentProducts = await this.productsRepository.createQueryBuilder('products').innerJoinAndSelect("products.StoreProducts", "StoreProducts").getMany();
+        var currentProductIds = [] as any;
+        currentProducts.forEach((item) => { currentProductIds.push(item.Id); });
         if (key && key != undefined && key !== null && key !== '') {
-            const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").where('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
+            const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").where('products.Id NOT IN (' + currentProductIds + ')').andWhere('products.ProductName Like \'%' + String(key) + '%\'').orWhere('products.Id Like \'%' + String(key) + '%\'').orderBy('products.ProductName', 'ASC');
             const result = paginate<Product>(queryBuilder, options);
             return paginate<Product>(queryBuilder, options);
         }
         else {
-            const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").orderBy('products.Id', 'ASC');
+            const queryBuilder = this.productsRepository.createQueryBuilder('products').leftJoinAndSelect("products.Category", "Category").where('products.Id NOT IN (' + currentProductIds + ')').orderBy('products.Id', 'ASC');
             return paginate<Product>(queryBuilder, options);
         }
     }
