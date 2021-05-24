@@ -152,7 +152,7 @@ export class AccountsController {
   
 
   //CRUD WAREHOUSE
-  @Get('warehouses/all')
+  @Get('warehouse/all')
   @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
   getWarehouses(@Query() model: GetRequest): Promise<any> {
     return this.accountsService.getWarehouses(model);
@@ -192,7 +192,7 @@ export class AccountsController {
   }
 
   //CRUD STORE
-  @Get('stores/all')
+  @Get('store/all')
   @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
   getStores(@Query() model: FilterRequestDto): Promise<any> {
     return this.accountsService.getStores(model);
