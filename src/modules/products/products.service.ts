@@ -16,6 +16,8 @@ import { CategoriesService } from '../categories/categories.service';
 import { Category } from 'src/entities/product/category.entity';
 import { AccountsService } from '../account/accounts.service';
 import { StoreproductsService } from '../storeproducts/storeproducts.service';
+import { UpdateProductByStoreDto } from 'src/dto/product/UpdateProductByStore.dto';
+import { UpdateProductByAdminDto } from 'src/dto/product/UpdateProductByAdmin.dto';
 var timeseries = require("timeseries-analysis");
 
 @Injectable()
@@ -161,10 +163,18 @@ export class ProductsService {
         }
     }
 
-    async updateProduct(userId: number, id: number, model: UpdateProductDto): Promise<Product> {
+    async updateProductByStore(userId: number, id: number, model: UpdateProductByStoreDto): Promise<Product> {
+        try {
+            const result = await this.storeproductsService.updateStoreProduct(userId, id, model.Quantity);
+            return result;
+        } catch (error) {
+            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+        }
+    }
+
+    async updateProductByAdmin(userId: number, id: number, model: UpdateProductByAdminDto): Promise<Product> {
         try {
             const result = await this.productsRepository.save({ ...model, Id: Number(id) });
-            await this.storeproductsService.updateStoreProduct(userId, id, model.Quantity);
             return result;
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
@@ -185,14 +195,24 @@ export class ProductsService {
         }
     }
 
-    async deleteProduct(id: number): Promise<Product> {
-        try {
-            let product = await this.productsRepository.findOne(id)
-            product.Discontinued = true;
-            const result = await this.productsRepository.save({ ...product, Id: Number(id) });
-            return result;
-        } catch (error) {
-            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    async deleteProduct(userId: number, id: number): Promise<any> {
+        const result = await this.accountService.findOneById(userId);
+        if (result && result.StoreId) {
+            try {
+                return await this.storeproductsService.deleteProductFromStore(id, result.StoreId);
+            } catch (error) {
+                customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+            }
+        }
+        else {
+            try {
+                let product = await this.productsRepository.findOne(id)
+                product.Discontinued = true;
+                const result = await this.productsRepository.save({ ...product, Id: Number(id) });
+                return result;
+            } catch (error) {
+                customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+            }
         }
     }
 

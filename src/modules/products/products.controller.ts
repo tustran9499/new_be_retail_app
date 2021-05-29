@@ -55,7 +55,7 @@ export class ProductsController {
     return this.ProductsService.getTimeSeriesSale(id);
   }
 
-  @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'Salescleck'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/categories')
   @ApiOkResponse()
@@ -86,7 +86,7 @@ export class ProductsController {
     });
   }
 
-  @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'Salescleck'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/searchProducts')
   async search(
@@ -103,7 +103,7 @@ export class ProductsController {
     });
   }
 
-  @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+  @SetMetadata('roles', ['StoreManager'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/searchNotAddedProducts')
   async searchAll(
@@ -120,14 +120,14 @@ export class ProductsController {
     });
   }
 
-  @SetMetadata('roles', ['StoreManager'])
+  @SetMetadata('roles', ['StoresManager'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post()
   async createProduct(@Body() model: CreateProductDto): Promise<Product> {
     return this.ProductsService.createProduct(model);
   }
 
-  @SetMetadata('roles', ['StoreManager'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/:id')
   async updateProduct(
@@ -135,10 +135,15 @@ export class ProductsController {
     @Body() model: UpdateProductDto,
     @Request() req,
   ): Promise<Product> {
-    return this.ProductsService.updateProduct(req.user.userId, id, model);
+    if (req.user.role == 'StoresManager') {
+      return this.ProductsService.updateProductByAdmin(req.user.userId, id, model);
+    }
+    else {
+      return this.ProductsService.updateProductByStore(req.user.userId, id, model);
+    }
   }
 
-  @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'Salescleck'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/:id')
   @ApiOkResponse()
@@ -146,15 +151,15 @@ export class ProductsController {
     return this.ProductsService.findOne(id);
   }
 
-  @SetMetadata('roles', ['StoreManager'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Delete('/:id')
   @ApiOkResponse()
-  deleteProduct(@Param('id', ParseIntPipe) id: number): Promise<any> {
-    return this.ProductsService.deleteProduct(id);
+  deleteProduct(@Param('id', ParseIntPipe) id: number, @Request() req): Promise<any> {
+    return this.ProductsService.deleteProduct(req.user.userId, id);
   }
 
-  @SetMetadata('roles', ['StoreManager'])
+  @SetMetadata('roles', ['StoresManager'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('/avatar/:id')
   @UseInterceptors(

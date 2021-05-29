@@ -12,7 +12,7 @@ export class StoreproductsService {
     @InjectRepository(StoreProduct)
     private storeproductsRepository: Repository<StoreProduct>,
     private accountsService: AccountsService,
-  ) {}
+  ) { }
 
   async updateStoreProduct(
     UserId: number,
@@ -66,6 +66,15 @@ export class StoreproductsService {
         ProductId: ProductId,
         Quantity: 0,
       });
+      return result;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async deleteProductFromStore(ProductId: number, StoreId: number) {
+    try {
+      const result = await this.storeproductsRepository.delete({ ProductId: ProductId, StoreId: StoreId });
       return result;
     } catch (error) {
       customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
