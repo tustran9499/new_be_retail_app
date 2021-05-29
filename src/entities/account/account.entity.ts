@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Order } from "../order/order.entity";
 import { Store } from '../store/store.entity';
+import { Session } from '../session/session.entity';
 
 
 @Entity('Account')
@@ -84,6 +85,9 @@ export class Account {
 
   @OneToMany(() => Order, Order => Order.Account)
   Orders: Order[];
+
+  @OneToMany(() => Session, Session => Session.Account)
+  Sessions: Session[];
 
   @Column({ name: 'StoreId' })
   StoreId: number;
