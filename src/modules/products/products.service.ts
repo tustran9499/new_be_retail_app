@@ -116,42 +116,82 @@ export class ProductsService {
         }
     }
 
-    async getTimeSeriesSale(id: number): Promise<any> {
-        var data = await this.productsRepository.query("GetTimeSeriesSale @ProductId='" + id + "'");
-        var newData = [];
-        for (let step = 0; step < 15; step++) {
-            var tempdate = new Date();
-            tempdate.setDate(new Date().getDate() - step);
-            if (data.length != 0 && new Date(data[data.length - 1].Date).getDate() == tempdate.getDate()) {
-                newData.push(data[data.length - 1]);
-                data.pop();
+    async getTimeSeriesSale(userId: number, id: number): Promise<any> {
+        const user = await this.accountService.findOneById(userId);
+        if (user && user.StoreId) {
+            var data = await this.productsRepository.query("GetTimeSeriesSaleByStore @ProductId='" + id + "',@StoreId='" + user.StoreId + "'");
+            var newData = [];
+            for (let step = 0; step < 15; step++) {
+                var tempdate = new Date();
+                tempdate.setDate(new Date().getDate() - step);
+                if (data.length != 0 && new Date(data[data.length - 1].Date).getDate() == tempdate.getDate()) {
+                    newData.push(data[data.length - 1]);
+                    data.pop();
+                }
+                else {
+                    newData.push({ Date: tempdate, Value: 0 });
+                }
             }
-            else {
-                newData.push({ Date: tempdate, Value: 0 });
+            newData.reverse();
+            for (let step = 0; step < 15; step++) {
+                var tomorrow = new Date();
+                tomorrow.setDate(new Date().getDate() + step);
+                newData.push({ Date: tomorrow, Value: 0 });
             }
+            var t = new timeseries.main(timeseries.adapter.fromDB(newData, {
+                date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
+                value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
+            }));
+            // t.smoother({ period: 3 }).save('smoothed');
+            var bestSettings = t.regression_forecast_optimize();
+            var options = {
+                n: 15, // How many data points to be forecasted
+                sample: 14, // How many datapoints to be training dataset
+                start: 15, // Initial forecasting position 
+                method: bestSettings.method, // What method for forecasting
+                degree: bestSettings.degree, // How many degree for forecasting
+                // growthSampleMode: false, // Is the sample use only last x data points or up to entire data points?
+            }
+            var MSE = t.regression_forecast(options)
+            return t;
         }
-        newData.reverse();
-        for (let step = 0; step < 15; step++) {
-            var tomorrow = new Date();
-            tomorrow.setDate(new Date().getDate() + step);
-            newData.push({ Date: tomorrow, Value: 0 });
+        else {
+            var data = await this.productsRepository.query("GetTimeSeriesSale @ProductId='" + id + "'");
+            var newData = [];
+            for (let step = 0; step < 15; step++) {
+                var tempdate = new Date();
+                tempdate.setDate(new Date().getDate() - step);
+                if (data.length != 0 && new Date(data[data.length - 1].Date).getDate() == tempdate.getDate()) {
+                    newData.push(data[data.length - 1]);
+                    data.pop();
+                }
+                else {
+                    newData.push({ Date: tempdate, Value: 0 });
+                }
+            }
+            newData.reverse();
+            for (let step = 0; step < 15; step++) {
+                var tomorrow = new Date();
+                tomorrow.setDate(new Date().getDate() + step);
+                newData.push({ Date: tomorrow, Value: 0 });
+            }
+            var t = new timeseries.main(timeseries.adapter.fromDB(newData, {
+                date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
+                value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
+            }));
+            // t.smoother({ period: 3 }).save('smoothed');
+            var bestSettings = t.regression_forecast_optimize();
+            var options = {
+                n: 15, // How many data points to be forecasted
+                sample: 14, // How many datapoints to be training dataset
+                start: 15, // Initial forecasting position 
+                method: bestSettings.method, // What method for forecasting
+                degree: bestSettings.degree, // How many degree for forecasting
+                // growthSampleMode: false, // Is the sample use only last x data points or up to entire data points?
+            }
+            var MSE = t.regression_forecast(options)
+            return t;
         }
-        var t = new timeseries.main(timeseries.adapter.fromDB(newData, {
-            date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
-            value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
-        }));
-        // t.smoother({ period: 3 }).save('smoothed');
-        var bestSettings = t.regression_forecast_optimize();
-        var options = {
-            n: 15, // How many data points to be forecasted
-            sample: 14, // How many datapoints to be training dataset
-            start: 15, // Initial forecasting position 
-            method: bestSettings.method, // What method for forecasting
-            degree: bestSettings.degree, // How many degree for forecasting
-            // growthSampleMode: false, // Is the sample use only last x data points or up to entire data points?
-        }
-        var MSE = t.regression_forecast(options)
-        return t;
     }
 
     async createProduct(model: CreateProductDto): Promise<Product> {

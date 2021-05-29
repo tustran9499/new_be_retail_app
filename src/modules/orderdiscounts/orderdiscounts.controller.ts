@@ -16,7 +16,7 @@ import { UpdateOrderDiscountDto } from 'src/dto/promotion/UpdateOrderDiscount.dt
 export class OrderdiscountsController {
     constructor(private OrderdiscountsService: OrderdiscountsService) { }
 
-    @SetMetadata('roles', ['StoresManager'])
+    @SetMetadata('roles', ['StoresManager', 'StoreManager'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get()
     async index(

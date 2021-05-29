@@ -49,10 +49,12 @@ export class ProductsController {
     return this.ProductsService.getFullTimeSeriesSale();
   }
 
+  @SetMetadata('roles', ['StoresManager', 'StoreManager'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/timeseries/:id')
   @ApiOkResponse()
-  getTimeSeriesSale(@Param('id', ParseIntPipe) id: number): Promise<any> {
-    return this.ProductsService.getTimeSeriesSale(id);
+  getTimeSeriesSale(@Param('id', ParseIntPipe) id: number, @Request() req): Promise<any> {
+    return this.ProductsService.getTimeSeriesSale(req.user.userId, id);
   }
 
   @SetMetadata('roles', ['StoresManager', 'StoreManager', 'StoreStaff', 'Salescleck'])
