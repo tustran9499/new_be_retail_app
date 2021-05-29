@@ -55,7 +55,7 @@ export class ProductsController {
     return this.ProductsService.getTimeSeriesSale(id);
   }
 
-  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'Salescleck'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'StoreStaff', 'Salescleck'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/categories')
   @ApiOkResponse()
@@ -86,7 +86,7 @@ export class ProductsController {
     });
   }
 
-  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'Salescleck'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'StoreStaff', 'Salescleck'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/searchProducts')
   async search(
@@ -103,7 +103,7 @@ export class ProductsController {
     });
   }
 
-  @SetMetadata('roles', ['StoreManager'])
+  @SetMetadata('roles', ['StoreManager', 'StoreStaff'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/searchNotAddedProducts')
   async searchAll(
@@ -127,7 +127,7 @@ export class ProductsController {
     return this.ProductsService.createProduct(model);
   }
 
-  @SetMetadata('roles', ['StoresManager', 'StoreManager'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'StoreStaff'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put('/:id')
   async updateProduct(

@@ -16,8 +16,8 @@ import { UpdateOrderDiscountDto } from 'src/dto/promotion/UpdateOrderDiscount.dt
 export class OrderdiscountsController {
     constructor(private OrderdiscountsService: OrderdiscountsService) { }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoresManager'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get()
     async index(
         @Query('page', ParseIntPipe) page: number = 1,
@@ -31,8 +31,8 @@ export class OrderdiscountsController {
         });
     }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoresManager'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post()
     async createPromotion(
         @Body() model: CreateOrderDiscountDto,
@@ -40,8 +40,8 @@ export class OrderdiscountsController {
         return this.OrderdiscountsService.createOrderDiscount(model);
     }
 
-    // @SetMetadata('roles', ['StoreManager'])
-    // @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @SetMetadata('roles', ['StoresManager'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Put('/:id')
     async updatePromotion(@Param('id', ParseIntPipe) id: number,
         @Body() model: UpdateOrderDiscountDto,
