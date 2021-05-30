@@ -133,10 +133,15 @@ export class ProductsService {
                 }
             }
             newData.reverse();
+            var pret = new timeseries.main(timeseries.adapter.fromDB(newData, {
+                date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
+                value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
+            }));
+            var mean = pret.mean();
             for (let step = 0; step < 15; step++) {
                 var tomorrow = new Date();
                 tomorrow.setDate(new Date().getDate() + step);
-                newData.push({ Date: tomorrow, Value: 0 });
+                newData.push({ Date: tomorrow, Value: mean });
             }
             var t = new timeseries.main(timeseries.adapter.fromDB(newData, {
                 date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
@@ -148,8 +153,8 @@ export class ProductsService {
                 n: 15, // How many data points to be forecasted
                 sample: 14, // How many datapoints to be training dataset
                 start: 15, // Initial forecasting position 
-                method: bestSettings.method, // What method for forecasting
-                degree: bestSettings.degree, // How many degree for forecasting
+                method: 'ARMaxEntropy', // What method for forecasting
+                degree: 4, // How many degree for forecasting
                 // growthSampleMode: false, // Is the sample use only last x data points or up to entire data points?
             }
             var MSE = t.regression_forecast(options)
@@ -170,10 +175,15 @@ export class ProductsService {
                 }
             }
             newData.reverse();
+            var pret = new timeseries.main(timeseries.adapter.fromDB(newData, {
+                date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
+                value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
+            }));
+            var mean = pret.mean();
             for (let step = 0; step < 15; step++) {
                 var tomorrow = new Date();
                 tomorrow.setDate(new Date().getDate() + step);
-                newData.push({ Date: tomorrow, Value: 0 });
+                newData.push({ Date: tomorrow, Value: mean });
             }
             var t = new timeseries.main(timeseries.adapter.fromDB(newData, {
                 date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
@@ -185,8 +195,8 @@ export class ProductsService {
                 n: 15, // How many data points to be forecasted
                 sample: 14, // How many datapoints to be training dataset
                 start: 15, // Initial forecasting position 
-                method: bestSettings.method, // What method for forecasting
-                degree: bestSettings.degree, // How many degree for forecasting
+                method: 'ARMaxEntropy', // What method for forecasting
+                degree: 4, // How many degree for forecasting
                 // growthSampleMode: false, // Is the sample use only last x data points or up to entire data points?
             }
             var MSE = t.regression_forecast(options)
