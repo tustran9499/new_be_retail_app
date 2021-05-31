@@ -10,7 +10,7 @@ import {
 import { Order } from "../order/order.entity";
 import { Store } from '../store/store.entity';
 import { Session } from '../session/session.entity';
-
+import { CargoRequest } from '../warehouse/cargorequest.entity';
 
 @Entity('Account')
 export class Account {
@@ -98,4 +98,9 @@ export class Account {
   @JoinColumn({ name: "StoreId", referencedColumnName: "Id" })
   Store: Store;
 
+  @OneToMany(
+    () => CargoRequest,
+    order => order.CreatedByAccount,
+  )
+  orders: CargoRequest[];
 }

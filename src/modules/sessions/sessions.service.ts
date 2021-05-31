@@ -15,10 +15,10 @@ import {
 
 @Injectable()
 export class SessionsService {
-    constructor(
-        @InjectRepository(Session) private sessionsRepository: Repository<Session>,
-        private accountService: AccountsService,
-    ) { }
+  constructor(
+    @InjectRepository(Session) private sessionsRepository: Repository<Session>,
+    private accountService: AccountsService,
+  ) {}
 
     findOne(id: string): Promise<Session> {
         return this.sessionsRepository.findOne(id);
@@ -32,41 +32,47 @@ export class SessionsService {
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
         }
-    }
+  }
 
-    async endSession(sessionId: string, id: number): Promise<Session> {
-        try {
-            const result = await this.sessionsRepository.findOne(sessionId);
-            if (result.SaleclerkId == id) {
-                const real_result = await this.sessionsRepository.save({ ...result, End: new Date(Date.now()), SessionId: sessionId });
-                return real_result;
-            }
-            else {
-                customThrowError("Invalid saleclerk id!", HttpStatus.BAD_REQUEST);
-            }
-        } catch (error) {
-            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
-        }
+  async endSession(sessionId: string, id: number): Promise<Session> {
+    try {
+      const result = await this.sessionsRepository.findOne(sessionId);
+      if (result.SaleclerkId == id) {
+        const real_result = await this.sessionsRepository.save({
+          ...result,
+          End: new Date(Date.now()),
+          SessionId: sessionId,
+        });
+        return real_result;
+      } else {
+        customThrowError('Invalid saleclerk id!', HttpStatus.BAD_REQUEST);
+      }
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
+  }
 
-    async getCashierSession(id: number): Promise<any> {
-        try {
-            const result = await this.accountService.findOneById(id);
-            console.log(result);
-            let sessionResult = undefined;
-            if (result.Type != 'Salescleck') {
-                customThrowError("Invalid saleclerk id!", HttpStatus.BAD_REQUEST);
-            }
-            else {
-                sessionResult = await this.sessionsRepository.findOne({
-                    where: { SaleclerkId: result.Id, Start: Not(IsNull()), End: IsNull() },
-                })
-            }
-            return { Salesclerk: result, Session: sessionResult }
-        } catch (error) {
-            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
-        }
+  async getCashierSession(id: number): Promise<any> {
+    try {
+      const result = await this.accountService.findOneById(id);
+      console.log(result);
+      let sessionResult = undefined;
+      if (result.Type != 'Salescleck') {
+        customThrowError('Invalid saleclerk id!', HttpStatus.BAD_REQUEST);
+      } else {
+        sessionResult = await this.sessionsRepository.findOne({
+          where: {
+            SaleclerkId: result.Id,
+            Start: Not(IsNull()),
+            End: IsNull(),
+          },
+        });
+      }
+      return { Salesclerk: result, Session: sessionResult };
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
+  }
 
     async getCashierPastSessions(id: number, options: IPaginationOptions): Promise<Pagination<Session>> {
         try {

@@ -57,8 +57,6 @@ export class ProductsController {
     return this.ProductsService.getTimeSeriesSale(req.user.userId, id);
   }
 
-  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'StoreStaff', 'Salescleck'])
-  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/categories')
   @ApiOkResponse()
   getAllCategories(): Promise<Category[]> {
@@ -88,7 +86,7 @@ export class ProductsController {
     });
   }
 
-  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'StoreStaff', 'Salescleck'])
+  @SetMetadata('roles', ['StoresManager', 'StoreManager', 'StoreStaff', 'Salescleck', 'StoreWarehouseManager'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get('/searchProducts')
   async search(

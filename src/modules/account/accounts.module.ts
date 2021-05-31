@@ -9,10 +9,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { File } from 'src/entities/file/file.entity';
 import { AccountRepository } from './accounts.repository';
+import { Warehouse } from 'src/entities/warehouse/warehouse.entity';
+import { Store } from 'src/entities/store/store.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Account, File]),
+    TypeOrmModule.forFeature([Account, File, Warehouse, Store]),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '3600s' },

@@ -1,7 +1,21 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { Category } from "./category.entity";
+import { CargoRequestRepository } from 'src/modules/warehouse/cargoRequest/cargoRequests.repository';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+  OneToMany,
+} from 'typeorm';
+import { CargoRequest } from '../warehouse/cargorequest.entity';
+import { Category } from './category.entity';
+
 import { ProductOrder } from "../productorder/productorder.entity";
 import { StoreProduct } from '../storeproduct/storeproduct.entity';
+
 
 @Entity('Product')
 export class Product {
@@ -29,7 +43,14 @@ export class Product {
   @Column()
   Discount: number;
 
-  @Column()
+  @Column({ nullable: true })
+  Barcode: string;
+
+  @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Product)
+  ProductOrders: ProductOrder[];
+
+  @OneToMany(() => StoreProduct, StoreProduct => StoreProduct.Product)
+  StoreProducts: StoreProduct[];
   UnitsInStock: number;
 
   @Column()
@@ -41,12 +62,9 @@ export class Product {
   @Column({ nullable: true, default: null })
   PhotoURL: string;
 
-  @Column({ nullable: true })
-  Barcode: string;
-
-  @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Product)
-  ProductOrders: ProductOrder[];
-
-  @OneToMany(() => StoreProduct, StoreProduct => StoreProduct.Product)
-  StoreProducts: StoreProduct[];
+  @ManyToMany(
+    () => CargoRequest,
+    order => order.products,
+  )
+  orders: CargoRequest[];
 }

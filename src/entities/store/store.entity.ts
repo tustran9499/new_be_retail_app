@@ -32,6 +32,12 @@ export class Store {
     PostalCode: string;
 
     @Column()
+    Size: string;
+
+    @Column()
+    Price: number;
+
+    @Column()
     ShortName: string;
 
     @Column()
@@ -43,4 +49,13 @@ export class Store {
     @OneToMany(() => StoreProduct, StoreProduct => StoreProduct.Store)
     StoreProducts: StoreProduct[];
 
+    @Column({ type: 'float' })
+    AddressCoorLat: number;
+
+    @Column({ type: 'float' })
+    AddressCoorLong: number;
+
+    @DeleteDateColumn()
+    DeletedAt?: Date;
 }
+

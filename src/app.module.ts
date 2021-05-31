@@ -17,7 +17,7 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { OrderdiscountsModule } from './modules/orderdiscounts/orderdiscounts.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { StoreproductsModule } from './modules/storeproducts/storeproducts.module';
-
+import { CargoRequestsModule } from './modules/warehouse/cargoRequest/cargoRequests.module';
 @Module({
   imports: [ConfigModule.forRoot(),
   TypeOrmModule.forRoot({
@@ -47,7 +47,7 @@ import { StoreproductsModule } from './modules/storeproducts/storeproducts.modul
     "cli": {
       "migrationsDir": "src/database/migrations"
     }
-  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule, StoreproductsModule],
+  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule, StoreproductsModule, CargoRequestsModule,],
   controllers: [AppController],
   providers: [AppService],
 })
