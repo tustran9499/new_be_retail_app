@@ -48,6 +48,12 @@ export class AccountsService {
     return this.accountsRepository.find();
   }
 
+  async findAllCashier(storeId: number): Promise<Account[]> {
+    return await this.accountsRepository.createQueryBuilder('accounts')
+      .where("accounts.StoreId = :StoreId", { StoreId: storeId })
+      .andWhere("accounts.Type = :Type", { Type: 'Salescleck' }).getMany();
+  }
+
   async findOne(username: string): Promise<Account | undefined> {
     return this.accountsRepository.findOne({ Username: username });
   }
@@ -177,7 +183,7 @@ export class AccountsService {
   }
 
   async findOneById(id: number): Promise<Account | undefined> {
-    return this.accountsRepository.findOne({ Id: id });
+    return this.accountsRepository.createQueryBuilder('accounts').where({ Id: id }).leftJoinAndSelect("accounts.Store", "Store").getOne();
   }
 
   async createAccount(model: CreateAccountDto): Promise<any> {

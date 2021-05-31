@@ -26,4 +26,8 @@ export class CreateProductOrderDto {
     @IsOptional()
     @ApiPropertyOptional()
     Tax: number;
+
+    @IsOptional()
+    @ApiPropertyOptional()
+    Discount: number;
 }

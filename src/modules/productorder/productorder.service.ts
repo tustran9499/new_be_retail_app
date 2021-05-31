@@ -6,6 +6,7 @@ import { CreateProductOrderDto } from 'src/dto/productorder/CreateProductOrder.d
 import { customThrowError } from 'src/common/helper/throw.helper';
 import { RESPONSE_MESSAGES } from 'src/common/constants/response-messages.enum';
 import { ProductsService } from '../products/products.service';
+import { StoreproductsService } from '../storeproducts/storeproducts.service';
 
 @Injectable()
 export class ProductorderService {
@@ -13,12 +14,14 @@ export class ProductorderService {
         @InjectRepository(ProductOrder)
         private productorderRepository: Repository<ProductOrder>,
         private productsService: ProductsService,
+        private storeproductsService: StoreproductsService,
     ) { }
 
-    async createProductOrder(model: CreateProductOrderDto): Promise<ProductOrder> {
+    async createProductOrder(userId: number, model: CreateProductOrderDto): Promise<ProductOrder> {
         try {
             const result = await this.productorderRepository.save(model);
-            this.productsService.decreaseProductQuantity(model.ProductId, model.Quantity);
+            // await this.productsService.decreaseProductQuantity(model.ProductId, model.Quantity);
+            await this.storeproductsService.decreaseStoreProductQuantity(userId, model.ProductId, model.Quantity)
             return result;
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);

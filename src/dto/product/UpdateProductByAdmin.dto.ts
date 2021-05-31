@@ -2,7 +2,7 @@ import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
-export class UpdateProductDto {
+export class UpdateProductByAdminDto {
   @IsNotEmpty()
   @ApiProperty()
   ProductName: string;
@@ -25,10 +25,6 @@ export class UpdateProductDto {
 
   @IsOptional()
   @ApiPropertyOptional()
-  Quantity: number;
-
-  @IsOptional()
-  @ApiPropertyOptional()
   ReorderLevel: number;
 
   @IsOptional()
@@ -39,7 +35,4 @@ export class UpdateProductDto {
   @ApiPropertyOptional()
   Discount: number;
 
-  // @IsOptional()
-  // @ApiPropertyOptional()
-  // PhotoURL: string;
 }

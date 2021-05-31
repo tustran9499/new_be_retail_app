@@ -33,4 +33,7 @@ export class ProductOrder {
 
     @Column({ default: 0 })
     Tax: number;
+
+    @Column({ default: 0 })
+    Discount: number;
 }

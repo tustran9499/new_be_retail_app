@@ -16,6 +16,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { Account } from '../../entities/account/account.entity';
 import { AccountsService } from '../account/accounts.service';
+import { INQUIRER } from '@nestjs/core';
 
 @Injectable()
 export class OrdersService {
@@ -34,7 +35,9 @@ export class OrdersService {
         queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer").where({ SaleClerkId: id });
       }
       else {
-        queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer");
+        const cashiers = await this.accountService.findAllCashier(result.StoreId);
+        let newresult = cashiers.map(a => a.Id);
+        queryBuilder = this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.ProductOrders", "ProductOrder").leftJoinAndSelect("orders.Customer", "Customer").where("SaleClerkId in (:...cashiers)", { cashiers: newresult });
       }
       return paginate<Order>(queryBuilder, options);
     } catch (error) {
@@ -48,7 +51,7 @@ export class OrdersService {
   }
 
   async getById(id: number): Promise<any> {
-    const existedOrder = await this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.Customer", "Customer").where('orders.Id =' + id).getOne();
+    const existedOrder = await this.ordersRepository.createQueryBuilder('orders').leftJoinAndSelect("orders.Account", "Account").leftJoinAndSelect("orders.Customer", "Customer").leftJoinAndSelect("Account.Store", "Store").where('orders.Id =' + id).getOne();
     const existedProductOrder = await this.productorderService.getProductOrderByOrder(id);
     if (!existedOrder && !existedProductOrder) {
       customThrowError(
@@ -109,7 +112,7 @@ export class OrdersService {
     return [Orders, number];
   }
 
-  private async _createOrder(model: CreateOrderDto, cartproducts: CartProduct[]): Promise<any> {
+  private async _createOrder(userId: number, model: CreateOrderDto, cartproducts: CartProduct[]): Promise<any> {
     try {
       const order = new Order();
       order.OrderDate = new Date(Date.now());
@@ -118,11 +121,12 @@ export class OrdersService {
       }
       order.SaleClerkId = model.saleClerkId;
       order.SessionId = model.sessionId;
+      order.Discount = model.discount;
       const result = await this.ordersRepository.save(order);
       const resultitems = [];
       cartproducts.forEach(async (item) => {
         try {
-          const item_result = await this.productorderService.createProductOrder({ ProductId: item.Id, OrderId: result.Id, Price: item.UnitPrice, Quantity: item.Quantity, ReturnedQuantity: 0, Tax: 0 });
+          const item_result = await this.productorderService.createProductOrder(userId, { ProductId: item.Id, OrderId: result.Id, Price: item.UnitPrice, Quantity: item.Quantity, ReturnedQuantity: 0, Tax: 0.1, Discount: item.Discount });
           resultitems.push(item_result);
         }
         catch (error) {
@@ -135,9 +139,38 @@ export class OrdersService {
     }
   }
 
-  async createOrder(order: CreateOrderDto, cartproducts: CartProduct[]
+  async createOrder(userId: number, order: CreateOrderDto, cartproducts: CartProduct[]
   ): Promise<any> {
-    return await this._createOrder(order, cartproducts);
+    return await this._createOrder(userId, order, cartproducts);
+  }
+
+  async getPromotion(total: number, coupon: number): Promise<any> {
+    var data = await this.ordersRepository.query("GetOrderPromotion @Coupon='" + coupon + "'");
+    if (data && data[0]) {
+      const result = data[0];
+      var today = new Date();
+      if (result.StartTime > today || result.EndTime < today) {
+        customThrowError("Out of the valid time!", HttpStatus.NOT_ACCEPTABLE, "Out of the valid time!");
+      }
+      else if (total < result.MinBill) {
+        customThrowError("The order total does not meet the Min value requirement!", HttpStatus.NOT_ACCEPTABLE, "The order total does not meet the Min value requirement!");
+      }
+      else if (result.Quantity <= 0) {
+        customThrowError("The promotion has ended!", HttpStatus.NOT_ACCEPTABLE, "The promotion has ended!");
+      }
+      else {
+        var temp = total * result.PercentOff;
+        if (temp > result.MaxDiscount) {
+          return result.MaxDiscount;
+        }
+        else {
+          return temp;
+        }
+      }
+    }
+    else {
+      customThrowError("Invalid coupon! Please try again!", HttpStatus.NOT_ACCEPTABLE, "Invalid coupon! Please try again!");
+    }
   }
 
   async updateOrder(

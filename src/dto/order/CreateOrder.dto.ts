@@ -18,4 +18,8 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty()
   sessionId: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  discount: number;
 }
