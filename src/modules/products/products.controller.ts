@@ -200,8 +200,8 @@ export class ProductsController {
     return res.sendFile(`thumbnails-${image}`, { root: './files' });
   }
 
-  //   @SetMetadata('roles', ['StoreManager'])
-  //   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @SetMetadata('roles', ['StoreManager'])
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Post('barcode/:id/:code')
   @ApiOkResponse()
   addBarcode(
