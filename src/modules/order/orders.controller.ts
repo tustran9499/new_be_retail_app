@@ -142,15 +142,16 @@ export class OrdersController {
     res.json({ id: session.id });
   }
 
-  @Post('/create-payment-intent')
+  @Post('/create-payment-intent/:amount')
   async createPaymentIntent(
     @Request() req,
-    @Res() res
+    @Res() res,
+    @Param('amount', ParseIntPipe) amount: number,
   ) {
     const { items } = req.body;
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 18 * 100,
+      amount: amount,
       currency: "usd"
     });
     res.send({

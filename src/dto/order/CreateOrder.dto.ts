@@ -22,4 +22,8 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty()
   discount: number;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  stripe: string;
 }

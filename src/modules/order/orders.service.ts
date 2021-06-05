@@ -119,6 +119,9 @@ export class OrdersService {
       if (model.customerId && model.customerId !== 0) {
         order.CustomerId = model.customerId;
       }
+      if (model.stripe) {
+        order.Stripe = model.stripe;
+      }
       order.SaleClerkId = model.saleClerkId;
       order.SessionId = model.sessionId;
       order.Discount = model.discount;
