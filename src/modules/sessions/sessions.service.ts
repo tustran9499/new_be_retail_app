@@ -8,9 +8,9 @@ import { RESPONSE_MESSAGES } from 'src/common/constants/response-messages.enum';
 import { Account } from '../../entities/account/account.entity';
 import { AccountsService } from '../account/accounts.service';
 import {
-    paginate,
-    Pagination,
-    IPaginationOptions,
+  paginate,
+  Pagination,
+  IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
 
 @Injectable()
@@ -18,20 +18,20 @@ export class SessionsService {
   constructor(
     @InjectRepository(Session) private sessionsRepository: Repository<Session>,
     private accountService: AccountsService,
-  ) {}
+  ) { }
 
-    findOne(id: string): Promise<Session> {
-        return this.sessionsRepository.findOne(id);
+  findOne(id: string): Promise<Session> {
+    return this.sessionsRepository.findOne(id);
+  }
+
+  async createSession(model: CreateSessionDto): Promise<Session> {
+    try {
+      const result = await this.sessionsRepository.save(model);
+      const real_result = await this.sessionsRepository.findOne(result.SessionId);
+      return real_result;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
-
-    async createSession(model: CreateSessionDto): Promise<Session> {
-        try {
-            const result = await this.sessionsRepository.save(model);
-            const real_result = await this.sessionsRepository.findOne(result.SessionId);
-            return real_result;
-        } catch (error) {
-            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
-        }
   }
 
   async endSession(sessionId: string, id: number): Promise<Session> {
@@ -74,30 +74,57 @@ export class SessionsService {
     }
   }
 
-    async getCashierPastSessions(id: number, options: IPaginationOptions): Promise<Pagination<Session>> {
-        try {
-            const result = await this.accountService.findOneById(id);
-            let queryBuilder = undefined;
-            if (result.Type == 'Salescleck') {
-                queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').leftJoinAndSelect("sessions.Account", "Account").where({ SaleclerkId: result.Id }).orderBy('sessions.End', 'ASC');
-            }
-            else {
-                const cashiers = await this.accountService.findAllCashier(result.StoreId);
-                let newresult = cashiers.map(a => a.Id);
-                queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').leftJoinAndSelect("sessions.Account", "Account").where("SaleClerkId in (:...cashiers)", { cashiers: newresult }).orderBy('sessions.End', 'ASC');
-            }
-            return paginate<Session>(queryBuilder, options);
-        } catch (error) {
-            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
-        }
+  async getCashierPastSessions(id: number, options: IPaginationOptions): Promise<Pagination<Session>> {
+    try {
+      const result = await this.accountService.findOneById(id);
+      let queryBuilder = undefined;
+      if (result.Type == 'Salescleck') {
+        queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').leftJoinAndSelect("sessions.Account", "Account").where({ SaleclerkId: result.Id }).orderBy('sessions.End', 'ASC');
+      }
+      else {
+        const cashiers = await this.accountService.findAllCashier(result.StoreId);
+        let newresult = cashiers.map(a => a.Id);
+        queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').leftJoinAndSelect("sessions.Account", "Account").where("SaleClerkId in (:...cashiers)", { cashiers: newresult }).orderBy('sessions.End', 'ASC');
+      }
+      return paginate<Session>(queryBuilder, options);
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
+  }
 
-    async getPastSessionSum(id: string): Promise<any> {
-        try {
-            const data = await this.sessionsRepository.query("GetPastSessionSum @SessionId=\'" + id + "\'");
-            return data;
-        } catch (error) {
-            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
-        }
+  async getPastSessionSum(id: string): Promise<any> {
+    try {
+      const data = await this.sessionsRepository.query("GetPastSessionSum @SessionId=\'" + id + "\'");
+      return data;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
+  }
+
+  async getPastSessionSumCash(id: string): Promise<any> {
+    try {
+      const data = await this.sessionsRepository.query("GetPastSessionSumCash @SessionId=\'" + id + "\'");
+      return data;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async getPastSessionSumCredit(id: string): Promise<any> {
+    try {
+      const data = await this.sessionsRepository.query("GetPastSessionSumCredit @SessionId=\'" + id + "\'");
+      return data;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async getPastSessionSumVnpay(id: string): Promise<any> {
+    try {
+      const data = await this.sessionsRepository.query("GetPastSessionSumVnpay @SessionId=\'" + id + "\'");
+      return data;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
 }

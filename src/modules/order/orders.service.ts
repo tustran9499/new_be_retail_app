@@ -122,6 +122,9 @@ export class OrdersService {
       if (model.stripe) {
         order.Stripe = model.stripe;
       }
+      if (model.vnpay) {
+        order.Vnpay = model.vnpay;
+      }
       order.SaleClerkId = model.saleClerkId;
       order.SessionId = model.sessionId;
       order.Discount = model.discount;

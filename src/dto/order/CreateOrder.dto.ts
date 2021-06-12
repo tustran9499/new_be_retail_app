@@ -26,4 +26,8 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty()
   stripe: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  vnpay: string;
 }

@@ -45,4 +45,7 @@ export class Order {
 
     @Column()
     Stripe: string;
+
+    @Column()
+    Vnpay: string;
 }

@@ -45,7 +45,10 @@ export class SessionsController {
     ): Promise<any> {
         const data = await this.SessionsService.findOne(SessionId);
         const total = await this.SessionsService.getPastSessionSum(SessionId);
-        return { data, total };
+        const totalCash = await this.SessionsService.getPastSessionSumCash(SessionId);
+        const totalCredit = await this.SessionsService.getPastSessionSumCredit(SessionId);
+        const totalVnpay = await this.SessionsService.getPastSessionSumVnpay(SessionId);
+        return { data, total, totalCash, totalCredit, totalVnpay };
     }
 
     @SetMetadata('roles', ['StoreManager', 'Salescleck'])
