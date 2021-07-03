@@ -1,9 +1,10 @@
-import { Controller, UseGuards, Get, Request } from '@nestjs/common';
+import { Controller, UseGuards, Get, Request, Query, ParseIntPipe } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Reflector } from '@nestjs/core';
 import { UserNotification } from 'src/entities/notification/notification.entity';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -15,5 +16,19 @@ export class NotificationsController {
         @Request() req
     ): Promise<UserNotification[]> {
         return this.usernotificationsService.getNotifications(req.user.userId);
+    }
+
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get('/pagination')
+    async getNotificationsPagination(
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 5,
+        @Request() req
+    ): Promise<Pagination<UserNotification>> {
+        return this.usernotificationsService.getNotificationsPagination(req.user.userId, {
+            page,
+            limit,
+            route: '/api/notifications/pagination',
+        });
     }
 }
