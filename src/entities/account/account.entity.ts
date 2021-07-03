@@ -11,6 +11,7 @@ import { Order } from "../order/order.entity";
 import { Store } from '../store/store.entity';
 import { Session } from '../session/session.entity';
 import { CargoRequest } from '../warehouse/cargorequest.entity';
+import { UserNotification } from '../notification/notification.entity';
 
 @Entity('Account')
 export class Account {
@@ -88,6 +89,9 @@ export class Account {
 
   @OneToMany(() => Session, Session => Session.Account)
   Sessions: Session[];
+
+  @OneToMany(() => UserNotification, UserNotification => UserNotification.Account)
+  UserNotifications: UserNotification[];
 
   @Column({ name: 'StoreId' })
   StoreId: number;
