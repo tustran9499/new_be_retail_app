@@ -19,6 +19,14 @@ export class NotificationsController {
     }
 
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get('/count')
+    async countNotifications(
+        @Request() req
+    ): Promise<number> {
+        return this.usernotificationsService.countNotifications(req.user.userId);
+    }
+
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Get('/pagination')
     async getNotificationsPagination(
         @Query('page', ParseIntPipe) page: number = 1,

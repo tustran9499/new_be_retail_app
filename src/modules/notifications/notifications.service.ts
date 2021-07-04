@@ -17,7 +17,15 @@ export class NotificationsService {
 
     async getNotifications(id: number): Promise<UserNotification[]> {
         try {
-            return this.usernotificationsRepository.find({ where: { AccountId: id }, order: { CreatedAt: 'DESC', } });
+            return await this.usernotificationsRepository.find({ where: { AccountId: id }, order: { CreatedAt: 'DESC', } });
+        } catch (error) {
+            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+        }
+    }
+
+    async countNotifications(id: number): Promise<number> {
+        try {
+            return await this.usernotificationsRepository.createQueryBuilder('notifications').select("COUNT(notifications.message)", "count").where({ AccountId: id }).getRawOne();
         } catch (error) {
             customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
         }
