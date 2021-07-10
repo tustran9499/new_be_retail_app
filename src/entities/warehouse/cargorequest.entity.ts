@@ -9,21 +9,18 @@ import {
   OneToMany,
   ManyToOne,
   JoinTable,
-} from 'typeorm';
-import { Account } from '../account/account.entity';
-import { Product } from '../product/product.entity';
-import { Warehouse } from './warehouse.entity';
+} from "typeorm";
+import { Account } from "../account/account.entity";
+import { Product } from "../product/product.entity";
+import { Warehouse } from "./warehouse.entity";
 
-@Entity('CargoRequest')
+@Entity("CargoRequest")
 export class CargoRequest {
   @PrimaryGeneratedColumn()
   Id: number;
 
   @Column()
   RequestId: string;
-
-  @Column()
-  warehouseId: number;
 
   @Column()
   StoreId: number;
@@ -46,16 +43,13 @@ export class CargoRequest {
   @Column()
   createdByAccountId: number;
 
-  @ManyToOne(
-    () => Account,
-    user => user.orders,
-  )
+  @ManyToOne(() => Account, (user) => user.orders)
   CreatedByAccount: Account;
 
-  @ManyToOne(
-    () => Warehouse,
-    warehouse => warehouse.orders,
-  )
+  @Column()
+  warehouseId: number;
+
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.orders)
   Warehouse: Warehouse;
 
   @Column()
@@ -64,10 +58,7 @@ export class CargoRequest {
   @Column()
   UpdatedBy: number;
 
-  @ManyToMany(
-    () => Product,
-    product => product.orders,
-  )
+  @ManyToMany(() => Product, (product) => product.orders)
   @JoinTable()
   products: Product[];
 }

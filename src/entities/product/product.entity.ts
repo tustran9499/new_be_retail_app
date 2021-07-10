@@ -1,4 +1,4 @@
-import { CargoRequestRepository } from 'src/modules/warehouse/cargoRequest/cargoRequests.repository';
+import { CargoRequestRepository } from "src/modules/warehouse/cargoRequest/cargoRequests.repository";
 import {
   Entity,
   Column,
@@ -9,15 +9,14 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
-} from 'typeorm';
-import { CargoRequest } from '../warehouse/cargorequest.entity';
-import { Category } from './category.entity';
+} from "typeorm";
+import { CargoRequest } from "../warehouse/cargorequest.entity";
+import { Category } from "./category.entity";
 
 import { ProductOrder } from "../productorder/productorder.entity";
-import { StoreProduct } from '../storeproduct/storeproduct.entity';
+import { StoreProduct } from "../storeproduct/storeproduct.entity";
 
-
-@Entity('Product')
+@Entity("Product")
 export class Product {
   @PrimaryGeneratedColumn()
   Id: number;
@@ -25,13 +24,13 @@ export class Product {
   @Column()
   ProductName: string;
 
-  @Column({ name: 'CategoryId' })
+  @Column({ name: "CategoryId" })
   CategoryId: number;
 
-  @ManyToOne(() => Category, Category => Category.Products, {
-    onDelete: 'CASCADE',
+  @ManyToOne(() => Category, (Category) => Category.Products, {
+    onDelete: "CASCADE",
   })
-  @JoinColumn({ name: 'CategoryId', referencedColumnName: 'Id' })
+  @JoinColumn({ name: "CategoryId", referencedColumnName: "Id" })
   Category: Category;
 
   @Column()
@@ -46,10 +45,10 @@ export class Product {
   @Column({ nullable: true })
   Barcode: string;
 
-  @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Product)
+  @OneToMany(() => ProductOrder, (ProductOrder) => ProductOrder.Product)
   ProductOrders: ProductOrder[];
 
-  @OneToMany(() => StoreProduct, StoreProduct => StoreProduct.Product)
+  @OneToMany(() => StoreProduct, (StoreProduct) => StoreProduct.Product)
   StoreProducts: StoreProduct[];
   UnitsInStock: number;
 
@@ -62,9 +61,6 @@ export class Product {
   @Column({ nullable: true, default: null })
   PhotoURL: string;
 
-  @ManyToMany(
-    () => CargoRequest,
-    order => order.products,
-  )
+  @ManyToMany(() => CargoRequest, (order) => order.products)
   orders: CargoRequest[];
 }
