@@ -1,6 +1,6 @@
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsOptional } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 
 export class CreateCargoRequestDto {
   @IsNotEmpty()
@@ -18,6 +18,10 @@ export class CreateCargoRequestDto {
   @IsNotEmpty()
   @ApiProperty()
   StoreId: number;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  UserId: number;
 }
 
 export class UpdateCargoRequestDto {
@@ -38,5 +42,4 @@ export class UpdateCargoRequestDto {
 
   @ApiProperty()
   Status: string;
-
 }
