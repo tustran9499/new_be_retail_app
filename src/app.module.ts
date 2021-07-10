@@ -18,6 +18,7 @@ import { OrderdiscountsModule } from './modules/orderdiscounts/orderdiscounts.mo
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { StoreproductsModule } from './modules/storeproducts/storeproducts.module';
 import { CargoRequestsModule } from './modules/warehouse/cargoRequest/cargoRequests.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 @Module({
   imports: [ConfigModule.forRoot(),
   TypeOrmModule.forRoot({
@@ -47,7 +48,7 @@ import { CargoRequestsModule } from './modules/warehouse/cargoRequest/cargoReque
     "cli": {
       "migrationsDir": "src/database/migrations"
     }
-  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule, StoreproductsModule, CargoRequestsModule,],
+  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule, StoreproductsModule, CargoRequestsModule, NotificationsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

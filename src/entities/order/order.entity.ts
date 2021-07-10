@@ -42,4 +42,10 @@ export class Order {
 
     @OneToMany(() => ProductOrder, ProductOrder => ProductOrder.Order)
     ProductOrders: ProductOrder[];
+
+    @Column()
+    Stripe: string;
+
+    @Column()
+    Vnpay: string;
 }
