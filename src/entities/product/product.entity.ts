@@ -50,6 +50,8 @@ export class Product {
 
   @OneToMany(() => StoreProduct, (StoreProduct) => StoreProduct.Product)
   StoreProducts: StoreProduct[];
+
+  @Column()
   UnitsInStock: number;
 
   @Column()
