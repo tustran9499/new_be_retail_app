@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { UserNotification } from 'src/entities/notification/notification.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,6 +6,9 @@ import { AccountsService } from '../account/accounts.service';
 import { customThrowError } from 'src/common/helper/throw.helper';
 import { RESPONSE_MESSAGES } from 'src/common/constants/response-messages.enum';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { Cron, Interval } from '@nestjs/schedule';
+import { ProductsService } from '../products/products.service';
+import { SessionsService } from '../sessions/sessions.service';
 
 @Injectable()
 export class NotificationsService {
@@ -13,7 +16,54 @@ export class NotificationsService {
         @InjectRepository(UserNotification)
         private usernotificationsRepository: Repository<UserNotification>,
         private accountService: AccountsService,
+        private productService: ProductsService,
+        private sessionService: SessionsService,
     ) { }
+
+    private readonly logger = new Logger(NotificationsService.name);
+
+    @Cron('45 * * * * *')
+    handleCron() {
+        this.logger.debug('Called when the current second is 45');
+    }
+
+    // @Cron('45 * * * * *')
+    // async handleSalePredictCron() {
+    //     this.logger.debug('Called');
+    //     const storeIds = await this.accountService.getAllStore();
+    //     storeIds.map(async (storeId) => {
+    //         const message = await this.productService.getAllProductMessagesInNeed(storeId);
+    //         if (message.length) {
+    //             const storeProductManagerIds = await this.accountService.getStoreProductManager(storeId);
+    //             storeProductManagerIds.map((storeProductManagerId) => {
+    //                 this.usernotificationsRepository.save({
+    //                     'Title': 'Warning: Some product is going to run out soon!',
+    //                     'Message': message.join('\n'),
+    //                     'AccountId': storeProductManagerId,
+    //                     'CreatedAt': new Date(),
+    //                     'IsRead': false
+    //                 })
+    //             })
+    //         }
+    //     })
+    // }
+
+    // @Cron('0 30 11 * * 1-5')
+    // async handleSessionCron() {
+    //     const cashierIds = await this.accountService.getAllSalesclerks();
+    //     cashierIds.map(async (cashierId) => {
+    //         const session = await this.sessionService.checkCashierSession(cashierId);
+    //         if (session) {
+    //             this.usernotificationsRepository.save({
+    //                 'Title': 'May be you have forgot to end today session!',
+    //                 'Message': 'Session Id:' + session.SessionId,
+    //                 'AccountId': cashierId,
+    //                 'CreatedAt': new Date(),
+    //                 'IsRead': false
+    //             })
+    //         }
+    //     });
+    // }
 
     async getNotifications(id: number): Promise<UserNotification[]> {
         try {

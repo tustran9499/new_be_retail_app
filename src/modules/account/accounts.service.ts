@@ -55,7 +55,7 @@ export class AccountsService {
     @InjectRepository(Store)
     private readonly storeRepository: Repository<Store>,
     private passwordHelper: PasswordHelper,
-  ) {}
+  ) { }
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
@@ -126,6 +126,28 @@ export class AccountsService {
       options,
     );
     return [Accounts, number];
+  }
+
+  async getAllStore(): Promise<any> {
+    const result = await this.accountsRepository.createQueryBuilder('accounts').select('StoreId').where("accounts.StoreId IS NOT NULL").distinct(true).getRawAndEntities();
+    var lst = [];
+    result.raw.map(item => {
+      lst.push(item.StoreId);
+    })
+    return lst;
+  }
+
+  async getAllSalesclerks(): Promise<any> {
+    return await this.accountsRepository.createQueryBuilder('accounts').select('Id').where("accounts.Type = 'Salescleck'").distinct(true).getRawMany();
+  }
+
+  async getStoreProductManager(storeId: number): Promise<any> {
+    const result = await this.accountsRepository.createQueryBuilder('accounts').select('Id').where("accounts.StoreId IS NOT NULL").andWhere("accounts.StoreId = :storeId", { storeId: storeId }).distinct(true).getRawAndEntities();
+    var lst = [];
+    result.raw.map(item => {
+      lst.push(item.Id);
+    })
+    return lst;
   }
 
   async getAccountDetail(id: number): Promise<Account> {
@@ -487,7 +509,7 @@ export class AccountsService {
       filterCondition[searchBy] = Like(`%${searchKeyword}%`);
     }
 
-    
+
     where.push({ ...filterOrder, ...filterCondition });
     let search = '';
     if (searchBy === 'userEmail') {
@@ -618,7 +640,7 @@ export class AccountsService {
       filterCondition[searchBy] = Like(`%${searchKeyword}%`);
     }
 
-    
+
     where.push({ ...filterOrder, ...filterCondition });
     let search = '';
     if (searchBy === 'userEmail') {
