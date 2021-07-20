@@ -95,6 +95,7 @@ export class ProductsController {
     "StoreStaff",
     "Salescleck",
     "StoreWarehouseManager",
+    "OperationStaff",
   ])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get("/searchProducts")
