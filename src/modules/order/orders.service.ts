@@ -135,7 +135,7 @@ export class OrdersService {
   async getTransactionsApriori(
     model: AprioriProductsArrayDto
   ): Promise<[ProductOrder[], number]> {
-    const Transactions = [];
+    let Transactions = [];
     const res = await this.productorderService.getTransactionsApriori(model);
     const orderList = res[0];
     const count = res[1];
@@ -154,7 +154,13 @@ export class OrdersService {
       Transactions.push(transaction);
       transaction = { OrderId: -1, ProductIds: [], Products: initproduct };
     }
-    return [Transactions, count];
+    const uniqueTransactions = Array.from(
+      new Set(Transactions.map((a) => a.OrderId))
+    ).map((OrderId) => {
+      return Transactions.find((a) => a.OrderId === OrderId);
+    });
+
+    return [uniqueTransactions, uniqueTransactions.length];
   }
 
   private async _createOrder(
