@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PaginationRequest } from 'src/common/dto/pagination.dto';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { PaginationRequest } from "src/common/dto/pagination.dto";
 
 export class FilterRequestDto extends PaginationRequest {
   @ApiPropertyOptional()
@@ -13,4 +13,10 @@ export class FilterRequestDto extends PaginationRequest {
 
   @ApiProperty()
   userId?: number;
+
+  @ApiProperty()
+  storeId?: number;
+
+  @ApiProperty()
+  warehouseId?: number;
 }

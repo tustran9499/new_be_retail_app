@@ -12,6 +12,7 @@ import {
 } from "typeorm";
 import { Account } from "../account/account.entity";
 import { Product } from "../product/product.entity";
+import { Store } from "../store/store.entity";
 import { Warehouse } from "./warehouse.entity";
 
 @Entity("CargoRequest")
@@ -21,9 +22,6 @@ export class CargoRequest {
 
   @Column()
   RequestId: string;
-
-  @Column()
-  StoreId: number;
 
   @CreateDateColumn()
   CreatedAt: Date;
@@ -51,6 +49,12 @@ export class CargoRequest {
 
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.orders)
   Warehouse: Warehouse;
+
+  @Column()
+  storeId: number;
+
+  @ManyToOne(() => Store, (store) => store.orders)
+  Store: Store;
 
   @Column()
   CancelledBy: number;

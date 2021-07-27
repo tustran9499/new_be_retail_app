@@ -1,61 +1,71 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, PrimaryColumn, OneToMany } from 'typeorm';
-import { Account } from '../account/account.entity';
-import { StoreProduct } from '../storeproduct/storeproduct.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+  PrimaryColumn,
+  OneToMany,
+} from "typeorm";
+import { Account } from "../account/account.entity";
+import { StoreProduct } from "../storeproduct/storeproduct.entity";
+import { CargoRequest } from "../warehouse/cargorequest.entity";
 
-@Entity('Store')
+@Entity("Store")
 export class Store {
-    @PrimaryColumn()
-    Id: number;
+  @PrimaryColumn()
+  Id: number;
 
-    @Column()
-    Phone: string;
+  @Column()
+  Phone: string;
 
-    @Column()
-    Fax: string;
+  @Column()
+  Fax: string;
 
-    @Column()
-    Email: string;
+  @Column()
+  Email: string;
 
-    @Column()
-    Address: string;
+  @Column()
+  Address: string;
 
-    @Column()
-    City: string;
+  @Column()
+  City: string;
 
-    @Column()
-    Region: string;
+  @Column()
+  Region: string;
 
-    @Column()
-    Country: string;
+  @Column()
+  Country: string;
 
-    @Column()
-    PostalCode: string;
+  @Column()
+  PostalCode: string;
 
-    @Column()
-    Size: string;
+  @Column()
+  Size: string;
 
-    @Column()
-    Price: number;
+  @Column()
+  Price: number;
 
-    @Column()
-    ShortName: string;
+  @Column()
+  ShortName: string;
 
-    @Column()
-    WarehouseId: number;
+  @Column()
+  WarehouseId: number;
 
-    @OneToMany(() => Account, Account => Account.Store)
-    Accounts: Account[];
+  @OneToMany(() => Account, (Account) => Account.Store)
+  Accounts: Account[];
 
-    @OneToMany(() => StoreProduct, StoreProduct => StoreProduct.Store)
-    StoreProducts: StoreProduct[];
+  @OneToMany(() => StoreProduct, (StoreProduct) => StoreProduct.Store)
+  StoreProducts: StoreProduct[];
 
-    @Column({ type: 'float' })
-    AddressCoorLat: number;
+  @Column({ type: "float" })
+  AddressCoorLat: number;
 
-    @Column({ type: 'float' })
-    AddressCoorLong: number;
+  @Column({ type: "float" })
+  AddressCoorLong: number;
 
-    @DeleteDateColumn()
-    DeletedAt?: Date;
+  @DeleteDateColumn()
+  DeletedAt?: Date;
+
+  @OneToMany(() => CargoRequest, (order) => order.Store)
+  orders: CargoRequest[];
 }
-

@@ -29,7 +29,7 @@ export class CargoRequestsService {
     try {
       const newCargoRequest = new CargoRequest();
       newCargoRequest.warehouseId = model.warehouseId;
-      newCargoRequest.StoreId = model.StoreId;
+      newCargoRequest.storeId = model.StoreId;
       newCargoRequest.Status = "Created";
       newCargoRequest.createdByAccountId = model.UserId;
       newCargoRequest.CreatedAt = new Date(Date.now());
@@ -96,17 +96,22 @@ export class CargoRequestsService {
     filterOptionsModel: FilterRequestDto
   ): Promise<[CargoRequest[], number]> {
     let userId = filterOptionsModel.userId;
+    let storeId = filterOptionsModel.storeId;
+    let warehouseId = filterOptionsModel.warehouseId;
     if (!filterOptionsModel.order) {
       filterOptionsModel.order = new CargoRequest();
     }
 
-    filterOptionsModel.order.createdByAccountId = userId;
+    //filterOptionsModel.order.createdByAccountId = userId;
 
     const user = await this.cargoRequestsRepository.findOne(userId);
 
     if (!user) {
       customThrowError(RESPONSE_MESSAGES.NOT_FOUND, HttpStatus.BAD_REQUEST);
     }
+    filterOptionsModel.order.storeId = storeId;
+    filterOptionsModel.order.warehouseId = warehouseId;
+
     return await this._getList(filterOptionsModel);
   }
 
@@ -134,10 +139,22 @@ export class CargoRequestsService {
       filterCondition[searchBy] = Like(`%${searchKeyword}%`);
     }
 
-    if (filterOptionsModel.order?.createdByAccountId) {
-      const filterOptions = [
-        { createdByAccountId: filterOrder.createdByAccountId },
-      ];
+    if (filterOptionsModel.order?.warehouseId) {
+      const filterOptions = [{ warehouseId: filterOrder.warehouseId }];
+      const modifiedOptions = filterOptions.map((condition) => ({
+        ...condition,
+        ...filterCondition,
+      }));
+      where.push(...modifiedOptions);
+    } else if (filterOptionsModel.order?.storeId) {
+      const filterOptions = [{ storeId: filterOrder.storeId }];
+      const modifiedOptions = filterOptions.map((condition) => ({
+        ...condition,
+        ...filterCondition,
+      }));
+      where.push(...modifiedOptions);
+    } else if (filterOptionsModel.order?.userId) {
+      const filterOptions = [{ createdByAccountId: filterOrder.userId }];
       const modifiedOptions = filterOptions.map((condition) => ({
         ...condition,
         ...filterCondition,
@@ -154,7 +171,7 @@ export class CargoRequestsService {
         skip,
         take,
         order,
-        relations: ["CreatedByAccount", "Warehouse"],
+        relations: ["CreatedByAccount", "Warehouse", "Store"],
       };
       const [orders, count] = await this.cargoRequestsRepository.findAndCount(
         options
@@ -167,7 +184,7 @@ export class CargoRequestsService {
       skip,
       take,
       order,
-      relations: ["CreatedByAccount", "Warehouse"],
+      relations: ["CreatedByAccount", "Warehouse", "Store"],
     };
 
     const [orders, count] = await this.cargoRequestsRepository.findAndCount(
@@ -182,7 +199,7 @@ export class CargoRequestsService {
   async getById(id: number): Promise<any> {
     const existedOrder = await this.cargoRequestsRepository.findOne({
       where: { Id: id },
-      relations: ["CreatedByAccount", "Warehouse", "products"],
+      relations: ["CreatedByAccount", "Warehouse", "Store", "products"],
     });
 
     if (!existedOrder) {
@@ -211,6 +228,13 @@ export class CargoRequestsService {
       quantities.push(product.quantity);
     });
     return quantities;
+  }
+
+  async getStatusOne(id: number): Promise<any> {
+    const result = await Promise.all([
+      getConnection().query(`select Status from CargoRequest where Id=${id}`),
+    ]);
+    return result;
   }
 
   async setOrderStatus(id: number, status: string): Promise<any> {

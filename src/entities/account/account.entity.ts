@@ -6,14 +6,14 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
+} from "typeorm";
 import { Order } from "../order/order.entity";
-import { Store } from '../store/store.entity';
-import { Session } from '../session/session.entity';
-import { CargoRequest } from '../warehouse/cargorequest.entity';
-import { UserNotification } from '../notification/notification.entity';
+import { Store } from "../store/store.entity";
+import { Session } from "../session/session.entity";
+import { CargoRequest } from "../warehouse/cargorequest.entity";
+import { UserNotification } from "../notification/notification.entity";
 
-@Entity('Account')
+@Entity("Account")
 export class Account {
   @PrimaryGeneratedColumn()
   Id: number;
@@ -81,30 +81,36 @@ export class Account {
   @Column()
   EmailVerified: boolean;
 
+  @Column()
+  AdminVerified: boolean;
+
   @DeleteDateColumn()
   DeletedAt?: Date;
 
-  @OneToMany(() => Order, Order => Order.Account)
+  @OneToMany(() => Order, (Order) => Order.Account)
   Orders: Order[];
 
-  @OneToMany(() => Session, Session => Session.Account)
+  @OneToMany(() => Session, (Session) => Session.Account)
   Sessions: Session[];
 
-  @OneToMany(() => UserNotification, UserNotification => UserNotification.Account)
+  @OneToMany(
+    () => UserNotification,
+    (UserNotification) => UserNotification.Account
+  )
   UserNotifications: UserNotification[];
 
-  @Column({ name: 'StoreId' })
+  @Column({ name: "StoreId" })
   StoreId: number;
 
-  @ManyToOne(() => Store, Store => Store.Accounts, {
-    onDelete: "RESTRICT"
+  @Column({ name: "WarehouseId" })
+  WarehouseId: number;
+
+  @ManyToOne(() => Store, (Store) => Store.Accounts, {
+    onDelete: "RESTRICT",
   })
   @JoinColumn({ name: "StoreId", referencedColumnName: "Id" })
   Store: Store;
 
-  @OneToMany(
-    () => CargoRequest,
-    order => order.CreatedByAccount,
-  )
+  @OneToMany(() => CargoRequest, (order) => order.CreatedByAccount)
   orders: CargoRequest[];
 }

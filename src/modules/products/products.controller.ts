@@ -113,7 +113,7 @@ export class ProductsController {
     });
   }
 
-  @SetMetadata("roles", ["StoreManager", "StoreStaff"])
+  @SetMetadata("roles", ["StoreManager", "StoreStaff", "StoreWarehouseManager"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get("/searchNotAddedProducts")
   async searchAll(
@@ -160,7 +160,12 @@ export class ProductsController {
     }
   }
 
-  @SetMetadata("roles", ["StoresManager", "StoreManager", "Salescleck"])
+  @SetMetadata("roles", [
+    "StoresManager",
+    "StoreManager",
+    "Salescleck",
+    "StoreWarehouseManager",
+  ])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get("/:id")
   @ApiOkResponse()

@@ -78,6 +78,11 @@ export class CargoRequestsController {
     return await this.cargoRequestsService.getById(id);
   }
 
+  @Get(":id/status")
+  async getStatusOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
+    return await this.cargoRequestsService.getStatusOne(id);
+  }
+
   //@SetMetadata('roles', ['StoreManager', 'StoreWarehouseManager'])
   //@UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put("/:id/:status")
