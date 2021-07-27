@@ -19,8 +19,9 @@ import { PromotionsModule } from './modules/promotions/promotions.module';
 import { StoreproductsModule } from './modules/storeproducts/storeproducts.module';
 import { CargoRequestsModule } from './modules/warehouse/cargoRequest/cargoRequests.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
-  imports: [ConfigModule.forRoot(),
+  imports: [ConfigModule.forRoot(), ScheduleModule.forRoot(),
   TypeOrmModule.forRoot({
     "type": "mssql",
     "host": "tunganthesis.mssql.somee.com",
