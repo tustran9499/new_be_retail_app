@@ -1,4 +1,11 @@
-import { Controller, Request, Post, Get, UseGuards, SetMetadata } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  Post,
+  Get,
+  UseGuards,
+  SetMetadata,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
 import { LocalAuthGuard } from './auth/local-auth.guard';
@@ -10,7 +17,10 @@ import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService, private authService: AuthService) { }
+  constructor(
+    private readonly appService: AppService,
+    private authService: AuthService,
+  ) {}
 
   @SetMetadata('roles', ['admin'])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))

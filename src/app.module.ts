@@ -8,9 +8,20 @@ import { AuthModule } from './auth/auth.module';
 import { OrdersModule } from './modules/order/orders.module';
 import { ProductsModule } from './modules/products/products.module';
 import { ConfigModule } from '@nestjs/config';
-
+import { PasswordHelper } from '../src/common/helper/password.helper';
+//import { AuthService } from '../src/auth/auth.service';
+import { SessionsModule } from './modules/sessions/sessions.module';
+import { ProductorderModule } from './modules/productorder/productorder.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { OrderdiscountsModule } from './modules/orderdiscounts/orderdiscounts.module';
+import { PromotionsModule } from './modules/promotions/promotions.module';
+import { StoreproductsModule } from './modules/storeproducts/storeproducts.module';
+import { CargoRequestsModule } from './modules/warehouse/cargoRequest/cargoRequests.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
-  imports: [ConfigModule.forRoot(),
+  imports: [ConfigModule.forRoot(), ScheduleModule.forRoot(),
   TypeOrmModule.forRoot({
     "type": "mssql",
     "host": "tunganthesis.mssql.somee.com",
@@ -38,7 +49,7 @@ import { ConfigModule } from '@nestjs/config';
     "cli": {
       "migrationsDir": "src/database/migrations"
     }
-  }), AccountsModule, AuthModule, ProductsModule, OrdersModule],
+  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule, StoreproductsModule, CargoRequestsModule, NotificationsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

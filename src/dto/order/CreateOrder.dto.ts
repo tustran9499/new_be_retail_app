@@ -18,4 +18,16 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty()
   sessionId: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  discount: number;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  stripe: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  vnpay: string;
 }

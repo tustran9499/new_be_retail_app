@@ -25,9 +25,21 @@ export class UpdateProductDto {
 
   @IsOptional()
   @ApiPropertyOptional()
+  Quantity: number;
+
+  @IsOptional()
+  @ApiPropertyOptional()
   ReorderLevel: number;
 
   @IsOptional()
   @ApiPropertyOptional()
   Discontinued: boolean;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  Discount: number;
+
+  // @IsOptional()
+  // @ApiPropertyOptional()
+  // PhotoURL: string;
 }
