@@ -18,6 +18,8 @@ import { AccountsService } from "../account/accounts.service";
 import { StoreproductsService } from "../storeproducts/storeproducts.service";
 import { UpdateProductByStoreDto } from "src/dto/product/UpdateProductByStore.dto";
 import { UpdateProductByAdminDto } from "src/dto/product/UpdateProductByAdmin.dto";
+import { SummaryPeriodDto } from "src/dto/product/SummaryPeriod.dto";
+var moment = require("moment");
 var timeseries = require("timeseries-analysis");
 
 @Injectable()
@@ -460,5 +462,15 @@ export class ProductsService {
     } catch (error) {
       customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
+  }
+
+  async getSummaryByPeriod(model: SummaryPeriodDto) {
+    const items = await this.productsRepository.query(
+      "GetPeriod @startDate='" + moment(new Date(model.startTime)).format('YYYY-MM-DD') + "',@endDate='" + moment(new Date(model.endTime)).format('YYYY-MM-DD') + "'"
+    );
+    const sum = await this.productsRepository.query(
+      "GetPeriodSummary @startDate='" + moment(new Date(model.startTime)).format('YYYY-MM-DD') + "',@endDate='" + moment(new Date(model.endTime)).format('YYYY-MM-DD') + "'"
+    );
+    return { sum, items };
   }
 }
