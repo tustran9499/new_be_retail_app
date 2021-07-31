@@ -74,6 +74,20 @@ export class SessionsService {
     }
   }
 
+  async checkCashierSession(id: number): Promise<any> {
+    const result = await this.accountService.findOneById(id);
+    const sessionResult = await this.sessionsRepository.findOne({
+      where: {
+        SaleclerkId: result.Id,
+        Start: Not(IsNull()),
+        End: IsNull(),
+      },
+    });
+    console.log("session")
+    console.log(sessionResult)
+    return sessionResult;
+  }
+
   async getCashierPastSessions(id: number, options: IPaginationOptions): Promise<Pagination<Session>> {
     try {
       const result = await this.accountService.findOneById(id);

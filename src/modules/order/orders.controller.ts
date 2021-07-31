@@ -27,7 +27,7 @@ import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { RolesGuard } from "src/auth/roles.guard";
 import { Reflector } from "@nestjs/core";
 const stripe = require("stripe")(
-  "sk_test_51IxOkDGizvfJJVTjDG6A1ld7CoJkNwr1tFroRMvvAsRzRe9zklt2F5hJHDjvrwcenNslQdLbo1HchGWwcuuHQBTI00UFQVTW8D"
+  process.env.STRIPE_KEY
 );
 import { v4 as uuid } from "uuid";
 import { AprioriProductsArrayDto } from "./dto/apriori-products.dto";
@@ -35,7 +35,7 @@ import { AprioriProductsArrayDto } from "./dto/apriori-products.dto";
 @ApiTags("Order")
 @Controller("orders")
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @SetMetadata("roles", ["StoreManager", "Salescleck"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))

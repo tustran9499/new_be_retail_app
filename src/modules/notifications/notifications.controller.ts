@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Get, Request, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, UseGuards, Get, Request, Query, ParseIntPipe, Param } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -24,6 +24,14 @@ export class NotificationsController {
         @Request() req
     ): Promise<number> {
         return this.usernotificationsService.countNotifications(req.user.userId);
+    }
+
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get('/read/:id')
+    async markAsRead(
+        @Param("id", ParseIntPipe) id: number,
+    ): Promise<boolean> {
+        return this.usernotificationsService.markAsRead(id);
     }
 
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))

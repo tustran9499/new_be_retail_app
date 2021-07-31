@@ -55,7 +55,7 @@ export class AccountsService {
     @InjectRepository(Store)
     private readonly storeRepository: Repository<Store>,
     private passwordHelper: PasswordHelper
-  ) {}
+  ) { }
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
@@ -129,6 +129,33 @@ export class AccountsService {
       options
     );
     return [Accounts, number];
+  }
+
+  async getAllStore(): Promise<any> {
+    const result = await this.accountsRepository.createQueryBuilder('accounts').select('StoreId').where("accounts.StoreId IS NOT NULL").distinct(true).getRawAndEntities();
+    var lst = [];
+    result.raw.map(item => {
+      lst.push(item.StoreId);
+    })
+    return lst;
+  }
+
+  async getAllSalesclerks(): Promise<any> {
+    const result = await this.accountsRepository.createQueryBuilder('accounts').select('Id').where("accounts.Type = 'Salescleck'").andWhere("accounts.Id < 40").distinct(true).getRawAndEntities();
+    var lst = [];
+    result.raw.map(item => {
+      lst.push(item.Id);
+    })
+    return lst;
+  }
+
+  async getStoreProductManager(storeId: number): Promise<any> {
+    const result = await this.accountsRepository.createQueryBuilder('accounts').select('Id').where("accounts.Type = 'StoreManager'").andWhere("accounts.StoreId IS NOT NULL").andWhere("accounts.StoreId = :storeId", { storeId: storeId }).distinct(true).getRawAndEntities();
+    var lst = [];
+    result.raw.map(item => {
+      lst.push(item.Id);
+    })
+    return lst;
   }
 
   async getAccountDetail(id: number): Promise<Account> {
