@@ -28,7 +28,7 @@ export class ProductsService {
     private categoriesService: CategoriesService,
     private accountService: AccountsService,
     private storeproductsService: StoreproductsService
-  ) {}
+  ) { }
 
   async getFullTimeSeriesSale(): Promise<any> {
     const data = await this.productsRepository.query("GetTimeSeriesFullSale");
@@ -167,10 +167,10 @@ export class ProductsService {
     if (user && user.StoreId) {
       var data = await this.productsRepository.query(
         "GetTimeSeriesSaleByStore @ProductId='" +
-          id +
-          "',@StoreId='" +
-          user.StoreId +
-          "'"
+        id +
+        "',@StoreId='" +
+        user.StoreId +
+        "'"
       );
       var newData = [];
       for (let step = 0; step < 15; step++) {
@@ -267,6 +267,80 @@ export class ProductsService {
       var MSE = t.regression_forecast(options);
       return t;
     }
+  }
+
+  async getTimeSeriesSaleByStore(storeId: number, id: number): Promise<any> {
+    var data = await this.productsRepository.query("GetTimeSeriesSaleByStore @ProductId='" + id + "',@StoreId='" + storeId + "'");
+    var newData = [];
+    for (let step = 0; step < 15; step++) {
+      var tempdate = new Date();
+      tempdate.setDate(new Date().getDate() - step);
+      if (data.length != 0 && new Date(data[data.length - 1].Date).getDate() == tempdate.getDate()) {
+        newData.push(data[data.length - 1]);
+        data.pop();
+      }
+      else {
+        newData.push({ Date: tempdate, Value: 0 });
+      }
+    }
+    newData.reverse();
+    var pret = new timeseries.main(timeseries.adapter.fromDB(newData, {
+      date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
+      value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
+    }));
+    var mean = pret.mean();
+    for (let step = 0; step < 15; step++) {
+      var tomorrow = new Date();
+      tomorrow.setDate(new Date().getDate() + step);
+      newData.push({ Date: tomorrow, Value: mean });
+    }
+    var t = new timeseries.main(timeseries.adapter.fromDB(newData, {
+      date: 'Date',     // Name of the property containing the Date (must be compatible with new Date(date) )
+      value: 'Value'     // Name of the property containign the value. here we'll use the "close" price.
+    }));
+    // t.smoother({ period: 3 }).save('smoothed');
+    var bestSettings = t.regression_forecast_optimize();
+    var options = {
+      n: 15, // How many data points to be forecasted
+      sample: 14, // How many datapoints to be training dataset
+      start: 15, // Initial forecasting position 
+      method: 'ARMaxEntropy', // What method for forecasting
+      degree: 4, // How many degree for forecasting
+      // growthSampleMode: false, // Is the sample use only last x data points or up to entire data points?
+    }
+    var MSE = t.regression_forecast(options);
+    let result_data = t.data;
+    let leftSide = result_data.splice(0, Math.ceil(result_data.length / 2));
+    let rightSide = result_data;
+    var sum_all = 0;
+    rightSide.map(item => {
+      sum_all += item[1];
+    })
+    if (sum_all) {
+      return sum_all.toFixed(2);
+    }
+    else {
+      return 0;
+    }
+  }
+
+  async getAllProductMessagesInNeed(storeId: number): Promise<any> {
+    const storeproducts = await this.productsRepository.createQueryBuilder('products').innerJoinAndSelect("products.StoreProducts", "StoreProducts").where('StoreProducts.StoreId = ' + storeId).orderBy('products.ProductName', 'ASC').getMany();
+    var messages = [];
+    for (let item of storeproducts) {
+      const expected_quantity = await this.getTimeSeriesSaleByStore(storeId, item.Id);
+      const remained_quantity = item.StoreProducts[0].Quantity;
+      console.log("get there----------------------------------------------------------------------------------")
+      console.log(expected_quantity)
+      console.log(remained_quantity)
+      console.log(expected_quantity > remained_quantity)
+      if (expected_quantity > remained_quantity) {
+        const prod = ' ' + item.Id + ' - ' + item.ProductName + ': ' + 'Expected: ' + expected_quantity + ' != ' + 'Remained: ' + remained_quantity;
+        messages.push(prod);
+      }
+    }
+    console.log(messages)
+    return messages;
   }
 
   async createProduct(model: CreateProductDto): Promise<Product> {
