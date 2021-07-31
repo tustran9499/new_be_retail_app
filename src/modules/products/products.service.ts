@@ -330,16 +330,11 @@ export class ProductsService {
     for (let item of storeproducts) {
       const expected_quantity = await this.getTimeSeriesSaleByStore(storeId, item.Id);
       const remained_quantity = item.StoreProducts[0].Quantity;
-      console.log("get there----------------------------------------------------------------------------------")
-      console.log(expected_quantity)
-      console.log(remained_quantity)
-      console.log(expected_quantity > remained_quantity)
       if (expected_quantity > remained_quantity) {
         const prod = ' ' + item.Id + ' - ' + item.ProductName + ': ' + 'Expected: ' + expected_quantity + ' != ' + 'Remained: ' + remained_quantity;
         messages.push(prod);
       }
     }
-    console.log(messages)
     return messages;
   }
 

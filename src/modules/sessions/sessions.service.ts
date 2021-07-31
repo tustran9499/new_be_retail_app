@@ -83,6 +83,8 @@ export class SessionsService {
         End: IsNull(),
       },
     });
+    console.log("session")
+    console.log(sessionResult)
     return sessionResult;
   }
 

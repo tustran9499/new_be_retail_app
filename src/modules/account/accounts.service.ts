@@ -141,7 +141,12 @@ export class AccountsService {
   }
 
   async getAllSalesclerks(): Promise<any> {
-    return await this.accountsRepository.createQueryBuilder('accounts').select('Id').where("accounts.Type = 'Salescleck'").distinct(true).getRawMany();
+    const result = await this.accountsRepository.createQueryBuilder('accounts').select('Id').where("accounts.Type = 'Salescleck'").andWhere("accounts.Id < 40").distinct(true).getRawAndEntities();
+    var lst = [];
+    result.raw.map(item => {
+      lst.push(item.Id);
+    })
+    return lst;
   }
 
   async getStoreProductManager(storeId: number): Promise<any> {
