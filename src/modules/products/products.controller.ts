@@ -33,6 +33,7 @@ import {
 } from "../../common/helper/helper";
 import { CategoriesService } from "../categories/categories.service";
 import { Category } from "src/entities/product/category.entity";
+import { SummaryPeriodDto } from "src/dto/product/SummaryPeriod.dto";
 const fs = require("fs");
 const { promisify } = require("util");
 const unlinkAsync = promisify(fs.unlink);
@@ -41,7 +42,7 @@ const sharp = require("sharp");
 @ApiTags("Product")
 @Controller("products")
 export class ProductsController {
-  constructor(private ProductsService: ProductsService) {}
+  constructor(private ProductsService: ProductsService) { }
 
   @Get("/fulltimeseries")
   @ApiOkResponse()
@@ -266,5 +267,14 @@ export class ProductsController {
     @Param("code") code: string
   ): Promise<any> {
     return this.ProductsService.addBarcode(id, code);
+  }
+
+  @Post("/period-summary")
+  @ApiOkResponse()
+  getPeriodSummary(
+    @Body() model: SummaryPeriodDto,
+  ): Promise<any> {
+    console.log(model);
+    return this.ProductsService.getSummaryByPeriod(model);
   }
 }

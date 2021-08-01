@@ -39,7 +39,7 @@ export class MailHelper {
     private readonly templatesService: TemplatesService
   ) {
     this.mailService.setApiKey(
-      "SG.IgV3UG9XQa2HSqTLz5PueQ.zTkd-jo_g6NHMvKVThmyIAWZb8zTQoikz1fQUVxbLGEE"
+      process.env.MAIL_KEY
     );
     this.from = "kngan30399@gmail.com";
     this.to = "";
