@@ -41,6 +41,8 @@ import { CreateWarehouseDto } from "src/dto/warehouse/CreateWarehouse.dto";
 import { UpdateWarehouseDto } from "src/dto/warehouse/UpdateWarehouse.dto";
 import { CreateStoreDto } from "src/dto/store/CreateStore.dto";
 import { UpdateStoreDto } from "src/dto/store/UpdateStore.dto";
+import { ResetPassword } from "./dto/ResetPassword.dto";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AccountsService {
@@ -55,10 +57,18 @@ export class AccountsService {
     @InjectRepository(Store)
     private readonly storeRepository: Repository<Store>,
     private passwordHelper: PasswordHelper
-  ) { }
+  ) {}
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
+  }
+
+  async _createHash(plain: string): Promise<string> {
+    return await bcrypt.hash(plain, 10);
+  }
+
+  async _checkHash(plain: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(plain, hash);
   }
 
   async findAllCashier(storeId: number): Promise<Account[]> {
@@ -132,35 +142,52 @@ export class AccountsService {
   }
 
   async getAllStore(): Promise<any> {
-    const result = await this.accountsRepository.createQueryBuilder('accounts').select('StoreId').where("accounts.StoreId IS NOT NULL").distinct(true).getRawAndEntities();
+    const result = await this.accountsRepository
+      .createQueryBuilder("accounts")
+      .select("StoreId")
+      .where("accounts.StoreId IS NOT NULL")
+      .distinct(true)
+      .getRawAndEntities();
     var lst = [];
-    result.raw.map(item => {
+    result.raw.map((item) => {
       lst.push(item.StoreId);
-    })
+    });
     return lst;
   }
 
   async getAllSalesclerks(): Promise<any> {
-    const result = await this.accountsRepository.createQueryBuilder('accounts').select('Id').where("accounts.Type = 'Salescleck'").andWhere("accounts.Id < 40").distinct(true).getRawAndEntities();
+    const result = await this.accountsRepository
+      .createQueryBuilder("accounts")
+      .select("Id")
+      .where("accounts.Type = 'Salescleck'")
+      .andWhere("accounts.Id < 40")
+      .distinct(true)
+      .getRawAndEntities();
     var lst = [];
-    result.raw.map(item => {
+    result.raw.map((item) => {
       lst.push(item.Id);
-    })
+    });
     return lst;
   }
 
   async getStoreProductManager(storeId: number): Promise<any> {
-    const result = await this.accountsRepository.createQueryBuilder('accounts').select('Id').where("accounts.Type = 'StoreManager'").andWhere("accounts.StoreId IS NOT NULL").andWhere("accounts.StoreId = :storeId", { storeId: storeId }).distinct(true).getRawAndEntities();
+    const result = await this.accountsRepository
+      .createQueryBuilder("accounts")
+      .select("Id")
+      .where("accounts.Type = 'StoreManager'")
+      .andWhere("accounts.StoreId IS NOT NULL")
+      .andWhere("accounts.StoreId = :storeId", { storeId: storeId })
+      .distinct(true)
+      .getRawAndEntities();
     var lst = [];
-    result.raw.map(item => {
+    result.raw.map((item) => {
       lst.push(item.Id);
-    })
+    });
     return lst;
   }
 
   async getAccountDetail(id: number): Promise<Account> {
     const account = await this.accountsRepository.findOne(id);
-
     if (!account) {
       customThrowError(
         RESPONSE_MESSAGES.NOT_FOUND,
@@ -178,6 +205,7 @@ export class AccountsService {
       account.Username = model.username;
       account.Email = model.email;
       account.Password = model.password;
+      account.HashedPW = await this._createHash(model.password);
       account.FName = model.fName;
       account.LName = model.lName;
       account.Title = model.title;
@@ -304,9 +332,19 @@ export class AccountsService {
   }
 
   private async _checkPassword(plain, hash) {
-    // const matched = await this.passwordHelper.checkHash(plain, hash);
+    let matched;
+    if (hash) {
+      matched = await this._checkHash(plain, hash);
+    } else {
+      customThrowError(
+        "Please check the hashed field",
+        HttpStatus.NOT_FOUND,
+        RESPONSE_MESSAGES_CODE.LOGIN_FAIL
+      );
+    }
 
-    if (plain != hash) {
+    //if (plain != hash) {
+    if (!matched) {
       customThrowError(
         RESPONSE_MESSAGES.LOGIN_FAIL,
         HttpStatus.UNAUTHORIZED,
@@ -345,7 +383,7 @@ export class AccountsService {
     //   );
     // }
 
-    await this._checkPassword(model.password, account.Password);
+    await this._checkPassword(model.password, account.HashedPW);
     const payload = {
       id: account.Id,
       email: account.Email,
@@ -755,5 +793,94 @@ export class AccountsService {
 
     await this.storeRepository.softDelete(id);
     return true;
+  }
+
+  async forgotPassword(email: string): Promise<boolean> {
+    const user = await this.accountsRepository.findOne({
+      where: { Email: email.toLowerCase() },
+      select: ["Id", "Email", "FName"],
+    });
+    if (!user) {
+      customThrowError(
+        RESPONSE_MESSAGES.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        RESPONSE_MESSAGES_CODE.NOT_FOUND
+      );
+    }
+    const tokenHelper = new TokenHelper(new ConfigService());
+    const token = tokenHelper.createToken({
+      id: user.Id,
+      email: user.Email.toLowerCase(),
+      type: TOKEN_TYPE.FORGOT_PASSWORD,
+    });
+    const mailHelper = new MailHelper(
+      new ConfigService(),
+      new TemplatesService()
+    );
+    mailHelper.sendForgotPassword(
+      token,
+      user.Email.toLowerCase(),
+      TOKEN_ROLE.USER,
+      getNickname(user)
+    );
+
+    return true;
+  }
+
+  async resetPassword(model: ResetPassword): Promise<boolean> {
+    const now = Math.floor(Date.now() / 1000) * 1000;
+    const tokenHelper = new TokenHelper(new ConfigService());
+    const data = tokenHelper.verifyToken(
+      model.token,
+      TOKEN_TYPE.FORGOT_PASSWORD
+    );
+    const user = await this.accountsRepository.findOne(
+      {
+        Email: data.email,
+        Id: data.id,
+      }
+      // { select: ['id'] },
+    );
+
+    if (!user) {
+      customThrowError(
+        RESPONSE_MESSAGES.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        RESPONSE_MESSAGES_CODE.NOT_FOUND
+      );
+    }
+
+    user.Password = model.password;
+    user.HashedPW = await this._createHash(model.password);
+    //user.passwordChangedAt = new Date(now);
+    await this.accountsRepository.save(user);
+    const logUser = {
+      id: user.Id,
+      email: user.Email,
+      role: TOKEN_ROLE.USER,
+    };
+    return true;
+  }
+
+  async hashBulkPassword() {
+    // const users = await this.accountsRepository.find({
+    //   where: { HashedPW: null },
+    // });
+    // let userList = [];
+    // users.map((user) => {
+    //   return userList.push(user.Id);
+    // });
+    // userList.map(async (item) => {
+    //   let curUser = await this.accountsRepository.findOne({
+    //     where: { Id: 1 },
+    //   });
+    //   curUser.HashedPW = await this._createHash(curUser.Password);
+    //   await this.accountsRepository.save(curUser);
+    // });
+    let curUser = await this.accountsRepository.findOne({
+      where: { Id: 4 },
+    });
+    curUser.HashedPW = await this._createHash(curUser.Password);
+    await this.accountsRepository.save(curUser);
   }
 }

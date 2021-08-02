@@ -84,6 +84,9 @@ export class Account {
   @Column()
   AdminVerified: boolean;
 
+  @Column()
+  HashedPW: string;
+
   @DeleteDateColumn()
   DeletedAt?: Date;
 
