@@ -89,7 +89,7 @@ export class AccountsService {
     const { skip, take, searchBy, searchKeyword } = model;
     const order = {};
     const filterCondition = {} as any;
-    const where = [];
+    let where = [];
     let search = "";
 
     if (model.orderBy) {
@@ -98,13 +98,26 @@ export class AccountsService {
       (order as any).createdDate = "DESC";
     }
 
-    if (searchBy && searchKeyword) {
-      filterCondition[searchBy] = Raw(
-        (alias) => `LOWER(${alias}) like '%${searchKeyword.toLowerCase()}%'`
-      );
-    }
-
-    where.push({ ...filterCondition });
+    where = searchKeyword
+      ? [
+          //@ts-ignore
+          {
+            Email: Like(`%${searchKeyword.toLowerCase()}%`),
+          },
+          //@ts-ignore
+          {
+            FName: Like(`%${searchKeyword.toLowerCase()}%`),
+          },
+          //@ts-ignore
+          {
+            LName: Like(`%${searchKeyword.toLowerCase()}%`),
+          },
+          //@ts-ignore
+          {
+            Id: Like(`%${searchKeyword.toLowerCase()}%`),
+          },
+        ]
+      : [];
     const options: FindManyOptions<Account> = {
       select: [
         "Id",
