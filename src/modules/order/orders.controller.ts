@@ -127,7 +127,7 @@ export class OrdersController {
 
   @Post("/create-checkout-session")
   async createCheckoutSession(@Request() req, @Res() res) {
-    const YOUR_DOMAIN = "http://localhost:3000";
+    const YOUR_DOMAIN = "https://retailsystem.herokuapp.com";
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [

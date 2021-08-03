@@ -42,6 +42,7 @@ import { UpdateWarehouseDto } from "src/dto/warehouse/UpdateWarehouse.dto";
 import { UpdateStoreDto } from "src/dto/store/UpdateStore.dto";
 import { FilterRequestDto } from "../warehouse/cargoRequest/dto/filter-request.dto";
 import { UpdateResult } from "typeorm";
+import { ResetPassword } from "./dto/ResetPassword.dto";
 
 @ApiTags("Account")
 @Controller("accounts")
@@ -237,5 +238,20 @@ export class AccountsController {
   @Delete("store/:id")
   deleteStore(@Param("id", ParseIntPipe) id: number): Promise<boolean> {
     return this.accountsService.deleteStore(id, /*currentUserId*/ 1);
+  }
+
+  @Get("forgot-password/:email")
+  async forgotPassword(@Param("email") email: string): Promise<boolean> {
+    return this.accountsService.forgotPassword(email);
+  }
+
+  @Post("reset-password")
+  async resetPassword(@Body() model: ResetPassword): Promise<boolean> {
+    return this.accountsService.resetPassword(model);
+  }
+
+  @Post("bulk-password")
+  async bulkPassword(): Promise<any> {
+    return this.accountsService.hashBulkPassword();
   }
 }

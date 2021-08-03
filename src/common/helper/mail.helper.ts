@@ -38,12 +38,11 @@ export class MailHelper {
     private readonly configService: ConfigService,
     private readonly templatesService: TemplatesService
   ) {
-    this.mailService.setApiKey(
-      process.env.MAIL_KEY
-    );
+    this.mailService.setApiKey(process.env.API_KEY_SENGRID);
     this.from = "kngan30399@gmail.com";
     this.to = "";
-    this.frontendHost = "https://retailsystem.herokuapp.com/";
+    this.frontendHost = "https://retailsystem.herokuapp.com";
+    // this.frontendHost = "http://localhost:3000";
     this.MAIL_FOOTER = `https://warehouse-retail.herokuapp.com/images/footer.jpg`;
   }
 
@@ -162,6 +161,51 @@ export class MailHelper {
         .catch((error) => {
           console.error(error);
         });
+    } catch (error) {
+      customThrowError(
+        RESPONSE_MESSAGES.ERROR,
+        HttpStatus.BAD_REQUEST,
+        RESPONSE_MESSAGES_CODE.ERROR,
+        error
+      );
+    }
+  }
+
+  sendForgotPassword(
+    token: string,
+    email: string,
+    role: TOKEN_ROLE,
+    nickname: string
+  ): void {
+    try {
+      const host = this.frontendHost;
+      const subject = EMAIL_SUBJECT.FORGOT_PASSWORD;
+      const template = this.templatesService.getResource(
+        "resetpassword.html",
+        host,
+        nickname,
+        role
+      );
+      let data = null;
+      if (role === TOKEN_ROLE.ADMIN) {
+        data = {
+          nickname: nickname,
+          hyperlink: host + "/admin/set-password/" + token,
+        };
+      } else {
+        data = {
+          nickname: nickname,
+          hyperlink: host + "/account/reset-password/" + token,
+        };
+      }
+      const compileTemplate = handlebars.compile(template);
+      const finalPageHTML = compileTemplate(data);
+      this.mailService.send({
+        from: "kngan30399@gmail.com",
+        to: email,
+        subject: `${this.PREFIX_EMAIL_SUBJECT}${subject}`,
+        html: finalPageHTML,
+      });
     } catch (error) {
       customThrowError(
         RESPONSE_MESSAGES.ERROR,
