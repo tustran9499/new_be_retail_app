@@ -142,6 +142,8 @@ export class AccountsService {
         "Address",
         "EmailVerified",
         "AdminVerified",
+        "StoreId",
+        "WarehouseId",
       ],
       where: where,
       skip: skip,
