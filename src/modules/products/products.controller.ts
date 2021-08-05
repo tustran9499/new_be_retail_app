@@ -50,7 +50,7 @@ export class ProductsController {
     return this.ProductsService.getFullTimeSeriesSale();
   }
 
-  @SetMetadata("roles", ["StoresManager", "StoreManager"])
+  @SetMetadata("roles", ["StoresManager", "StoreManager", "StoreWarehouseManager"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get("/timeseries/:id")
   @ApiOkResponse()
@@ -67,7 +67,7 @@ export class ProductsController {
     return this.ProductsService.findAllCategories();
   }
 
-  @SetMetadata("roles", ["StoreManager", "Salescleck"])
+  @SetMetadata("roles", ["StoreManager", "Salescleck", "StoreWarehouseManager"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get()
   @ApiOkResponse()
@@ -75,7 +75,7 @@ export class ProductsController {
     return this.ProductsService.findAll();
   }
 
-  @SetMetadata("roles", ["StoreManager", "Salescleck"])
+  @SetMetadata("roles", ["StoreManager", "Salescleck", "StoreWarehouseManager"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get("/paginateProducts")
   async index(
@@ -138,7 +138,7 @@ export class ProductsController {
     return this.ProductsService.createProduct(model);
   }
 
-  @SetMetadata("roles", ["StoresManager", "StoreManager", "StoreStaff"])
+  @SetMetadata("roles", ["StoresManager", "StoreManager", "StoreStaff", "StoreWarehouseManager"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put("/:id")
   async updateProduct(
@@ -174,7 +174,7 @@ export class ProductsController {
     return this.ProductsService.findOne(id);
   }
 
-  @SetMetadata("roles", ["StoresManager", "StoreManager", "Salescleck"])
+  @SetMetadata("roles", ["StoresManager", "StoreManager", "Salescleck", "StoreWarehouseManager"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get("/getByBarcode/:barcode")
   @ApiOkResponse()
@@ -182,7 +182,7 @@ export class ProductsController {
     return this.ProductsService.findOneByBarcode(barcode);
   }
 
-  @SetMetadata("roles", ["StoresManager", "StoreManager"])
+  @SetMetadata("roles", ["StoresManager", "StoreManager", "StoreWarehouseManager"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Delete("/:id")
   @ApiOkResponse()
