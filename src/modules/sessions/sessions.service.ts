@@ -139,13 +139,30 @@ export class SessionsService {
     }
   }
 
+  async getAllStoreByUser(id: number): Promise<any> {
+    const result = await this.sessionsRepository
+      .createQueryBuilder("sessions")
+      .select("StoreId")
+      .where({
+        SaleclerkId: id
+      })
+      .andWhere("sessions.StoreId IS NOT NULL")
+      .distinct(true)
+      .getRawAndEntities();
+    var lst = [];
+    result.raw.map((item) => {
+      lst.push(item.StoreId);
+    });
+    return lst;
+  }
+
   async getAllStorePastSessionSum(id: number): Promise<any> {
     try {
-      const storeIds = await this.accountService.getAllStoreByUser(id);
+      const storeIds = await this.getAllStoreByUser(id);
       var lst = [];
       for (let storeId of storeIds) {
         const data = await this.sessionsRepository.query("GetPastSessionStore @StoreId=" + storeId + ", @CashierId=" + id);
-        lst.push(data);
+        lst.push({ StoreId: storeId, FinalTotal: data[0].FinalTotal });
       }
       return lst;
     } catch (error) {
