@@ -37,6 +37,12 @@ export class Order {
     @Column()
     SessionId: string;
 
+    @ManyToOne(() => Session, Session => Session.Orders, {
+        onDelete: "RESTRICT"
+    })
+    @JoinColumn({ name: "SessionId", referencedColumnName: "SessionId" })
+    Session: Session;
+
     @DeleteDateColumn()
     DeletedAt?: Date;
 

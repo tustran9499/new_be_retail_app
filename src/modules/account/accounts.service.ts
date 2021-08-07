@@ -57,7 +57,7 @@ export class AccountsService {
     @InjectRepository(Store)
     private readonly storeRepository: Repository<Store>,
     private passwordHelper: PasswordHelper
-  ) {}
+  ) { }
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
@@ -77,6 +77,20 @@ export class AccountsService {
       .where("accounts.StoreId = :StoreId", { StoreId: storeId })
       .andWhere("accounts.Type = :Type", { Type: "Salescleck" })
       .getMany();
+  }
+
+  async findAllCashierOfStoreManager(storeManagerId: number): Promise<Account[]> {
+    const manager = await this.findOneById(storeManagerId);
+    if (manager && manager.Type == "StoreManager" && manager.StoreId) {
+      return await this.accountsRepository
+        .createQueryBuilder("accounts")
+        .where("accounts.StoreId = :StoreId", { StoreId: manager.StoreId })
+        .andWhere("accounts.Type = :Type", { Type: "Salescleck" })
+        .getMany();
+    }
+    else {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Error on finding cashiers!");
+    }
   }
 
   async findOne(username: string): Promise<Account | undefined> {
@@ -100,23 +114,23 @@ export class AccountsService {
 
     where = searchKeyword
       ? [
-          //@ts-ignore
-          {
-            Email: Like(`%${searchKeyword.toLowerCase()}%`),
-          },
-          //@ts-ignore
-          {
-            FName: Like(`%${searchKeyword.toLowerCase()}%`),
-          },
-          //@ts-ignore
-          {
-            LName: Like(`%${searchKeyword.toLowerCase()}%`),
-          },
-          //@ts-ignore
-          {
-            Id: Like(`%${searchKeyword.toLowerCase()}%`),
-          },
-        ]
+        //@ts-ignore
+        {
+          Email: Like(`%${searchKeyword.toLowerCase()}%`),
+        },
+        //@ts-ignore
+        {
+          FName: Like(`%${searchKeyword.toLowerCase()}%`),
+        },
+        //@ts-ignore
+        {
+          LName: Like(`%${searchKeyword.toLowerCase()}%`),
+        },
+        //@ts-ignore
+        {
+          Id: Like(`%${searchKeyword.toLowerCase()}%`),
+        },
+      ]
       : [];
     const options: FindManyOptions<Account> = {
       select: [
@@ -161,6 +175,21 @@ export class AccountsService {
       .createQueryBuilder("accounts")
       .select("StoreId")
       .where("accounts.StoreId IS NOT NULL")
+      .distinct(true)
+      .getRawAndEntities();
+    var lst = [];
+    result.raw.map((item) => {
+      lst.push(item.StoreId);
+    });
+    return lst;
+  }
+
+  async getAllStoreByUser(id: number): Promise<any> {
+    const result = await this.accountsRepository
+      .createQueryBuilder("accounts")
+      .select("StoreId")
+      .where({ Id: id })
+      .andWhere("accounts.StoreId IS NOT NULL")
       .distinct(true)
       .getRawAndEntities();
     var lst = [];

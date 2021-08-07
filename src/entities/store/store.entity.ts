@@ -9,6 +9,7 @@ import {
 import { Account } from "../account/account.entity";
 import { StoreProduct } from "../storeproduct/storeproduct.entity";
 import { CargoRequest } from "../warehouse/cargorequest.entity";
+import { Session } from "../session/session.entity";
 
 @Entity("Store")
 export class Store {
@@ -68,4 +69,7 @@ export class Store {
 
   @OneToMany(() => CargoRequest, (order) => order.Store)
   orders: CargoRequest[];
+
+  @OneToMany(() => Session, (Session) => Session.Store)
+  Sessions: Session[];
 }

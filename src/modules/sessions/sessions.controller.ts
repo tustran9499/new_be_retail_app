@@ -27,13 +27,47 @@ export class SessionsController {
     async getPastSessions(
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
+        @Query('id', ParseIntPipe) id: number,
         @Request() req
     ): Promise<Pagination<Session>> {
-        return this.SessionsService.getCashierPastSessions(req.user.userId, {
-            page,
-            limit,
-            route: '/api/sessions/past',
-        });
+        if (req.user.role == "Salescleck") {
+            return this.SessionsService.getCashierPastSessions(req.user.userId, {
+                page,
+                limit,
+                route: '/api/sessions/past',
+            });
+        }
+        else {
+            return this.SessionsService.getCashierPastSessions(id, {
+                page,
+                limit,
+                route: '/api/sessions/past',
+            });
+        }
+    }
+
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get('/multistores')
+    async getPastSessionSumByStores(
+        @Query('id', ParseIntPipe) id: number,
+        @Request() req
+    ): Promise<Pagination<Session>> {
+        if (req.user.role == "Salescleck") {
+            return this.SessionsService.getAllStorePastSessionSum(req.user.userId);
+        }
+        else {
+            return this.SessionsService.getAllStorePastSessionSum(id);
+        }
+    }
+
+    @SetMetadata('roles', ['StoreManager', 'Salescleck'])
+    @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+    @Get('/allCashiers')
+    async getAllCashiers(
+        @Request() req
+    ): Promise<Pagination<Session>> {
+        return await this.SessionsService.getAllCashiers(req);
     }
 
     @SetMetadata('roles', ['StoreManager', 'Salescleck'])

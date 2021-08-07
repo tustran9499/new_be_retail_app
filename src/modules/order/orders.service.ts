@@ -30,7 +30,7 @@ export class OrdersService {
     private readonly ordersRepository: Repository<Order>,
     private productorderService: ProductorderService,
     private accountService: AccountsService
-  ) {}
+  ) { }
 
   async paginate(
     options: IPaginationOptions,
@@ -82,7 +82,8 @@ export class OrdersService {
       .createQueryBuilder("orders")
       .leftJoinAndSelect("orders.Account", "Account")
       .leftJoinAndSelect("orders.Customer", "Customer")
-      .leftJoinAndSelect("Account.Store", "Store")
+      .leftJoinAndSelect("orders.Session", "Session")
+      .leftJoinAndSelect("Session.Store", "Store")
       .where("orders.Id =" + id)
       .getOne();
     const existedProductOrder = await this.productorderService.getProductOrderByOrder(
