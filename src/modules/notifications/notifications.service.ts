@@ -43,23 +43,23 @@ export class NotificationsService {
         }
     }
 
-    //23h30 from Mon to Fri
-    @Cron('0 30 23 * * 1-5')
-    async handleSessionCron() {
-        const cashierIds = await this.accountService.getAllSalesclerks();
-        for (let cashierId of cashierIds) {
-            const session = await this.sessionService.checkCashierSession(cashierId);
-            if (session) {
-                this.usernotificationsRepository.save({
-                    'Title': 'May be you have forgot to end today session!',
-                    'Message': 'Session Id:' + session.SessionId,
-                    'AccountId': cashierId,
-                    'CreatedAt': new Date(),
-                    'IsRead': false
-                })
-            }
-        }
-    }
+    // //23h30 from Mon to Fri
+    // @Cron('0 30 23 * * 1-5')
+    // async handleSessionCron() {
+    //     const cashierIds = await this.accountService.getAllSalesclerks();
+    //     for (let cashierId of cashierIds) {
+    //         const session = await this.sessionService.checkCashierSession(cashierId);
+    //         if (session) {
+    //             this.usernotificationsRepository.save({
+    //                 'Title': 'May be you have forgot to end today session!',
+    //                 'Message': 'Session Id:' + session.SessionId,
+    //                 'AccountId': cashierId,
+    //                 'CreatedAt': new Date(),
+    //                 'IsRead': false
+    //             })
+    //         }
+    //     }
+    // }
 
     async getNotifications(id: number): Promise<UserNotification[]> {
         try {

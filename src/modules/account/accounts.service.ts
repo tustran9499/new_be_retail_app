@@ -175,6 +175,7 @@ export class AccountsService {
       .createQueryBuilder("accounts")
       .select("StoreId")
       .where("accounts.StoreId IS NOT NULL")
+      .andWhere("accounts.Id <= 50")
       .distinct(true)
       .getRawAndEntities();
     var lst = [];
