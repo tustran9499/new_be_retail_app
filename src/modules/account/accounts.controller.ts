@@ -207,6 +207,12 @@ export class AccountsController {
     return this.accountsService.getStores(model);
   }
 
+  @Get("store/all-db")
+  @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
+  getStoresAllDb(): Promise<any> {
+    return this.accountsService.getStoresAllDb();
+  }
+
   // @Get('store/deleted')
   // @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
   // getDeletedStores(@Query() model: FilterRequestDto): Promise<any> {

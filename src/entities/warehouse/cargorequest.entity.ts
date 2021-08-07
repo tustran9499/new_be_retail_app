@@ -53,6 +53,9 @@ export class CargoRequest {
   @Column()
   storeId: number;
 
+  @Column()
+  ToStoreId: number;
+
   @ManyToOne(() => Store, (store) => store.orders)
   Store: Store;
 

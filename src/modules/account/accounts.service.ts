@@ -745,6 +745,11 @@ export class AccountsService {
     return [orders, count];
   }
 
+  async getStoresAllDb(): Promise<[Store[], number]> {
+    const res = await this.storeRepository.find();
+    return [res, res.length];
+  }
+
   async getStoreDetail(id: number): Promise<Store> {
     const store = await this.storeRepository.findOne(id);
 

@@ -31,6 +31,7 @@ export class CargoRequestsService {
       newCargoRequest.warehouseId = model.warehouseId;
       newCargoRequest.storeId = model.StoreId;
       newCargoRequest.Status = "Created";
+      newCargoRequest.ToStoreId = model.ToStoreId;
       newCargoRequest.createdByAccountId = model.UserId;
       newCargoRequest.CreatedAt = new Date(Date.now());
       const result = await this.cargoRequestsRepository.save(newCargoRequest);
@@ -97,6 +98,7 @@ export class CargoRequestsService {
   ): Promise<[CargoRequest[], number]> {
     let userId = filterOptionsModel.userId;
     let storeId = filterOptionsModel.storeId;
+    let ToStoreId = filterOptionsModel.storeId;
     let warehouseId = filterOptionsModel.warehouseId;
     if (!filterOptionsModel.order) {
       filterOptionsModel.order = new CargoRequest();
@@ -111,6 +113,7 @@ export class CargoRequestsService {
     }
     filterOptionsModel.order.storeId = storeId;
     filterOptionsModel.order.warehouseId = warehouseId;
+    filterOptionsModel.order.ToStoreId = ToStoreId;
 
     return await this._getList(filterOptionsModel);
   }
@@ -147,7 +150,10 @@ export class CargoRequestsService {
       }));
       where.push(...modifiedOptions);
     } else if (filterOptionsModel.order?.storeId) {
-      const filterOptions = [{ storeId: filterOrder.storeId }];
+      const filterOptions = [
+        { storeId: filterOrder.storeId },
+        { ToStoreId: filterOrder.ToStoreId },
+      ];
       const modifiedOptions = filterOptions.map((condition) => ({
         ...condition,
         ...filterCondition,
