@@ -23,11 +23,14 @@ import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { RolesGuard } from "src/auth/roles.guard";
 import {
   CreateCargoRequestDto,
+  CreateReturnCargoRequestDto,
   UpdateCargoRequestDto,
 } from "src/dto/warehouse/CreateCargoRequest.dto";
 import { CargoRequest } from "src/entities/warehouse/cargorequest.entity";
 import { CargoRequestsService } from "./cargoRequests.service";
 import { FilterRequestDto } from "./dto/filter-request.dto";
+import { Product } from "../../../entities/product/product.entity";
+import { ProductArrayDto } from "../../../dto/warehouse/CreateCargoRequest.dto";
 
 @ApiTags("CargoRequest")
 @Controller("cargo-requests")
@@ -42,6 +45,17 @@ export class CargoRequestsController {
     @Req() req: Request
   ): Promise<boolean> {
     return this.cargoRequestsService.createCargoRequest(
+      model
+      //(req as any).user.id ?? 1,
+    );
+  }
+
+  @Post("returned")
+  async createReturnCargoRequest(
+    @Body() model: CreateReturnCargoRequestDto,
+    @Req() req: Request
+  ): Promise<boolean> {
+    return this.cargoRequestsService.createReturnCargoRequest(
       model
       //(req as any).user.id ?? 1,
     );
@@ -91,6 +105,14 @@ export class CargoRequestsController {
     @Param("status") status: string
   ): Promise<any> {
     return await this.cargoRequestsService.setOrderStatus(id, status);
+  }
+
+  @Put("returned/:id/:status")
+  async setReturnedOrderStatus(
+    @Param("id", ParseIntPipe) id: number,
+    @Param("status") status: string
+  ): Promise<any> {
+    return await this.cargoRequestsService.setReturnedOrderStatus(id, status);
   }
 
   @Delete("/:id")

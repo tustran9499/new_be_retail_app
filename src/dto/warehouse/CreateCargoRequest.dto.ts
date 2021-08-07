@@ -2,6 +2,15 @@ import { IsEmail, IsNotEmpty, IsOptional } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 
+export class CargoReturnRequest {
+  productId: number[];
+  quantity: number[];
+  requestId: number;
+  status: string;
+  createdById: number;
+  createdAt: Date;
+}
+
 export class CreateCargoRequestDto {
   @IsNotEmpty()
   @ApiProperty({ type: [Number] })
@@ -11,9 +20,11 @@ export class CreateCargoRequestDto {
   @ApiProperty({ type: [Number] })
   Quantity: number[];
 
-  @IsNotEmpty()
   @ApiProperty()
   warehouseId: number;
+
+  @ApiProperty()
+  ToStoreId: number;
 
   @IsNotEmpty()
   @ApiProperty()
@@ -22,6 +33,29 @@ export class CreateCargoRequestDto {
   @IsNotEmpty()
   @ApiProperty()
   UserId: number;
+}
+
+export class CreateReturnCargoRequestDto {
+  @IsNotEmpty()
+  @ApiProperty({ type: [Number] })
+  ProductId: number[];
+
+  @IsNotEmpty()
+  @ApiProperty()
+  CargoRequestId: number;
+
+  @IsNotEmpty()
+  @ApiProperty({ type: [Number] })
+  Quantity: number[];
+
+  @IsNotEmpty()
+  @ApiProperty()
+  UserId: number;
+}
+
+export class ProductArrayDto {
+  @ApiProperty({ type: [Number] })
+  ProductId: number[];
 }
 
 export class UpdateCargoRequestDto {
@@ -33,6 +67,9 @@ export class UpdateCargoRequestDto {
 
   @ApiProperty()
   warehouseId: number;
+
+  @ApiProperty()
+  ToStoreId: number;
 
   @ApiProperty()
   StoreId: number;

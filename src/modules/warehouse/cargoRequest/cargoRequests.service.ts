@@ -9,16 +9,22 @@ import {
 import { AccountsService } from "src/modules/account/accounts.service";
 import { CargoRequest } from "src/entities/warehouse/cargorequest.entity";
 import {
+  CargoReturnRequest,
   CreateCargoRequestDto,
+  CreateReturnCargoRequestDto,
+  ProductArrayDto,
   UpdateCargoRequestDto,
 } from "src/dto/warehouse/CreateCargoRequest.dto";
 import { FilterRequestDto } from "./dto/filter-request.dto";
+import { ReturnedCargoRequest } from "src/entities/warehouse/returnedcargorequest.entity";
 
 @Injectable()
 export class CargoRequestsService {
   constructor(
     @InjectRepository(CargoRequest)
     private cargoRequestsRepository: Repository<CargoRequest>,
+    @InjectRepository(ReturnedCargoRequest)
+    private returnedCargoRequestRepository: Repository<ReturnedCargoRequest>,
     private accountService: AccountsService
   ) {}
 
@@ -31,6 +37,7 @@ export class CargoRequestsService {
       newCargoRequest.warehouseId = model.warehouseId;
       newCargoRequest.storeId = model.StoreId;
       newCargoRequest.Status = "Created";
+      newCargoRequest.ToStoreId = model.ToStoreId;
       newCargoRequest.createdByAccountId = model.UserId;
       newCargoRequest.CreatedAt = new Date(Date.now());
       const result = await this.cargoRequestsRepository.save(newCargoRequest);
@@ -42,6 +49,45 @@ export class CargoRequestsService {
           (cargoRequestid, productId, quantity)
           VALUES (${result.Id}, ${model.ProductId[index]}, ${model.Quantity[index]})`,
             [result.Id, model.ProductId, model.Quantity]
+          ),
+        ]);
+      }
+      return true;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async createReturnCargoRequest(
+    model: CreateReturnCargoRequestDto,
+    requestId?: number
+  ): Promise<boolean> {
+    try {
+      const newCargoRequest = new ReturnedCargoRequest();
+      newCargoRequest.Status = "Created";
+      newCargoRequest.createdById = model.UserId;
+      newCargoRequest.FromRequestId = model.CargoRequestId;
+      newCargoRequest.CreatedAt = new Date(Date.now());
+      const result = await this.returnedCargoRequestRepository.save(
+        newCargoRequest
+      );
+      let index;
+      for (index = 0; index < model.ProductId.length; index++) {
+        const tmp2 = await Promise.all([
+          getConnection().query(
+            `INSERT INTO "returned_cargo_request_products__product"
+          (requestId, productId, quantity)
+          VALUES (${result.Id}, ${model.ProductId[index]}, ${model.Quantity[index]})`,
+            [model.CargoRequestId, model.ProductId, model.Quantity]
+          ),
+        ]);
+        const tmp = await Promise.all([
+          getConnection().query(
+            `UPDATE "cargo_request_products__product"
+            SET returned = ISNULL(returned,0) + ${model.Quantity[index]}
+            WHERE cargoRequestId = ${model.CargoRequestId} AND productId = ${model.ProductId[index]}
+            `,
+            [model.Quantity, model.CargoRequestId, model.ProductId]
           ),
         ]);
       }
@@ -97,6 +143,7 @@ export class CargoRequestsService {
   ): Promise<[CargoRequest[], number]> {
     let userId = filterOptionsModel.userId;
     let storeId = filterOptionsModel.storeId;
+    let ToStoreId = filterOptionsModel.storeId;
     let warehouseId = filterOptionsModel.warehouseId;
     if (!filterOptionsModel.order) {
       filterOptionsModel.order = new CargoRequest();
@@ -111,6 +158,7 @@ export class CargoRequestsService {
     }
     filterOptionsModel.order.storeId = storeId;
     filterOptionsModel.order.warehouseId = warehouseId;
+    filterOptionsModel.order.ToStoreId = ToStoreId;
 
     return await this._getList(filterOptionsModel);
   }
@@ -147,7 +195,10 @@ export class CargoRequestsService {
       }));
       where.push(...modifiedOptions);
     } else if (filterOptionsModel.order?.storeId) {
-      const filterOptions = [{ storeId: filterOrder.storeId }];
+      const filterOptions = [
+        { storeId: filterOrder.storeId },
+        { ToStoreId: filterOrder.ToStoreId },
+      ];
       const modifiedOptions = filterOptions.map((condition) => ({
         ...condition,
         ...filterCondition,
@@ -241,6 +292,19 @@ export class CargoRequestsService {
     const result = await this.cargoRequestsRepository.update(id, {
       Status: status,
     });
+    return result;
+  }
+
+  async setReturnedOrderStatus(id: number, status: string): Promise<any> {
+    const result = await Promise.all([
+      getConnection().query(
+        `UPDATE "ReturnedCargoRequest"
+        SET Status = '${status}'
+        WHERE Id = ${id}
+        `,
+        [id, status]
+      ),
+    ]);
     return result;
   }
 
