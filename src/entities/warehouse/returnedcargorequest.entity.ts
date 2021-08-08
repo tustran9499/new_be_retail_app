@@ -30,7 +30,10 @@ export class ReturnedCargoRequest {
   Status: string;
 
   @Column()
-  createdById: number;
+  createdByAccountId: number;
+
+  @ManyToOne(() => Account, (user) => user.returnedOrders)
+  CreatedByAccount: Account;
 
   @ManyToMany(() => Product, (product) => product.returnedOrders)
   @JoinTable()
