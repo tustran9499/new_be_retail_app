@@ -75,6 +75,13 @@ export class ProductsController {
     return this.ProductsService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
+  @Get()
+  @ApiOkResponse()
+  getProductSelects(): Promise<any> {
+    return this.ProductsService.findAllProductSelect();
+  }
+
   @SetMetadata("roles", ["StoreManager", "Salescleck", "StoreWarehouseManager"])
   @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Get("/paginateProducts")

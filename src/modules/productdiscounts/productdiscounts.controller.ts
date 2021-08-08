@@ -34,11 +34,12 @@ export class ProductdiscountsController {
     @Post()
     async createPromotion(
         @Body() model: CreateProductDiscountDto,
+        @Request() req,
     ): Promise<any> {
-        return this.ProductdiscountsService.createProductDiscount(model);
+        return this.ProductdiscountsService.createProductDiscount(req.user.userId, model);
     }
 
-    @SetMetadata('roles', ['StoresManager'])
+    @SetMetadata('roles', ['StoreManager'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Put('/:id')
     async updatePromotion(@Param('id', ParseIntPipe) id: number,

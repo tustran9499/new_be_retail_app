@@ -10,6 +10,7 @@ import { UpdateProductDiscountDto } from 'src/dto/promotion/UpdateProductDiscoun
 import { customThrowError } from 'src/common/helper/throw.helper';
 import { RESPONSE_MESSAGES } from 'src/common/constants/response-messages.enum';
 import { AccountsService } from '../account/accounts.service';
+import { Product } from 'src/entities/product/product.entity';
 
 @Injectable()
 export class ProductdiscountsService {
@@ -20,15 +21,22 @@ export class ProductdiscountsService {
         private accountService: AccountsService,
     ) { }
 
-    async createProductDiscount(model: CreateProductDiscountDto): Promise<ProductDiscount> {
-        const promotion = await this.promotionsService.createPromotion(model);
-        return await this.productdiscountsRepository.query("CreateProductDiscount @Coupon=" + promotion.Coupon + ",@ProductId=" + model.ProductId + ",@StoreId=" + model.StoreId);;
+    async createProductDiscount(id: number, model: CreateProductDiscountDto): Promise<boolean> {
+        const user = await this.accountService.findOneById(id);
+        if (user && user.StoreId) {
+            const promotion = await this.promotionsService.createPromotion(model);
+            await this.productdiscountsRepository.query("CreateProductDiscount @Coupon=" + promotion.Coupon + ",@ProductId=" + model.ProductId + ",@StoreId=" + user.StoreId);
+            return true;
+        }
+        else {
+            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Error on creating new promotion!");
+        }
     }
 
     async paginate(id: number, options: IPaginationOptions): Promise<Pagination<any>> {
         const user = await this.accountService.findOneById(id);
         if (user && user.StoreId) {
-            const queryBuilder = this.productdiscountsRepository.createQueryBuilder('productdiscounts').innerJoinAndSelect(Promotion, "promotions", "promotions.Coupon=productdiscounts.Coupon").where({ StoreId: user.StoreId }).orderBy('promotions.StartTime', 'ASC');
+            const queryBuilder = this.productdiscountsRepository.createQueryBuilder('productdiscounts').innerJoinAndSelect(Product, "products", "products.Id=productdiscounts.ProductId").innerJoinAndSelect(Promotion, "promotions", "promotions.Coupon=productdiscounts.Coupon").where({ StoreId: user.StoreId }).orderBy('promotions.StartTime', 'ASC');
             return paginateRaw<any>(queryBuilder, options);
         }
         else {

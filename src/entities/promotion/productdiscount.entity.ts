@@ -1,10 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, PrimaryColumn, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Product } from '../product/product.entity';
+import { Promotion } from './promotion.entity';
 
 @Entity('ProductDiscount')
 export class ProductDiscount {
     @PrimaryColumn()
     Coupon: number;
+
+    @OneToOne(() => Promotion)
+    @JoinColumn({ name: "Coupon", referencedColumnName: "Coupon" })
+    Promotion: Promotion;
 
     @Column()
     ProductId: number;

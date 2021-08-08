@@ -18,9 +18,14 @@ export class OrderdiscountsService {
         private promotionsService: PromotionsService,
     ) { }
 
-    async createOrderDiscount(model: CreateOrderDiscountDto): Promise<OrderDiscount> {
-        const promotion = await this.promotionsService.createPromotion(model);
-        return await this.orderdiscountsRepository.query("CreateOrderDiscount @Coupon=" + promotion.Coupon + ",@MinBill=" + model.MinBill + ",@MaxDiscount=" + model.MaxDiscount);;
+    async createOrderDiscount(model: CreateOrderDiscountDto): Promise<boolean> {
+        try {
+            const promotion = await this.promotionsService.createPromotion(model);
+            await this.orderdiscountsRepository.query("CreateOrderDiscount @Coupon=" + promotion.Coupon + ",@MinBill=" + model.MinBill + ",@MaxDiscount=" + model.MaxDiscount);
+            return true;
+        } catch (error) {
+            customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+        }
     }
 
     async paginate(options: IPaginationOptions): Promise<Pagination<any>> {

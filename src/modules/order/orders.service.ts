@@ -197,7 +197,7 @@ export class OrdersService {
               Quantity: item.Quantity,
               ReturnedQuantity: 0,
               Tax: 0.1,
-              Discount: item.Discount,
+              Discount: item.NewDiscount,
             }
           );
           resultitems.push(item_result);
