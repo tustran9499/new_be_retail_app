@@ -9,13 +9,15 @@ import {
 import { AccountsService } from "src/modules/account/accounts.service";
 import { CargoRequest } from "src/entities/warehouse/cargorequest.entity";
 import {
-  CargoReturnRequest,
   CreateCargoRequestDto,
   CreateReturnCargoRequestDto,
   ProductArrayDto,
   UpdateCargoRequestDto,
 } from "src/dto/warehouse/CreateCargoRequest.dto";
-import { FilterRequestDto } from "./dto/filter-request.dto";
+import {
+  FilterRequestDto,
+  FilterReturnedRequestDto,
+} from "./dto/filter-request.dto";
 import { ReturnedCargoRequest } from "src/entities/warehouse/returnedcargorequest.entity";
 
 @Injectable()
@@ -65,7 +67,7 @@ export class CargoRequestsService {
     try {
       const newCargoRequest = new ReturnedCargoRequest();
       newCargoRequest.Status = "Created";
-      newCargoRequest.createdById = model.UserId;
+      newCargoRequest.createdByAccountId = model.UserId;
       newCargoRequest.FromRequestId = model.CargoRequestId;
       newCargoRequest.CreatedAt = new Date(Date.now());
       const result = await this.returnedCargoRequestRepository.save(
@@ -76,7 +78,7 @@ export class CargoRequestsService {
         const tmp2 = await Promise.all([
           getConnection().query(
             `INSERT INTO "returned_cargo_request_products__product"
-          (requestId, productId, quantity)
+          (returnedCargoRequestId, productId, quantity)
           VALUES (${result.Id}, ${model.ProductId[index]}, ${model.Quantity[index]})`,
             [model.CargoRequestId, model.ProductId, model.Quantity]
           ),
@@ -247,6 +249,79 @@ export class CargoRequestsService {
     return [orders, count];
   }
 
+  async getReturnedOrders(
+    id: number,
+    filterOptionsModel: FilterReturnedRequestDto
+  ): Promise<[ReturnedCargoRequest[], number]> {
+    let userId = filterOptionsModel.userId;
+    if (!filterOptionsModel.order) {
+      filterOptionsModel.order = new ReturnedCargoRequest();
+    }
+
+    return await this._getReturnedList(id, filterOptionsModel);
+  }
+
+  async _getReturnedList(
+    id: number,
+    filterOptionsModel: FilterReturnedRequestDto
+  ): Promise<[ReturnedCargoRequest[], number]> {
+    const {
+      skip,
+      take,
+      searchBy,
+      searchKeyword,
+      order: filterOrder,
+    } = filterOptionsModel;
+    const order = {};
+    const filterCondition = {} as any;
+    const where = [];
+
+    if (filterOptionsModel.orderBy) {
+      order[filterOptionsModel.orderBy] = filterOptionsModel.orderDirection;
+    } else {
+      (order as any).CreatedAt = "DESC";
+    }
+
+    if (searchBy && searchKeyword) {
+      filterCondition[searchBy] = Like(`%${searchKeyword}%`);
+    }
+
+    where.push({ FromRequestId: id });
+    let search = "";
+    if (searchBy === "userEmail") {
+      search = `LOWER("Order__createdByCustomer"."email") like '%${searchKeyword.toLowerCase()}%'`;
+      const options: FindManyOptions<ReturnedCargoRequest> = {
+        where: search,
+        skip,
+        take,
+        order,
+        relations: ["CreatedByAccount"],
+      };
+      const [
+        orders,
+        count,
+      ] = await this.returnedCargoRequestRepository.findAndCount(options);
+      return [orders, count];
+    }
+
+    const options: FindManyOptions<ReturnedCargoRequest> = {
+      where,
+      skip,
+      take,
+      order,
+      relations: ["CreatedByAccount"],
+    };
+
+    const [
+      orders,
+      count,
+    ] = await this.returnedCargoRequestRepository.findAndCount(options);
+    // const modifiedOrders = orders.map(o => new OrderResponseDto(o));
+
+    // return [modifiedOrders, count];
+    return [orders, count];
+  }
+
   async getById(id: number): Promise<any> {
     const existedOrder = await this.cargoRequestsRepository.findOne({
       where: { Id: id },
@@ -262,16 +337,59 @@ export class CargoRequestsService {
     }
     const res = await this._getProductQuantities(id);
     // let res = {};
-    const resultOrder = { ...existedOrder, quantities: res };
+    const resultOrder = {
+      ...existedOrder,
+      quantities: res[0],
+      returned: res[1],
+    };
     return resultOrder;
   }
 
   async _getProductQuantities(orderId: number): Promise<any[]> {
     let quantities = [];
+    let returned = [];
     const products = await Promise.all([
       getConnection().query(
         `SELECT *
                 FROM "cargo_request_products__product" "c" WHERE "c"."cargoRequestId" = ${orderId};`,
+        [orderId]
+      ),
+    ]);
+    products[0].map((product) => {
+      quantities.push(product.quantity);
+      returned.push(product.returned);
+    });
+    return [quantities, returned];
+  }
+
+  async getReturnedOneById(id: number): Promise<any> {
+    const existedOrder = await this.returnedCargoRequestRepository.findOne({
+      where: { Id: id },
+      relations: ["CreatedByAccount", "products"],
+    });
+
+    if (!existedOrder) {
+      customThrowError(
+        RESPONSE_MESSAGES.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        RESPONSE_MESSAGES_CODE.NOT_FOUND
+      );
+    }
+    const res = await this._getReturnedProductQuantities(id);
+    // let res = {};
+    const resultOrder = {
+      ...existedOrder,
+      quantities: res,
+    };
+    return resultOrder;
+  }
+
+  async _getReturnedProductQuantities(orderId: number): Promise<any[]> {
+    let quantities = [];
+    const products = await Promise.all([
+      getConnection().query(
+        `SELECT *
+                FROM "returned_cargo_request_products__product" "c" WHERE "c"."returnedCargoRequestId" = ${orderId};`,
         [orderId]
       ),
     ]);
@@ -284,6 +402,15 @@ export class CargoRequestsService {
   async getStatusOne(id: number): Promise<any> {
     const result = await Promise.all([
       getConnection().query(`select Status from CargoRequest where Id=${id}`),
+    ]);
+    return result;
+  }
+
+  async getReturnedStatusOne(id: number): Promise<any> {
+    const result = await Promise.all([
+      getConnection().query(
+        `select Status from ReturnedCargoRequest where Id=${id}`
+      ),
     ]);
     return result;
   }

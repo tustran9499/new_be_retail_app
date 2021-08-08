@@ -28,9 +28,13 @@ import {
 } from "src/dto/warehouse/CreateCargoRequest.dto";
 import { CargoRequest } from "src/entities/warehouse/cargorequest.entity";
 import { CargoRequestsService } from "./cargoRequests.service";
-import { FilterRequestDto } from "./dto/filter-request.dto";
+import {
+  FilterRequestDto,
+  FilterReturnedRequestDto,
+} from "./dto/filter-request.dto";
 import { Product } from "../../../entities/product/product.entity";
 import { ProductArrayDto } from "../../../dto/warehouse/CreateCargoRequest.dto";
+import { ReturnedCargoRequest } from "src/entities/warehouse/returnedcargorequest.entity";
 
 @ApiTags("CargoRequest")
 @Controller("cargo-requests")
@@ -95,6 +99,31 @@ export class CargoRequestsController {
   @Get(":id/status")
   async getStatusOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
     return await this.cargoRequestsService.getStatusOne(id);
+  }
+
+  @Get("returned/:id/status")
+  async getReturnedStatusOne(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<any> {
+    return await this.cargoRequestsService.getReturnedStatusOne(id);
+  }
+
+  @Get("returned-all/:orderId")
+  @ApiOkResponse({})
+  async getReturnedOrders(
+    @Param("orderId", ParseIntPipe) id: number,
+    @Req() request: Request,
+    @Query() filterRequestDto: FilterReturnedRequestDto
+  ): Promise<[ReturnedCargoRequest[], number]> {
+    return await this.cargoRequestsService.getReturnedOrders(
+      id,
+      filterRequestDto
+    );
+  }
+
+  @Get("returned/:id")
+  async getReturnedOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
+    return await this.cargoRequestsService.getReturnedOneById(id);
   }
 
   //@SetMetadata('roles', ['StoreManager', 'StoreWarehouseManager'])
