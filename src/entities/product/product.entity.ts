@@ -16,6 +16,7 @@ import { Category } from "./category.entity";
 import { ProductOrder } from "../productorder/productorder.entity";
 import { StoreProduct } from "../storeproduct/storeproduct.entity";
 import { ReturnedCargoRequest } from "../warehouse/returnedcargorequest.entity";
+import { ProductDiscount } from "../promotion/productdiscount.entity";
 
 @Entity("Product")
 export class Product {
@@ -48,6 +49,9 @@ export class Product {
 
   @OneToMany(() => ProductOrder, (ProductOrder) => ProductOrder.Product)
   ProductOrders: ProductOrder[];
+
+  @OneToMany(() => ProductDiscount, (ProductDiscount) => ProductDiscount.Product)
+  ProductDiscounts: ProductDiscount[];
 
   @OneToMany(() => StoreProduct, (StoreProduct) => StoreProduct.Product)
   StoreProducts: StoreProduct[];
