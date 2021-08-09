@@ -6,6 +6,8 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
 import { Order } from "../order/order.entity";
 import { Store } from "../store/store.entity";
@@ -13,6 +15,7 @@ import { Session } from "../session/session.entity";
 import { CargoRequest } from "../warehouse/cargorequest.entity";
 import { UserNotification } from "../notification/notification.entity";
 import { ReturnedCargoRequest } from "../warehouse/returnedcargorequest.entity";
+import { Product } from "../product/product.entity";
 
 @Entity("Account")
 export class Account {
@@ -120,4 +123,8 @@ export class Account {
 
   @OneToMany(() => ReturnedCargoRequest, (order) => order.CreatedByAccount)
   returnedOrders: ReturnedCargoRequest[];
+
+  @ManyToMany(() => Product, (product) => product.throwProdAccount)
+  @JoinTable()
+  products: Product[];
 }
