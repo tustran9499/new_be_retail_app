@@ -15,25 +15,16 @@ import { Product } from "../product/product.entity";
 import { Store } from "../store/store.entity";
 import { Warehouse } from "./warehouse.entity";
 
-@Entity("CargoRequest")
-export class CargoRequest {
+@Entity("ReturnedCargoRequest")
+export class ReturnedCargoRequest {
   @PrimaryGeneratedColumn()
   Id: number;
 
   @Column()
-  RequestId: string;
+  FromRequestId: number;
 
   @CreateDateColumn()
   CreatedAt: Date;
-
-  @Column()
-  CancelledAt: Date;
-
-  @UpdateDateColumn()
-  UpdatedAt: Date;
-
-  @Column()
-  Notes: string;
 
   @Column()
   Status: string;
@@ -41,31 +32,10 @@ export class CargoRequest {
   @Column()
   createdByAccountId: number;
 
-  @ManyToOne(() => Account, (user) => user.orders)
+  @ManyToOne(() => Account, (user) => user.returnedOrders)
   CreatedByAccount: Account;
 
-  @Column()
-  warehouseId: number;
-
-  @ManyToOne(() => Warehouse, (warehouse) => warehouse.orders)
-  Warehouse: Warehouse;
-
-  @Column()
-  storeId: number;
-
-  @Column()
-  ToStoreId: number;
-
-  @ManyToOne(() => Store, (store) => store.orders)
-  Store: Store;
-
-  @Column()
-  CancelledBy: number;
-
-  @Column()
-  UpdatedBy: number;
-
-  @ManyToMany(() => Product, (product) => product.orders)
+  @ManyToMany(() => Product, (product) => product.returnedOrders)
   @JoinTable()
   products: Product[];
 }

@@ -10,7 +10,7 @@ import { Reflector } from '@nestjs/core';
 export class StoreproductsController {
     constructor(private StoreproductsService: StoreproductsService) { }
 
-    @SetMetadata('roles', ['StoreManager'])
+    @SetMetadata('roles', ['StoreManager', 'StoreWarehouseManager'])
     @UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
     @Post('/:id')
     async addProductToStore(@Param('id', ParseIntPipe) id: number, @Request() req): Promise<any> {

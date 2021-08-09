@@ -43,6 +43,10 @@ import { CreateStoreDto } from "src/dto/store/CreateStore.dto";
 import { UpdateStoreDto } from "src/dto/store/UpdateStore.dto";
 import { ResetPassword } from "./dto/ResetPassword.dto";
 import * as bcrypt from "bcrypt";
+import {
+  CreateThrowProductsRequest,
+  GetThrowProductsRequest,
+} from "src/dto/throwProducts/CreateThrowProductsRequest.dto";
 
 @Injectable()
 export class AccountsService {
@@ -57,7 +61,7 @@ export class AccountsService {
     @InjectRepository(Store)
     private readonly storeRepository: Repository<Store>,
     private passwordHelper: PasswordHelper
-  ) {}
+  ) { }
 
   findAll(): Promise<Account[]> {
     return this.accountsRepository.find();
@@ -79,8 +83,122 @@ export class AccountsService {
       .getMany();
   }
 
+  async findAllCashierOfStoreManager(storeManagerId: number): Promise<Account[]> {
+    const manager = await this.findOneById(storeManagerId);
+    if (manager && manager.Type == "StoreManager" && manager.StoreId) {
+      return await this.accountsRepository
+        .createQueryBuilder("accounts")
+        .where("accounts.StoreId = :StoreId", { StoreId: manager.StoreId })
+        .andWhere("accounts.Type = :Type", { Type: "Salescleck" })
+        .getMany();
+    }
+    else {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Error on finding cashiers!");
+    }
+  }
+
   async findOne(username: string): Promise<Account | undefined> {
     return this.accountsRepository.findOne({ Username: username });
+  }
+
+  async setThrowProductsStatus(id: number, status: string): Promise<any> {
+    let result;
+    if (status === "Thrown") {
+      result = await Promise.all([
+        getConnection().query(
+          `UPDATE "account_products__product"
+          SET status = '${status}', ThrownAt = GETDATE()
+          WHERE Id = ${id}
+          `,
+          [id, status]
+        ),
+      ]);
+      return result;
+    }
+    result = await Promise.all([
+      getConnection().query(
+        `UPDATE "account_products__product"
+        SET status = '${status}'
+        WHERE Id = ${id}
+        `,
+        [id, status]
+      ),
+    ]);
+    return result;
+  }
+
+  async getThrowProductsStatus(id: number): Promise<any> {
+    const result = await Promise.all([
+      getConnection().query(
+        `SELECT status FROM "account_products__product"
+        WHERE Id = ${id}
+        `,
+        [id]
+      ),
+    ]);
+    return result;
+  }
+
+  async getThrowProductsReq(
+    filterOptionsModel: FilterRequestDto
+  ): Promise<[any[], number]> {
+    let userId = filterOptionsModel.userId;
+
+    return await this._getThrowProductsReq(filterOptionsModel);
+  }
+
+  async _getThrowProductsReq(
+    filterOptionsModel: FilterRequestDto
+  ): Promise<[any[], number]> {
+    const { skip, take, searchBy, searchKeyword } = filterOptionsModel;
+    const order = {};
+    const filterCondition = {} as any;
+    const where = [];
+
+    if (filterOptionsModel.orderBy) {
+      order[filterOptionsModel.orderBy] = filterOptionsModel.orderDirection;
+    } else {
+      (order as any).CreatedAt = "DESC";
+    }
+
+    if (searchBy && searchKeyword) {
+      filterCondition[searchBy] = Like(`%${searchKeyword}%`);
+    }
+
+    let search = "";
+
+    let orders = [];
+    let count;
+    try {
+      const tmp = await Promise.all([
+        getConnection().query(
+          `select app.*, a.FName, a.LName, a.Email , p.ProductName 
+          from account_products__product app join Account a on app.accountId = a.Id 
+          join Product p on app.productId = p.Id 
+          where app.storeId = ${filterOptionsModel.storeId}
+          ORDER BY createdAt DESC
+          OFFSET ${filterOptionsModel.skip} ROWS FETCH NEXT ${filterOptionsModel.take} ROWS ONLY`
+        ),
+        [filterOptionsModel.storeId],
+      ]);
+      const count2 = await Promise.all([
+        getConnection().query(
+          `select count(*) as Count
+          from account_products__product app join Account a on app.accountId = a.Id 
+          join Product p on app.productId = p.Id 
+          where app.storeId = ${filterOptionsModel.storeId}`
+        ),
+        [filterOptionsModel.storeId],
+      ]);
+      orders = tmp;
+      count = count2;
+      console.log(orders[0]);
+      console.log(count[0]);
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+    // return [modifiedOrders, count];
+    return [orders[0], count[0][0].Count];
   }
 
   async getAccounts(
@@ -100,23 +218,23 @@ export class AccountsService {
 
     where = searchKeyword
       ? [
-          //@ts-ignore
-          {
-            Email: Like(`%${searchKeyword.toLowerCase()}%`),
-          },
-          //@ts-ignore
-          {
-            FName: Like(`%${searchKeyword.toLowerCase()}%`),
-          },
-          //@ts-ignore
-          {
-            LName: Like(`%${searchKeyword.toLowerCase()}%`),
-          },
-          //@ts-ignore
-          {
-            Id: Like(`%${searchKeyword.toLowerCase()}%`),
-          },
-        ]
+        //@ts-ignore
+        {
+          Email: Like(`%${searchKeyword.toLowerCase()}%`),
+        },
+        //@ts-ignore
+        {
+          FName: Like(`%${searchKeyword.toLowerCase()}%`),
+        },
+        //@ts-ignore
+        {
+          LName: Like(`%${searchKeyword.toLowerCase()}%`),
+        },
+        //@ts-ignore
+        {
+          Id: Like(`%${searchKeyword.toLowerCase()}%`),
+        },
+      ]
       : [];
     const options: FindManyOptions<Account> = {
       select: [
@@ -142,6 +260,8 @@ export class AccountsService {
         "Address",
         "EmailVerified",
         "AdminVerified",
+        "StoreId",
+        "WarehouseId",
       ],
       where: where,
       skip: skip,
@@ -159,6 +279,22 @@ export class AccountsService {
       .createQueryBuilder("accounts")
       .select("StoreId")
       .where("accounts.StoreId IS NOT NULL")
+      .andWhere("accounts.Id <= 50")
+      .distinct(true)
+      .getRawAndEntities();
+    var lst = [];
+    result.raw.map((item) => {
+      lst.push(item.StoreId);
+    });
+    return lst;
+  }
+
+  async getAllStoreByUser(id: number): Promise<any> {
+    const result = await this.accountsRepository
+      .createQueryBuilder("accounts")
+      .select("StoreId")
+      .where({ Id: id })
+      .andWhere("accounts.StoreId IS NOT NULL")
       .distinct(true)
       .getRawAndEntities();
     var lst = [];
@@ -743,6 +879,11 @@ export class AccountsService {
     return [orders, count];
   }
 
+  async getStoresAllDb(): Promise<[Store[], number]> {
+    const res = await this.storeRepository.find();
+    return [res, res.length];
+  }
+
   async getStoreDetail(id: number): Promise<Store> {
     const store = await this.storeRepository.findOne(id);
 
@@ -895,5 +1036,25 @@ export class AccountsService {
     });
     curUser.HashedPW = await this._createHash(curUser.Password);
     await this.accountsRepository.save(curUser);
+  }
+
+  async createThrowProductsReq(
+    model: CreateThrowProductsRequest
+  ): Promise<boolean> {
+    try {
+      const tmp = await Promise.all([
+        getConnection().query(
+          `INSERT INTO "account_products__product"
+        (accountId, productId, quantity, status, storeId, createdAt)
+        VALUES (${model.accountId}, ${model.productId}, ${
+            model.quantity
+          }, '${"Pending"}', ${model.storeId}, GETDATE())`,
+          [model.accountId, model.productId, model.quantity, model.storeId]
+        ),
+      ]);
+      return true;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
   }
 }

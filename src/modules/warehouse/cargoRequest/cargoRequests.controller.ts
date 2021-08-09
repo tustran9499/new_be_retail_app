@@ -16,6 +16,7 @@ import {
   UploadedFile,
   ParseUUIDPipe,
   Req,
+  HttpStatus,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ApiTags, ApiOkResponse } from "@nestjs/swagger";
@@ -23,11 +24,21 @@ import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { RolesGuard } from "src/auth/roles.guard";
 import {
   CreateCargoRequestDto,
+  CreateReturnCargoRequestDto,
   UpdateCargoRequestDto,
 } from "src/dto/warehouse/CreateCargoRequest.dto";
 import { CargoRequest } from "src/entities/warehouse/cargorequest.entity";
 import { CargoRequestsService } from "./cargoRequests.service";
-import { FilterRequestDto } from "./dto/filter-request.dto";
+import {
+  FilterRequestDto,
+  FilterReturnedRequestDto,
+} from "./dto/filter-request.dto";
+import { Product } from "../../../entities/product/product.entity";
+import { ProductArrayDto } from "../../../dto/warehouse/CreateCargoRequest.dto";
+import { ReturnedCargoRequest } from "src/entities/warehouse/returnedcargorequest.entity";
+import { customThrowError } from "src/common/helper/throw.helper";
+import { RESPONSE_MESSAGES } from "src/common/constants/response-messages.enum";
+import { getConnection, Like } from "typeorm";
 
 @ApiTags("CargoRequest")
 @Controller("cargo-requests")
@@ -42,6 +53,17 @@ export class CargoRequestsController {
     @Req() req: Request
   ): Promise<boolean> {
     return this.cargoRequestsService.createCargoRequest(
+      model
+      //(req as any).user.id ?? 1,
+    );
+  }
+
+  @Post("returned")
+  async createReturnCargoRequest(
+    @Body() model: CreateReturnCargoRequestDto,
+    @Req() req: Request
+  ): Promise<boolean> {
+    return this.cargoRequestsService.createReturnCargoRequest(
       model
       //(req as any).user.id ?? 1,
     );
@@ -83,6 +105,31 @@ export class CargoRequestsController {
     return await this.cargoRequestsService.getStatusOne(id);
   }
 
+  @Get("returned/:id/status")
+  async getReturnedStatusOne(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<any> {
+    return await this.cargoRequestsService.getReturnedStatusOne(id);
+  }
+
+  @Get("returned-all/:orderId")
+  @ApiOkResponse({})
+  async getReturnedOrders(
+    @Param("orderId", ParseIntPipe) id: number,
+    @Req() request: Request,
+    @Query() filterRequestDto: FilterReturnedRequestDto
+  ): Promise<[ReturnedCargoRequest[], number]> {
+    return await this.cargoRequestsService.getReturnedOrders(
+      id,
+      filterRequestDto
+    );
+  }
+
+  @Get("returned/:id")
+  async getReturnedOne(@Param("id", ParseIntPipe) id: number): Promise<any> {
+    return await this.cargoRequestsService.getReturnedOneById(id);
+  }
+
   //@SetMetadata('roles', ['StoreManager', 'StoreWarehouseManager'])
   //@UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
   @Put("/:id/:status")
@@ -91,6 +138,14 @@ export class CargoRequestsController {
     @Param("status") status: string
   ): Promise<any> {
     return await this.cargoRequestsService.setOrderStatus(id, status);
+  }
+
+  @Put("returned/:id/:status")
+  async setReturnedOrderStatus(
+    @Param("id", ParseIntPipe) id: number,
+    @Param("status") status: string
+  ): Promise<any> {
+    return await this.cargoRequestsService.setReturnedOrderStatus(id, status);
   }
 
   @Delete("/:id")

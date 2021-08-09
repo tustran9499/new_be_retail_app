@@ -10,4 +10,5 @@ export interface CartProduct {
     Quantity: number;
     Discount: number;
     Total: number;
+    NewDiscount: number;
 }

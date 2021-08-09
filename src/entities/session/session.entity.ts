@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Account } from '../account/account.entity';
+import { Store } from '../store/store.entity';
+import { Order } from '../order/order.entity';
 
 @Entity('Shift')
 export class Session {
@@ -23,5 +25,17 @@ export class Session {
     })
     @JoinColumn({ name: "SaleclerkId", referencedColumnName: "Id" })
     Account: Account;
+
+    @Column()
+    StoreId: number;
+
+    @ManyToOne(() => Store, Store => Store.Sessions, {
+        onDelete: "RESTRICT"
+    })
+    @JoinColumn({ name: "StoreId", referencedColumnName: "Id" })
+    Store: Store;
+
+    @OneToMany(() => Order, Order => Order.Session)
+    Orders: Order[];
 
 }

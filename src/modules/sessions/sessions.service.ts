@@ -26,9 +26,22 @@ export class SessionsService {
 
   async createSession(model: CreateSessionDto): Promise<Session> {
     try {
-      const result = await this.sessionsRepository.save(model);
-      const real_result = await this.sessionsRepository.findOne(result.SessionId);
-      return real_result;
+      const cashier = await this.accountService.findOneById(model.SaleclerkId);
+      if (cashier) {
+        // const allSessions = await this.sessionsRepository.find();
+        // for (let oldsession of allSessions) {
+        //   const storeId = await this.accountService.findOneById(oldsession.SaleclerkId);
+        //   if (storeId && storeId.StoreId) {
+        //     await this.sessionsRepository.save({ ...oldsession, StoreId: storeId.StoreId });
+        //   }
+        // }
+        const result = await this.sessionsRepository.save({ SaleclerkId: model.SaleclerkId, StoreId: cashier.StoreId });
+        const real_result = await this.sessionsRepository.findOne(result.SessionId);
+        return real_result;
+      }
+      else {
+        customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Account not found!");
+      }
     } catch (error) {
       customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
@@ -55,7 +68,6 @@ export class SessionsService {
   async getCashierSession(id: number): Promise<any> {
     try {
       const result = await this.accountService.findOneById(id);
-      console.log(result);
       let sessionResult = undefined;
       if (result.Type != 'Salescleck') {
         customThrowError('Invalid saleclerk id!', HttpStatus.BAD_REQUEST);
@@ -96,12 +108,24 @@ export class SessionsService {
         queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').leftJoinAndSelect("sessions.Account", "Account").where({ SaleclerkId: result.Id }).orderBy('sessions.End', 'ASC');
       }
       else {
-        const cashiers = await this.accountService.findAllCashier(result.StoreId);
-        let newresult = cashiers.map(a => a.Id);
-        queryBuilder = this.sessionsRepository.createQueryBuilder('sessions').leftJoinAndSelect("sessions.Account", "Account").where("SaleClerkId in (:...cashiers)", { cashiers: newresult }).orderBy('sessions.End', 'ASC');
+        customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, "Invalid salescleck identifier");
       }
       return paginate<Session>(queryBuilder, options);
     } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async getAllCashiers(req: any): Promise<any> {
+    try {
+      if (req.user.role == "Salescleck") {
+        return [await this.accountService.findOneById(req.user.userId)];
+      }
+      else {
+        return await this.accountService.findAllCashierOfStoreManager(req.user.userId);
+      }
+    }
+    catch (error) {
       customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }
   }
@@ -110,6 +134,37 @@ export class SessionsService {
     try {
       const data = await this.sessionsRepository.query("GetPastSessionSum @SessionId=\'" + id + "\'");
       return data;
+    } catch (error) {
+      customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
+    }
+  }
+
+  async getAllStoreByUser(id: number): Promise<any> {
+    const result = await this.sessionsRepository
+      .createQueryBuilder("sessions")
+      .select("StoreId")
+      .where({
+        SaleclerkId: id
+      })
+      .andWhere("sessions.StoreId IS NOT NULL")
+      .distinct(true)
+      .getRawAndEntities();
+    var lst = [];
+    result.raw.map((item) => {
+      lst.push(item.StoreId);
+    });
+    return lst;
+  }
+
+  async getAllStorePastSessionSum(id: number): Promise<any> {
+    try {
+      const storeIds = await this.getAllStoreByUser(id);
+      var lst = [];
+      for (let storeId of storeIds) {
+        const data = await this.sessionsRepository.query("GetPastSessionStore @StoreId=" + storeId + ", @CashierId=" + id);
+        lst.push({ StoreId: storeId, FinalTotal: data[0].FinalTotal });
+      }
+      return lst;
     } catch (error) {
       customThrowError(RESPONSE_MESSAGES.ERROR, HttpStatus.BAD_REQUEST, error);
     }

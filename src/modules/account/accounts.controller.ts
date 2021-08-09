@@ -43,6 +43,10 @@ import { UpdateStoreDto } from "src/dto/store/UpdateStore.dto";
 import { FilterRequestDto } from "../warehouse/cargoRequest/dto/filter-request.dto";
 import { UpdateResult } from "typeorm";
 import { ResetPassword } from "./dto/ResetPassword.dto";
+import {
+  CreateThrowProductsRequest,
+  GetThrowProductsRequest,
+} from "src/dto/throwProducts/CreateThrowProductsRequest.dto";
 
 @ApiTags("Account")
 @Controller("accounts")
@@ -207,6 +211,12 @@ export class AccountsController {
     return this.accountsService.getStores(model);
   }
 
+  @Get("store/all-db")
+  @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
+  getStoresAllDb(): Promise<any> {
+    return this.accountsService.getStoresAllDb();
+  }
+
   // @Get('store/deleted')
   // @ApiOkResponse({ description: RESPONSE_EXPLAINATION.GET_ACCOUNT })
   // getDeletedStores(@Query() model: FilterRequestDto): Promise<any> {
@@ -253,5 +263,33 @@ export class AccountsController {
   @Post("bulk-password")
   async bulkPassword(): Promise<any> {
     return this.accountsService.hashBulkPassword();
+  }
+
+  @Post("all-throw-products")
+  async getAllThrowProducts(@Body() model: FilterRequestDto): Promise<any> {
+    return this.accountsService.getThrowProductsReq(model);
+  }
+
+  @Post("throw-products-status/:id/:status")
+  async setThrowProductsStatus(
+    @Param("id", ParseIntPipe) id: number,
+    @Param("status") status: string
+  ): Promise<any> {
+    return this.accountsService.setThrowProductsStatus(id, status);
+  }
+
+  @Post("throw-products-get-status/:id")
+  async getThrowProductsStatus(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<any> {
+    return this.accountsService.getThrowProductsStatus(id);
+  }
+
+  @Post("throw-products")
+  async createThrowProductsReq(
+    @Body() model: CreateThrowProductsRequest
+    //@Body() model: Record<string, any>,
+  ): Promise<boolean> {
+    return this.accountsService.createThrowProductsReq(model);
   }
 }

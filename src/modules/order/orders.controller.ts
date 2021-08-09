@@ -65,17 +65,30 @@ export class OrdersController {
   async index(
     @Query("page", ParseIntPipe) page: number = 1,
     @Query("limit", ParseIntPipe) limit: number = 10,
+    @Query('id', ParseIntPipe) id: number,
     @Request() req
   ): Promise<Pagination<Order>> {
     limit = limit > 100 ? 100 : limit;
-    return this.ordersService.paginate(
-      {
-        page,
-        limit,
-        route: "/api/orders/paginateOrders",
-      },
-      req.user.userId
-    );
+    if (req.user.role == "Salescleck") {
+      return this.ordersService.paginate(
+        {
+          page,
+          limit,
+          route: "/api/orders/paginateOrders",
+        },
+        req.user.userId
+      );
+    }
+    else {
+      return this.ordersService.paginate(
+        {
+          page,
+          limit,
+          route: "/api/orders/paginateOrders",
+        },
+        id
+      );
+    }
   }
 
   @Get("/paginateOrdersBySession")

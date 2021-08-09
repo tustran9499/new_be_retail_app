@@ -19,6 +19,7 @@ import { StoreproductsService } from "../storeproducts/storeproducts.service";
 import { UpdateProductByStoreDto } from "src/dto/product/UpdateProductByStore.dto";
 import { UpdateProductByAdminDto } from "src/dto/product/UpdateProductByAdmin.dto";
 import { SummaryPeriodDto } from "src/dto/product/SummaryPeriod.dto";
+import { ProductDiscount } from "src/entities/promotion/productdiscount.entity";
 var moment = require("moment");
 var timeseries = require("timeseries-analysis");
 
@@ -30,7 +31,7 @@ export class ProductsService {
     private categoriesService: CategoriesService,
     private accountService: AccountsService,
     private storeproductsService: StoreproductsService
-  ) {}
+  ) { }
 
   async getFullTimeSeriesSale(): Promise<any> {
     const data = await this.productsRepository.query("GetTimeSeriesFullSale");
@@ -43,6 +44,10 @@ export class ProductsService {
 
   findAll(): Promise<Product[]> {
     return this.productsRepository.find();
+  }
+
+  async findAllProductSelect(): Promise<any[]> {
+    return this.productsRepository.createQueryBuilder("products").select(['Id', 'ProductName']).getMany();
   }
 
   findOne(id: number): Promise<Product> {
@@ -68,14 +73,19 @@ export class ProductsService {
     options: IPaginationOptions
   ): Promise<Pagination<Product>> {
     const result = await this.accountService.findOneById(userId);
+    var d = new Date();
     if (result && result.StoreId) {
       const storeId = result.StoreId;
       if (key && key != undefined && key !== null && key !== "") {
         const queryBuilder = this.productsRepository
           .createQueryBuilder("products")
-          .leftJoinAndSelect("products.Category", "Category")
+          .leftJoinAndSelect("products.Category", "Category.CategoryName")
+          .leftJoinAndSelect("products.ProductDiscounts", "ProductDiscounts")
+          .leftJoinAndSelect("ProductDiscounts.Promotion", "Promotion")
           .innerJoinAndSelect("products.StoreProducts", "StoreProducts")
           .where("StoreProducts.StoreId = " + storeId)
+          // .andWhere("Promotion.StartTime <=\'" + String(d.toISOString()) + "\'")
+          // .andWhere("Promotion.EndTime >=\'" + String(d.toISOString()) + "\'")
           .andWhere("products.ProductName Like '%" + String(key) + "%'")
           .orWhere("products.Id Like '%" + String(key) + "%'")
           .orderBy("products.ProductName", "ASC");
@@ -84,9 +94,13 @@ export class ProductsService {
       } else {
         const queryBuilder = this.productsRepository
           .createQueryBuilder("products")
-          .leftJoinAndSelect("products.Category", "Category")
+          .leftJoinAndSelect("products.Category", "Category.CategoryName")
+          .leftJoinAndSelect("products.ProductDiscounts", "ProductDiscounts")
+          .leftJoinAndSelect("ProductDiscounts.Promotion", "Promotion")
           .innerJoinAndSelect("products.StoreProducts", "StoreProducts")
           .where("StoreProducts.StoreId = " + storeId)
+          // .andWhere("Promotion.StartTime <=\'" + String(d.toISOString()) + "\'")
+          // .andWhere("Promotion.EndTime >=\'" + String(d.toISOString()) + "\'")
           .orderBy("products.Id", "ASC");
         return paginate<Product>(queryBuilder, options);
       }
@@ -169,10 +183,10 @@ export class ProductsService {
     if (user && user.StoreId) {
       var data = await this.productsRepository.query(
         "GetTimeSeriesSaleByStore @ProductId='" +
-          id +
-          "',@StoreId='" +
-          user.StoreId +
-          "'"
+        id +
+        "',@StoreId='" +
+        user.StoreId +
+        "'"
       );
       var newData = [];
       for (let step = 0; step < 15; step++) {
@@ -274,10 +288,10 @@ export class ProductsService {
   async getTimeSeriesSaleByStore(storeId: number, id: number): Promise<any> {
     var data = await this.productsRepository.query(
       "GetTimeSeriesSaleByStore @ProductId='" +
-        id +
-        "',@StoreId='" +
-        storeId +
-        "'"
+      id +
+      "',@StoreId='" +
+      storeId +
+      "'"
     );
     var newData = [];
     for (let step = 0; step < 15; step++) {
@@ -496,17 +510,17 @@ export class ProductsService {
   async getSummaryByPeriod(model: SummaryPeriodDto) {
     const items = await this.productsRepository.query(
       "GetPeriod @startDate='" +
-        moment(new Date(model.startTime)).format("YYYY-MM-DD") +
-        "',@endDate='" +
-        moment(new Date(model.endTime)).format("YYYY-MM-DD") +
-        "'"
+      moment(new Date(model.startTime)).format("YYYY-MM-DD") +
+      "',@endDate='" +
+      moment(new Date(model.endTime)).format("YYYY-MM-DD") +
+      "'"
     );
     const sum = await this.productsRepository.query(
       "GetPeriodSummary @startDate='" +
-        moment(new Date(model.startTime)).format("YYYY-MM-DD") +
-        "',@endDate='" +
-        moment(new Date(model.endTime)).format("YYYY-MM-DD") +
-        "'"
+      moment(new Date(model.startTime)).format("YYYY-MM-DD") +
+      "',@endDate='" +
+      moment(new Date(model.endTime)).format("YYYY-MM-DD") +
+      "'"
     );
     return { sum, items };
   }

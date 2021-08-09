@@ -1,15 +1,15 @@
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsOptional } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 
 export class UpdateAccountDto {
   @ApiProperty()
-  @Transform(it => it.value.toLowerCase())
+  @Transform((it) => it.value.toLowerCase())
   username: string;
 
   @IsEmail()
   @ApiProperty()
-  @Transform(it => it.value.toLowerCase())
+  @Transform((it) => it.value.toLowerCase())
   email: string;
 
   @IsNotEmpty()
@@ -47,7 +47,7 @@ export class UpdateAccountDto {
   @IsOptional()
   @ApiPropertyOptional()
   homephone?: string;
-  
+
   @IsOptional()
   @ApiPropertyOptional()
   extension?: string;
@@ -83,4 +83,12 @@ export class UpdateAccountDto {
   @IsOptional()
   @ApiPropertyOptional()
   address?: string;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  storeId?: number;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  warehouseId?: number;
 }

@@ -20,6 +20,7 @@ import { StoreproductsModule } from './modules/storeproducts/storeproducts.modul
 import { CargoRequestsModule } from './modules/warehouse/cargoRequest/cargoRequests.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ProductdiscountsModule } from './modules/productdiscounts/productdiscounts.module';
 @Module({
   imports: [ConfigModule.forRoot(), ScheduleModule.forRoot(),
   TypeOrmModule.forRoot({
@@ -49,7 +50,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     "cli": {
       "migrationsDir": "src/database/migrations"
     }
-  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule, StoreproductsModule, CargoRequestsModule, NotificationsModule,],
+  }), AccountsModule, AuthModule, ProductsModule, OrdersModule, SessionsModule, CategoriesModule, CustomersModule, OrderdiscountsModule, PromotionsModule, StoreproductsModule, CargoRequestsModule, NotificationsModule, ProductdiscountsModule,],
   controllers: [AppController],
   providers: [AppService],
 })
