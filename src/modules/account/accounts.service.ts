@@ -87,6 +87,44 @@ export class AccountsService {
     return this.accountsRepository.findOne({ Username: username });
   }
 
+  async setThrowProductsStatus(id: number, status: string): Promise<any> {
+    let result;
+    if (status === "Thrown") {
+      result = await Promise.all([
+        getConnection().query(
+          `UPDATE "account_products__product"
+          SET status = '${status}', ThrownAt = GETDATE()
+          WHERE Id = ${id}
+          `,
+          [id, status]
+        ),
+      ]);
+      return result;
+    }
+    result = await Promise.all([
+      getConnection().query(
+        `UPDATE "account_products__product"
+        SET status = '${status}'
+        WHERE Id = ${id}
+        `,
+        [id, status]
+      ),
+    ]);
+    return result;
+  }
+
+  async getThrowProductsStatus(id: number): Promise<any> {
+    const result = await Promise.all([
+      getConnection().query(
+        `SELECT status FROM "account_products__product"
+        WHERE Id = ${id}
+        `,
+        [id]
+      ),
+    ]);
+    return result;
+  }
+
   async getThrowProductsReq(
     filterOptionsModel: FilterRequestDto
   ): Promise<[any[], number]> {
@@ -123,7 +161,9 @@ export class AccountsService {
           `select app.*, a.FName, a.LName, a.Email , p.ProductName 
           from account_products__product app join Account a on app.accountId = a.Id 
           join Product p on app.productId = p.Id 
-          where app.storeId = ${filterOptionsModel.storeId}`
+          where app.storeId = ${filterOptionsModel.storeId}
+          ORDER BY createdAt DESC
+          OFFSET ${filterOptionsModel.skip} ROWS FETCH NEXT ${filterOptionsModel.take} ROWS ONLY`
         ),
         [filterOptionsModel.storeId],
       ]);
