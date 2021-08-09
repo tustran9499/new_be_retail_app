@@ -1,39 +1,36 @@
+import { IsEmail, IsNotEmpty, IsOptional } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
+import { Transform } from "class-transformer";
 import { PaginationRequest } from "src/common/dto/pagination.dto";
 
-export class FilterRequestDto extends PaginationRequest {
-  @ApiPropertyOptional()
-  order?: any;
-
-  @ApiPropertyOptional()
-  searchBy?: string;
-
-  @ApiPropertyOptional()
-  searchKeyword?: string;
-
+export class CreateThrowProductsRequest {
+  @IsNotEmpty()
   @ApiProperty()
-  userId?: number;
+  accountId: number;
 
+  @IsNotEmpty()
   @ApiProperty()
-  storeId?: number;
+  productId: number;
 
+  @IsNotEmpty()
   @ApiProperty()
-  warehouseId?: number;
-}
+  quantity: number;
 
-export class FilterReturnedRequestDto extends PaginationRequest {
+  @IsOptional()
   @ApiPropertyOptional()
-  order?: any;
+  status: string;
 
-  @ApiPropertyOptional()
-  searchBy?: string;
-
-  @ApiPropertyOptional()
-  searchKeyword?: string;
-
+  @IsNotEmpty()
   @ApiProperty()
-  userId?: number;
+  storeId: number;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  createdAt: Date;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  thrownAt: Date;
 }
 
 export class GetThrowProductsRequest extends PaginationRequest {

@@ -16,6 +16,7 @@ import { Category } from "./category.entity";
 import { ProductOrder } from "../productorder/productorder.entity";
 import { StoreProduct } from "../storeproduct/storeproduct.entity";
 import { ReturnedCargoRequest } from "../warehouse/returnedcargorequest.entity";
+import { Account } from "../account/account.entity";
 
 @Entity("Product")
 export class Product {
@@ -72,4 +73,7 @@ export class Product {
     (returnedOrder) => returnedOrder.products
   )
   returnedOrders: ReturnedCargoRequest[];
+
+  @ManyToMany(() => Account, (account) => account.products)
+  throwProdAccount: Account[];
 }

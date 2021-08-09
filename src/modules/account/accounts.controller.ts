@@ -43,6 +43,10 @@ import { UpdateStoreDto } from "src/dto/store/UpdateStore.dto";
 import { FilterRequestDto } from "../warehouse/cargoRequest/dto/filter-request.dto";
 import { UpdateResult } from "typeorm";
 import { ResetPassword } from "./dto/ResetPassword.dto";
+import {
+  CreateThrowProductsRequest,
+  GetThrowProductsRequest,
+} from "src/dto/throwProducts/CreateThrowProductsRequest.dto";
 
 @ApiTags("Account")
 @Controller("accounts")
@@ -259,5 +263,18 @@ export class AccountsController {
   @Post("bulk-password")
   async bulkPassword(): Promise<any> {
     return this.accountsService.hashBulkPassword();
+  }
+
+  @Post("all-throw-products")
+  async getAllThrowProducts(@Query() model: FilterRequestDto): Promise<any> {
+    return this.accountsService.getThrowProductsReq(model);
+  }
+
+  @Post("throw-products")
+  async createThrowProductsReq(
+    @Body() model: CreateThrowProductsRequest
+    //@Body() model: Record<string, any>,
+  ): Promise<boolean> {
+    return this.accountsService.createThrowProductsReq(model);
   }
 }

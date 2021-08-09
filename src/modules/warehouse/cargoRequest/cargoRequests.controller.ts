@@ -16,6 +16,7 @@ import {
   UploadedFile,
   ParseUUIDPipe,
   Req,
+  HttpStatus,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ApiTags, ApiOkResponse } from "@nestjs/swagger";
@@ -35,6 +36,9 @@ import {
 import { Product } from "../../../entities/product/product.entity";
 import { ProductArrayDto } from "../../../dto/warehouse/CreateCargoRequest.dto";
 import { ReturnedCargoRequest } from "src/entities/warehouse/returnedcargorequest.entity";
+import { customThrowError } from "src/common/helper/throw.helper";
+import { RESPONSE_MESSAGES } from "src/common/constants/response-messages.enum";
+import { getConnection, Like } from "typeorm";
 
 @ApiTags("CargoRequest")
 @Controller("cargo-requests")
